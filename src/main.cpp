@@ -1,20 +1,19 @@
+#include <cstdint>
 #include <cstdio>
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <memory>
 #include <vector>
 
 #include "GLFW/glfw3.h"
 #include "components/CameraComponent.hpp"
 #include "components/CameraController.hpp"
 #include "components/LightingPresets.hpp"
-#include "components/MaterialPresets.hpp"
+#include "components/MaterialComponent.hpp"
 #include "components/Mesh.hpp"
-#include "components/MeshFactory.hpp"
-#include "components/ModelComponent.hpp"
+#include "components/MeshComponent.hpp"
 #include "components/PhysicsComponent.hpp"
 #include "components/RenderComponent.hpp"
 #include "components/TransformComponent.hpp"
@@ -22,7 +21,8 @@
 #include "ecs/Tag.hpp"
 #include "ecs/World.hpp"
 #include "glm/detail/type_vec.hpp"
-#include "shader_h.hpp"
+#include "resources/ModelLoader.hpp"
+#include "resources/ResourceManager.hpp"
 #include "systems/CameraControllerSystem.hpp"
 #include "systems/CameraSystem.hpp"
 #include "systems/LightingSystem.hpp"
@@ -40,8 +40,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 void createLightEntities(LightingType type,
                          const glm::vec3 pointLightPositions[4],
-                         std::shared_ptr<Mesh> lightMesh,
-                         std::shared_ptr<Shader> lightShader,
+                         uint32_t lightMeshVAO, uint32_t lightShaderID,
                          std::vector<Entity> &entities);
 
 const unsigned int SCR_WIDTH = 800;
@@ -75,10 +74,11 @@ int main() {
 
   stbi_set_flip_vertically_on_load(true);
 
+  auto &resources = ResourceManager::instance();
   // ========== CREATE SHARED RESOURCES ==========
-  std::shared_ptr<Shader> staticShader =
-      std::make_shared<Shader>("../src/shaders/static/staticVertex.glsl",
-                               "../src/shaders/static/staticFragment.glsl");
+  uint32_t staticShaderID =
+      resources.loadShader("static", "../src/shaders/static/staticVertex.glsl",
+                           "../src/shaders/static/staticFragment.glsl");
   // std::shared_ptr<Shader> hdrShader =
   // std::make_shared<Shader>("../src/shaders/hdr/hdrVertex.glsl",
   // "../src/shaders/hdr/hdrFragment.glsl"); unsigned int hdrFBO;
@@ -106,57 +106,44 @@ int main() {
   //      std::cout << "Framebuffer not complete!" << std::endl;
   //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   //
-  std::shared_ptr<Shader> lightSourceShader = std::make_shared<Shader>(
-      "../src/shaders/lightSource/lightSourceVertex.glsl",
+  uint32_t lightSourceShaderID = resources.loadShader(
+      "light", "../src/shaders/lightSource/lightSourceVertex.glsl",
       "../src/shaders/lightSource/lightSourceFragment.glsl");
 
-  std::shared_ptr<Mesh> cubeMeshWithTexture =
-      MeshFactory::createPositionNormalTexMesh(cubeVerticesWithTexture,
-                                               sizeof(cubeVerticesWithTexture));
+  std::vector<VertexAttribute> cubeLayout = {
+      {0, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)0},
+      {1, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)(3 * sizeof(float))},
+      {2, 2, GL_FLOAT, false, 8 * sizeof(float), (void *)(6 * sizeof(float))}};
 
-  // Simple cube mesh for light sources (position + normals, shader only uses
-  // position)
-  std::shared_ptr<Mesh> lightCubeMesh = MeshFactory::createPositionNormalMesh(
-      lightVertices, sizeof(lightVertices));
+  MeshData cubeMesh = resources.createMesh(
+      cubeVerticesWithTexture, sizeof(cubeVerticesWithTexture), cubeLayout, 36);
+
+  std::vector<VertexAttribute> lightCubeLayout = {
+      {0, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)0},
+      {1, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)(3 * sizeof(float))}};
+
+  MeshData lightCubeMesh = resources.createMesh(
+      lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
 
   // ========== CREATE TEXTURES ==========
-  std::shared_ptr<Texture2D> containerTexture = std::make_shared<Texture2D>();
-  containerTexture->loadImage("../src/assets/container2.png");
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  uint32_t containerDiffuse =
+      resources.loadTexture("../src/assets/container2.png");
+  uint32_t containerSpecular =
+      resources.loadTexture("../src/assets/container2_specular.png");
 
-  std::shared_ptr<Texture2D> containerSpecular = std::make_shared<Texture2D>();
-  containerSpecular->loadImage("../src/assets/container2_specular.png");
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  std::shared_ptr<Texture2D> matrixEmission = std::make_shared<Texture2D>();
-  matrixEmission->loadImage("../src/assets/emission.png");
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // ========== CREATE MATERIALS ==========
-  std::shared_ptr<Material> staticMaterial =
-      MaterialPresets::create(staticShader, MaterialType::CHROME);
-
-  staticMaterial->setTexture("material.texture_diffuse1", containerTexture, 0);
-  staticMaterial->setTexture("material.texture_specular1", containerSpecular,
-                             1);
-  staticMaterial->setTexture("material.emission", matrixEmission, 2);
-  staticMaterial->setBool("material.useTex", true);
-
+  // std::shared_ptr<Texture2D> matrixEmission = std::make_shared<Texture2D>();
+  // matrixEmission->loadImage("../src/assets/emission.png");
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+  //                 GL_LINEAR_MIPMAP_LINEAR);
+  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //
   // ========== INITIALIZE ECS WORLD ==========
 
   gWorld.registerComponent<TransformComponent>();
+  gWorld.registerComponent<MeshComponent>();
+  gWorld.registerComponent<MaterialComponent>();
   gWorld.registerComponent<PhysicsComponent>();
   gWorld.registerComponent<CameraComponent>();
   gWorld.registerComponent<CameraControllerComponent>();
@@ -169,14 +156,13 @@ int main() {
   gWorld.addSystem<CameraControllerSystem>(window);
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
-  gWorld.addSystem<LightingSystem>(staticShader);
+  gWorld.addSystem<LightingSystem>();
   gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
 
   // ========== CREATE ENTITIES ==========
   std::vector<Entity> entities;
   entities.reserve(MAX_ENTITIES);
 
-  // Create 10 cube entities
   for (unsigned int i = 0; i < 10; i++) {
     Entity cube = gWorld.createEntity();
 
@@ -186,14 +172,22 @@ int main() {
     transform.rotation = glm::vec3(angle * 0.3f, angle, angle * 0.5f);
     gWorld.addComponent(cube, transform);
 
-    RenderComponent renderComp;
-    PhysicsComponent physicsComp;
-    renderComp.renderer =
-        std::make_shared<MeshRenderer>(cubeMeshWithTexture, staticMaterial, 36);
-    gWorld.addComponent(cube, renderComp);
-    gWorld.addComponent(cube, physicsComp);
+    MeshComponent mesh;
+    mesh.vao = cubeMesh.vao;
+    mesh.vertexCount = cubeMesh.vertexCount;
+    mesh.indexCount = 0;
+    gWorld.addComponent(cube, mesh);
 
-    entities.emplace_back(cube);
+    MaterialComponent material;
+    material.shaderProgram = staticShaderID;
+    material.textures[0] = containerDiffuse;
+    material.textures[1] = containerSpecular;
+    material.useTextures = true;
+    material.shininess = 32.0f;
+    gWorld.addComponent(cube, material);
+
+    PhysicsComponent physComp;
+    gWorld.addComponent(cube, physComp);
   }
 
   // ========== CREATE LIGHTING SETUP ==========
@@ -202,44 +196,19 @@ int main() {
 
   // ========== LOAD MODEL ==========
   std::cout << "Loading model..." << std::endl;
-  Model model("../src/assets/backpack/backpack.obj", staticShader);
-  std::vector<GameObject> modelObjects = model.moveGameObjects();
+  std::vector<Entity> backpackEntities = ModelLoader::load(
+      gWorld, "../src/assets/backpack/backpack.obj", staticShaderID,
+      glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 
-  for (auto &obj : modelObjects) {
-    Entity modelEntity = gWorld.createEntity();
-
-    TransformComponent transform;
-    transform.position = glm::vec3(5.0f, 0.0f, 0.0f);
-    transform.scale = glm::vec3(1.0f);
-    transform.rotation = glm::vec3(0, 0, 0);
-    gWorld.addComponent(modelEntity, transform);
-
-    if (obj.hasMeshRenderer()) {
-      RenderComponent renderComp;
-      if (obj.getMeshRenderer()) {
-        renderComp.renderer =
-            std::shared_ptr<MeshRenderer>(obj.getMeshRenderer());
-      } else if (obj.getMeshRendererIndexed()) {
-        renderComp.renderer =
-            std::shared_ptr<MeshRendererIndexed>(obj.getMeshRendererIndexed());
-      }
-      gWorld.addComponent(modelEntity, renderComp);
-    }
-
-    TagComponent modelTag(MODEL);
-    gWorld.addComponent(modelEntity, modelTag);
-
-    PhysicsComponent physicsComp;
-    gWorld.addComponent(modelEntity, physicsComp);
-
-    entities.emplace_back(modelEntity);
+  for (auto entity : backpackEntities) {
+    entities.emplace_back(entity);
   }
-  std::cout << "Model loaded: " << modelObjects.size() << " meshes"
+  std::cout << "Model loaded: " << backpackEntities.size() << " meshes"
             << std::endl;
 
   // ========== CREATE LIGHT ENTITIES ==========
-  createLightEntities(currentLighting, pointLightPositions, lightCubeMesh,
-                      lightSourceShader, entities);
+  createLightEntities(currentLighting, pointLightPositions, lightCubeMesh.vao,
+                      lightSourceShaderID, entities);
 
   // ========== CREATE CAMERA ENTITY ==========
   Entity cameraEntity = gWorld.createEntity();
@@ -278,19 +247,6 @@ int main() {
     gWorld.update(deltaTime);
 
     // Update viewPos for material (used by lighting calculations)
-    bool foundActiveCamera = false;
-    gWorld.forEachWith<CameraComponent, TransformComponent, TagComponent>(
-        [&](Entity entity, CameraComponent &camera,
-            TransformComponent &transform, TagComponent &tag) {
-          if (foundActiveCamera)
-            return; // Only process first active camera
-          if (tag.type == ACTIVE) {
-            staticMaterial->setVec3("viewPos", transform.position);
-            foundActiveCamera = true;
-          }
-        });
-
-    // Render
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gWorld.render();
@@ -314,16 +270,17 @@ int main() {
 
 void createLightEntities(LightingType type,
                          const glm::vec3 pointLightPositions[4],
-                         std::shared_ptr<Mesh> lightMesh,
-                         std::shared_ptr<Shader> lightShader,
+                         uint32_t lightMeshVAO, uint32_t lightShaderID,
                          std::vector<Entity> &entities) {
   auto props = LightingPresets::getProperties(type);
 
   Entity dirLight = gWorld.createEntity();
+
   DirectionalLightComponent dirComp(
       props.dirLightDirection, props.dirLightAmbient, props.dirLightDiffuse,
       props.dirLightSpecular);
   gWorld.addComponent(dirLight, dirComp);
+
   entities.emplace_back(dirLight);
 
   for (int i = 0; i < 4; i++) {
@@ -331,23 +288,27 @@ void createLightEntities(LightingType type,
 
     TransformComponent transform;
     transform.position = pointLightPositions[i];
-    transform.scale = glm::vec3(0.2f); // For visualization cube
+    transform.scale = glm::vec3(0.2f);
     gWorld.addComponent(pointLight, transform);
 
     auto &plConfig = props.pointLights[i];
     PointLightComponent lightComp(
-        plConfig.color * plConfig.ambientMultiplier, // ambient
-        plConfig.color,                              // diffuse
-        plConfig.color,                              // specular
-        plConfig.constant, plConfig.linear, plConfig.quadratic);
+        plConfig.color * plConfig.ambientMultiplier, plConfig.color,
+        plConfig.color, plConfig.constant, plConfig.linear, plConfig.quadratic);
     gWorld.addComponent(pointLight, lightComp);
 
-    RenderComponent renderComp;
-    auto lightMaterial = std::make_shared<Material>(lightShader);
-    lightMaterial->setVec3("objectColor", plConfig.color);
-    renderComp.renderer =
-        std::make_shared<MeshRenderer>(lightMesh, lightMaterial, 36);
-    gWorld.addComponent(pointLight, renderComp);
+    MeshComponent mesh;
+    mesh.vao = lightMeshVAO;
+    mesh.vertexCount = 36;
+    mesh.indexCount = 0;
+    gWorld.addComponent(pointLight, mesh);
+
+    MaterialComponent material;
+    material.shaderProgram = lightShaderID;
+    material.diffuse = plConfig.color;
+    material.useTextures = false;
+    material.receivesLighting = false; // Light sources don't receive lighting
+    gWorld.addComponent(pointLight, material);
 
     entities.emplace_back(pointLight);
   }
@@ -366,7 +327,6 @@ void createLightEntities(LightingType type,
 
   entities.emplace_back(spotlight);
 }
-
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
   if ((action == GLFW_PRESS || action == GLFW_RELEASE)) {

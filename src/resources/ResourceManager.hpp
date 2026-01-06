@@ -1,0 +1,165 @@
+#pragma once
+
+#include "../components/MeshIndexed.hpp"
+#include "../shader_h.hpp"
+#include "../texture_2d_h.hpp"
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+struct MeshData {
+  uint32_t vao = 0;
+  uint32_t vbo = 0;
+  uint32_t ebo = 0;
+  uint32_t vertexCount = 0;
+  uint32_t indexCount = 0;
+};
+
+class ResourceManager {
+public:
+  static ResourceManager &instance() {
+    static ResourceManager inst;
+    return inst;
+  }
+
+  // ========== SHADERS ==========
+  uint32_t loadShader(const std::string &name, const char *vertexPath,
+                      const char *fragmentPath) {
+    auto shader = std::make_shared<Shader>(vertexPath, fragmentPath);
+    uint32_t id = shader->ID;
+    shaders[name] = shader;
+    shadersByID[id] = shader;
+    return id;
+  }
+
+  Shader *getShader(uint32_t id) {
+    auto it = shadersByID.find(id);
+    return (it != shadersByID.end()) ? it->second.get() : nullptr;
+  }
+
+  Shader *getShader(const std::string &name) {
+    auto it = shaders.find(name);
+    return (it != shaders.end()) ? it->second.get() : nullptr;
+  }
+
+  // ========== TEXTURES ==========
+  uint32_t loadTexture(const std::string &path) {
+    auto it = textureCache.find(path);
+    if (it != textureCache.end()) {
+      return it->second->getID();
+    }
+
+    auto texture = std::make_shared<Texture2D>();
+    texture->loadImage(path);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    uint32_t id = texture->getID();
+    textureCache[path] = texture;
+    texturesByID[id] = texture;
+    return id;
+  }
+
+  // ========== MESHES ==========
+
+  MeshData createMesh(const float *vertices, size_t sizeInBytes,
+                      const std::vector<VertexAttribute> &attributes,
+                      uint32_t vertexCount) {
+    MeshData data;
+    data.vertexCount = vertexCount;
+    data.indexCount = 0;
+
+    glGenVertexArrays(1, &data.vao);
+    glGenBuffers(1, &data.vbo);
+
+    glBindVertexArray(data.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, vertices, GL_STATIC_DRAW);
+
+    for (const VertexAttribute &attr : attributes) {
+      glVertexAttribPointer(attr.location, attr.componentCount, attr.type,
+                            attr.normalized ? GL_TRUE : GL_FALSE, attr.stride,
+                            attr.offset);
+      glEnableVertexAttribArray(attr.location);
+    }
+
+    glBindVertexArray(0);
+
+    meshes.push_back(data);
+    return data;
+  }
+
+  MeshData createIndexedMesh(const std::vector<Vertex> &vertices,
+                             const std::vector<uint32_t> &indices) {
+    MeshData data;
+    data.vertexCount = static_cast<uint32_t>(vertices.size());
+    data.indexCount = static_cast<uint32_t>(indices.size());
+
+    glGenVertexArrays(1, &data.vao);
+    glGenBuffers(1, &data.vbo);
+    glGenBuffers(1, &data.ebo);
+
+    glBindVertexArray(data.vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+                 vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t),
+                 indices.data(), GL_STATIC_DRAW);
+
+    // Position (location 0)
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+
+    // Normal (location 1)
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, Normal));
+
+    // TexCoords (location 2)
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, TexCoords));
+
+    glBindVertexArray(0);
+
+    meshes.push_back(data);
+    return data;
+  }
+
+  void cleanup() {
+    for (auto &mesh : meshes) {
+      if (mesh.vao)
+        glDeleteVertexArrays(1, &mesh.vao);
+      if (mesh.vbo)
+        glDeleteBuffers(1, &mesh.vbo);
+      if (mesh.ebo)
+        glDeleteBuffers(1, &mesh.ebo);
+    }
+    meshes.clear();
+    shaders.clear();
+    shadersByID.clear();
+    textureCache.clear();
+    texturesByID.clear();
+  }
+
+  ~ResourceManager() { cleanup(); }
+
+private:
+  ResourceManager() = default;
+  ResourceManager(const ResourceManager &) = delete;
+  ResourceManager &operator=(const ResourceManager &) = delete;
+
+  std::vector<MeshData> meshes;
+  std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
+  std::unordered_map<uint32_t, std::shared_ptr<Shader>> shadersByID;
+  std::unordered_map<std::string, std::shared_ptr<Texture2D>> textureCache;
+  std::unordered_map<uint32_t, std::shared_ptr<Texture2D>> texturesByID;
+};

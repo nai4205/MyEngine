@@ -1,144 +1,143 @@
 #pragma once
-
-#include "../shader_h.hpp"
+#include "../resources/ResourceManager.hpp"
 
 #include "../components/CameraComponent.hpp"
 #include "../components/DirectionalLightComponent.hpp"
+#include "../components/MaterialComponent.hpp"
 #include "../components/PointLightComponent.hpp"
 #include "../components/SpotLightComponent.hpp"
 #include "../components/TransformComponent.hpp"
-#include "../ecs/Entity.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
-#include <glm/glm.hpp>
-#include <memory>
-#include <string>
+#include <unordered_set>
 
 extern World gWorld;
 
 class LightingSystem : public System {
-private:
-  std::shared_ptr<Shader> targetShader;
-
 public:
-  LightingSystem(std::shared_ptr<Shader> shader) : targetShader(shader) {}
+  void render() override {
+    std::unordered_set<uint32_t> shadersNeedingLighting;
 
-  void render() override { applyLights(targetShader); }
+    gWorld.forEachWith<MaterialComponent>(
+        [&](Entity entity, MaterialComponent &material) {
+          if (material.receivesLighting && material.shaderProgram != 0) {
+            shadersNeedingLighting.insert(material.shaderProgram);
+          }
+        });
 
-  void applyLights(std::shared_ptr<Shader> shader) {
-    shader->use();
+    auto &resources = ResourceManager::instance();
 
-    applyDirectionalLight(shader);
-
-    applyPointLights(shader);
-
-    applySpotLight(shader);
+    for (uint32_t shaderID : shadersNeedingLighting) {
+      Shader *shader = resources.getShader(shaderID);
+      if (shader) {
+        applyLightsToShader(shader);
+      }
+    }
   }
 
 private:
-  void applyDirectionalLight(std::shared_ptr<Shader> shader) {
-    bool foundLight = false;
+  void applyLightsToShader(Shader *shader) {
+    shader->use();
+
+    applyDirectionalLight(shader);
+    applyPointLights(shader);
+    applySpotLight(shader);
+  }
+
+  void applyDirectionalLight(Shader *shader) {
+    bool found = false;
 
     gWorld.forEachWith<DirectionalLightComponent>(
-        [&](Entity entity, DirectionalLightComponent &dirLight) {
-          if (foundLight)
+        [&](Entity entity, DirectionalLightComponent &light) {
+          if (found)
             return;
 
-          shader->setVec3("dirLight.direction", dirLight.direction);
-          shader->setVec3("dirLight.ambient", dirLight.ambient);
-          shader->setVec3("dirLight.diffuse", dirLight.diffuse);
-          shader->setVec3("dirLight.specular", dirLight.specular);
-          foundLight = true;
+          shader->setVec3("dirLight.direction", light.direction);
+          shader->setVec3("dirLight.ambient", light.ambient);
+          shader->setVec3("dirLight.diffuse", light.diffuse);
+          shader->setVec3("dirLight.specular", light.specular);
+          found = true;
         });
 
-    if (!foundLight) {
-      shader->setVec3("dirLight.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+    if (!found) {
       shader->setVec3("dirLight.ambient", glm::vec3(0.0f));
       shader->setVec3("dirLight.diffuse", glm::vec3(0.0f));
       shader->setVec3("dirLight.specular", glm::vec3(0.0f));
     }
   }
 
-  void applyPointLights(std::shared_ptr<Shader> shader) {
-    int lightIndex = 0;
+  void applyPointLights(Shader *shader) {
+    int index = 0;
 
     gWorld.forEachWith<PointLightComponent, TransformComponent>(
-        [&](Entity entity, PointLightComponent &pointLight,
+        [&](Entity entity, PointLightComponent &light,
             TransformComponent &transform) {
-          if (lightIndex >= 4) // shader limit
+          if (index >= 4)
             return;
 
-          std::string uniformBase =
-              "pointLights[" + std::to_string(lightIndex) + "]";
-          shader->setVec3(uniformBase + ".position", transform.position);
-          shader->setVec3(uniformBase + ".ambient", pointLight.ambient);
-          shader->setVec3(uniformBase + ".diffuse", pointLight.diffuse);
-          shader->setVec3(uniformBase + ".specular", pointLight.specular);
-          shader->setFloat(uniformBase + ".constant", pointLight.constant);
-          shader->setFloat(uniformBase + ".linear", pointLight.linear);
-          shader->setFloat(uniformBase + ".quadratic", pointLight.quadratic);
-
-          lightIndex++;
+          std::string base = "pointLights[" + std::to_string(index) + "]";
+          shader->setVec3(base + ".position", transform.position);
+          shader->setVec3(base + ".ambient", light.ambient);
+          shader->setVec3(base + ".diffuse", light.diffuse);
+          shader->setVec3(base + ".specular", light.specular);
+          shader->setFloat(base + ".constant", light.constant);
+          shader->setFloat(base + ".linear", light.linear);
+          shader->setFloat(base + ".quadratic", light.quadratic);
+          index++;
         });
 
-    for (int i = lightIndex; i < 4; i++) {
-      std::string uniformBase = "pointLights[" + std::to_string(i) + "]";
-      shader->setVec3(uniformBase + ".position", glm::vec3(0.0f));
-      shader->setVec3(uniformBase + ".ambient", glm::vec3(0.0f));
-      shader->setVec3(uniformBase + ".diffuse", glm::vec3(0.0f));
-      shader->setVec3(uniformBase + ".specular", glm::vec3(0.0f));
-      shader->setFloat(uniformBase + ".constant", 1.0f);
-      shader->setFloat(uniformBase + ".linear", 0.0f);
-      shader->setFloat(uniformBase + ".quadratic", 1.0f);
+    // Zero out unused slots
+    for (int i = index; i < 4; i++) {
+      std::string base = "pointLights[" + std::to_string(i) + "]";
+      shader->setVec3(base + ".ambient", glm::vec3(0.0f));
+      shader->setVec3(base + ".diffuse", glm::vec3(0.0f));
+      shader->setVec3(base + ".specular", glm::vec3(0.0f));
+      shader->setFloat(base + ".constant", 1.0f);
+      shader->setFloat(base + ".linear", 0.0f);
+      shader->setFloat(base + ".quadratic", 1.0f);
     }
   }
 
-  void applySpotLight(std::shared_ptr<Shader> shader) {
-    SpotLightComponent *spotComp = nullptr;
+  void applySpotLight(Shader *shader) {
+    // Find spotlight and active camera
+    SpotLightComponent *spotLight = nullptr;
     TransformComponent *spotTransform = nullptr;
+    CameraComponent *activeCamera = nullptr;
+    TransformComponent *cameraTransform = nullptr;
 
     gWorld.forEachWith<SpotLightComponent, TransformComponent>(
-        [&](Entity entity, SpotLightComponent &spot,
+        [&](Entity entity, SpotLightComponent &light,
             TransformComponent &transform) {
-          if (spotComp)
-            return;
-          spotComp = &spot;
-          spotTransform = &transform;
+          if (!spotLight) {
+            spotLight = &light;
+            spotTransform = &transform;
+          }
         });
-
-    if (!spotComp || !spotTransform) {
-      shader->setBool("spotLight.active", false);
-      return;
-    }
-
-    CameraComponent *activeCamera = nullptr;
-    TransformComponent *activeCameraTransform = nullptr;
 
     gWorld.forEachWith<CameraComponent, TransformComponent, TagComponent>(
         [&](Entity entity, CameraComponent &camera,
             TransformComponent &transform, TagComponent &tag) {
-          if (activeCamera)
-            return;
-          if (tag.type == ACTIVE) {
+          if (!activeCamera && tag.type == ACTIVE) {
             activeCamera = &camera;
-            activeCameraTransform = &transform;
+            cameraTransform = &transform;
           }
         });
 
-    if (activeCamera && activeCameraTransform) {
-      spotTransform->position = activeCameraTransform->position;
-      shader->setVec3("spotLight.position", spotTransform->position);
+    if (spotLight && activeCamera && cameraTransform) {
+      shader->setVec3("spotLight.position", cameraTransform->position);
       shader->setVec3("spotLight.direction", activeCamera->front);
-      shader->setVec3("spotLight.ambient", spotComp->ambient);
-      shader->setVec3("spotLight.diffuse", spotComp->diffuse);
-      shader->setVec3("spotLight.specular", spotComp->specular);
-      shader->setFloat("spotLight.constant", spotComp->constant);
-      shader->setFloat("spotLight.linear", spotComp->linear);
-      shader->setFloat("spotLight.quadratic", spotComp->quadratic);
-      shader->setFloat("spotLight.cutOff", spotComp->cutOff);
-      shader->setFloat("spotLight.outerCutOff", spotComp->outerCutOff);
-      shader->setBool("spotLight.active", spotComp->active);
+      shader->setVec3("spotLight.ambient", spotLight->ambient);
+      shader->setVec3("spotLight.diffuse", spotLight->diffuse);
+      shader->setVec3("spotLight.specular", spotLight->specular);
+      shader->setFloat("spotLight.constant", spotLight->constant);
+      shader->setFloat("spotLight.linear", spotLight->linear);
+      shader->setFloat("spotLight.quadratic", spotLight->quadratic);
+      shader->setFloat("spotLight.cutOff", spotLight->cutOff);
+      shader->setFloat("spotLight.outerCutOff", spotLight->outerCutOff);
+      shader->setBool("spotLight.active", spotLight->active);
+    } else {
+      shader->setBool("spotLight.active", false);
     }
   }
 };
