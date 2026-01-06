@@ -2,8 +2,8 @@
 
 #include "../components/CameraComponent.hpp"
 #include "../components/CameraController.hpp"
-#include "../components/Physics.hpp"
-#include "../components/Transform.hpp"
+#include "../components/PhysicsComponent.hpp"
+#include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/World.hpp"
 #include <GLFW/glfw3.h>

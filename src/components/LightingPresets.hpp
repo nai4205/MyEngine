@@ -1,7 +1,7 @@
 #ifndef LIGHTING_PRESETS_HPP
 #define LIGHTING_PRESETS_HPP
 
-#include "Light.hpp"
+#include "LightComponent.hpp"
 #include "LightManager.hpp"
 #include <glm/glm.hpp>
 #include <memory>

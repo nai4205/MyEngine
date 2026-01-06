@@ -6,7 +6,7 @@
 #include "../components/DirectionalLightComponent.hpp"
 #include "../components/PointLightComponent.hpp"
 #include "../components/SpotLightComponent.hpp"
-#include "../components/Transform.hpp"
+#include "../components/TransformComponent.hpp"
 #include "../ecs/Entity.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CameraComponent.hpp"
-#include "Physics.hpp"
-#include "Transform.hpp"
+#include "PhysicsComponent.hpp"
+#include "TransformComponent.hpp"
 #include <glm/glm.hpp>
 
 // Camera movement directions

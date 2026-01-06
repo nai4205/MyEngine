@@ -1,7 +1,7 @@
 #ifndef LIGHT_MANAGER_HPP
 #define LIGHT_MANAGER_HPP
 
-#include "Light.hpp"
+#include "LightComponent.hpp"
 #include <array>
 #include <memory>
 

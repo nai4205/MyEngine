@@ -2,7 +2,7 @@
 
 #include "components/MeshRenderer.hpp"
 #include "components/MeshRendererIndexed.hpp"
-#include "components/Transform.hpp"
+#include "components/TransformComponent.hpp"
 #include <memory>
 #include <string>
 #include <variant>

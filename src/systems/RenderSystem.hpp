@@ -2,7 +2,7 @@
 
 #include "../components/CameraComponent.hpp"
 #include "../components/RenderComponent.hpp"
-#include "../components/Transform.hpp"
+#include "../components/TransformComponent.hpp"
 
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"
