@@ -21,14 +21,14 @@ public:
       sparse.resize(e + 1, SIZE_MAX);
     }
 
-    if (has(&e)) {
+    if (has(e)) {
       dense[sparse[e]] = component;
       return;
     }
 
     sparse[e] = dense.size();
-    denseEntities.push_back(e);
-    dense.push_back(component);
+    denseEntities.emplace_back(e);
+    dense.emplace_back(component);
   }
 
   void remove(Entity e) {
@@ -49,7 +49,7 @@ public:
 
   T *get(Entity e) { return has(e) ? &dense[sparse[e]] : nullptr; }
 
-  bool has(Entity &e) const {
+  bool has(Entity e) const {
     return e < sparse.size() && sparse[e] != SIZE_MAX;
   }
 

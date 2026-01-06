@@ -25,13 +25,9 @@ public:
 
   void update(float &deltaTime) override {
     Input &input = gWorld.getInput();
-    auto entities = gWorld.getEntitiesWith<Transform, Physics>();
 
-    // Check if H was just pressed (not held)
     bool hJustPressed = input.isKeyJustPressed(GLFW_KEY_H);
 
-    // Generate ONE random impulse for MODEL entities (so backpack moves as one
-    // unit)
     glm::vec3 modelImpulse(0.0f);
     if (hJustPressed) {
       modelImpulse = glm::vec3(dist(gen), dist(gen), dist(gen));
@@ -40,28 +36,24 @@ public:
       }
     }
 
-    for (Entity entity : entities) {
-      auto *transform = gWorld.getComponent<Transform>(entity);
-      auto *physics = gWorld.getComponent<Physics>(entity);
-      auto *tag = gWorld.getComponent<Tag>(entity);
-
-      if (transform && physics) {
-        if (hJustPressed) {
-          if (!tag) {
-            glm::vec3 randomDirection(dist(gen), dist(gen), dist(gen));
-            if (glm::length(randomDirection) > 0.0f) {
-              randomDirection = glm::normalize(randomDirection) * 8.0f;
+    gWorld.forEachWith<TransformComponent, PhysicsComponent>(
+        [&](Entity entity, TransformComponent &transform,
+            PhysicsComponent &physics) {
+          if (hJustPressed) {
+            auto *tag = gWorld.getComponent<TagComponent>(entity);
+            if (!tag) {
+              glm::vec3 randomDirection(dist(gen), dist(gen), dist(gen));
+              if (glm::length(randomDirection) > 0.0f) {
+                randomDirection = glm::normalize(randomDirection) * 8.0f;
+              }
+              physics.applyImpulse(randomDirection);
+            } else if (tag->type == MODEL) {
+              physics.applyImpulse(modelImpulse);
             }
-            physics->applyImpulse(randomDirection);
-          } else if (tag->type == MODEL) {
-            physics->applyImpulse(modelImpulse);
           }
-          // Skip ACTIVE (camera)
-        }
-      }
 
-      physics->update(transform->position, deltaTime);
-    }
+          physics.update(transform.position, deltaTime);
+        });
   }
 };
 

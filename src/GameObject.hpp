@@ -1,5 +1,4 @@
-#ifndef GAME_OBJECT_HPP
-#define GAME_OBJECT_HPP
+#pragma once
 
 #include "components/MeshRenderer.hpp"
 #include "components/MeshRendererIndexed.hpp"
@@ -9,11 +8,12 @@
 #include <variant>
 
 // Minimal GameObject class for Model loading compatibility
-// This is only used by Model.hpp to load models, which are then converted to entities
+// This is only used by Model.hpp to load models, which are then converted to
+// entities
 class GameObject {
 public:
   std::string name;
-  Transform transform;
+  TransformComponent transform;
 
   GameObject(const std::string &objectName = "GameObject")
       : name(objectName), transform(), renderer(std::monostate{}) {}
@@ -50,5 +50,3 @@ private:
                std::shared_ptr<MeshRendererIndexed>>
       renderer;
 };
-
-#endif

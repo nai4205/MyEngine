@@ -4,31 +4,31 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Camera component - calculates view matrix from orientation
+// CameraComponent component - calculates view matrix from orientation
 // Uses GameObject's Transform for position
-class Camera {
+class CameraComponent {
 public:
-  // Camera orientation (Euler angles in degrees)
+  // CameraComponent orientation (Euler angles in degrees)
   float yaw;
   float pitch;
 
-  // Camera vectors (calculated from yaw/pitch)
+  // CameraComponent vectors (calculated from yaw/pitch)
   glm::vec3 front;
   glm::vec3 up;
   glm::vec3 right;
   glm::vec3 worldUp;
 
-  // Camera properties
+  // CameraComponent properties
   float zoom; // FOV in degrees
 
   // Constructor
-  Camera(float initialYaw = -90.0f, float initialPitch = 0.0f,
+  CameraComponent(float initialYaw = -90.0f, float initialPitch = 0.0f,
          float initialZoom = 45.0f,
          glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f))
       : yaw(initialYaw), pitch(initialPitch), zoom(initialZoom),
         worldUp(upVector), front(glm::vec3(0.0f, 0.0f, -1.0f)),
         up(glm::vec3(0.0f, 1.0f, 0.0f)), right(glm::vec3(1.0f, 0.0f, 0.0f)) {
-    updateCameraVectors();
+    updateCameraComponentVectors();
   }
 
   // Get view matrix using provided position (from Transform)
@@ -44,7 +44,7 @@ public:
   }
 
   // Calculate the new Front vector
-  void updateCameraVectors() {
+  void updateCameraComponentVectors() {
     glm::vec3 newFront;
     newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     newFront.y = sin(glm::radians(pitch));
@@ -68,10 +68,10 @@ public:
         pitch = MIN_PITCH;
     }
 
-    updateCameraVectors();
+    updateCameraComponentVectors();
   }
 
-  // Modify zoom (used by CameraController)
+  // Modify zoom (used by CameraComponentController)
   void adjustZoom(float offset) {
     zoom -= offset;
     if (zoom < MIN_ZOOM)

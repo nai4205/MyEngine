@@ -1,5 +1,4 @@
-#ifndef MESH_RENDERER_INDEXED_HPP
-#define MESH_RENDERER_INDEXED_HPP
+#pragma once
 
 #include "Material.hpp"
 #include "MeshIndexed.hpp"
@@ -45,5 +44,3 @@ private:
   std::shared_ptr<MeshIndexed> mesh;
   std::shared_ptr<Material> material;
 };
-
-#endif

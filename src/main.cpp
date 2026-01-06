@@ -19,6 +19,7 @@
 #include "components/RenderComponent.hpp"
 #include "components/Transform.hpp"
 #include "const_h.hpp"
+#include "ecs/Tag.hpp"
 #include "ecs/World.hpp"
 #include "glm/detail/type_vec.hpp"
 #include "shader_h.hpp"
@@ -155,13 +156,12 @@ int main() {
 
   // ========== INITIALIZE ECS WORLD ==========
 
-  // Register all component types
-  gWorld.registerComponent<Transform>();
-  gWorld.registerComponent<Physics>();
-  gWorld.registerComponent<Camera>();
-  gWorld.registerComponent<CameraController>();
+  gWorld.registerComponent<TransformComponent>();
+  gWorld.registerComponent<PhysicsComponent>();
+  gWorld.registerComponent<CameraComponent>();
+  gWorld.registerComponent<CameraControllerComponent>();
   gWorld.registerComponent<RenderComponent>();
-  gWorld.registerComponent<Tag>();
+  gWorld.registerComponent<TagComponent>();
   gWorld.registerComponent<DirectionalLightComponent>();
   gWorld.registerComponent<PointLightComponent>();
   gWorld.registerComponent<SpotLightComponent>();
@@ -180,14 +180,14 @@ int main() {
   for (unsigned int i = 0; i < 10; i++) {
     Entity cube = gWorld.createEntity();
 
-    Transform transform;
+    TransformComponent transform;
     transform.position = cubePositions[i];
     float angle = 20.0f * i;
     transform.rotation = glm::vec3(angle * 0.3f, angle, angle * 0.5f);
     gWorld.addComponent(cube, transform);
 
     RenderComponent renderComp;
-    Physics physicsComp;
+    PhysicsComponent physicsComp;
     renderComp.renderer =
         std::make_shared<MeshRenderer>(cubeMeshWithTexture, staticMaterial, 36);
     gWorld.addComponent(cube, renderComp);
@@ -205,11 +205,10 @@ int main() {
   Model model("../src/assets/backpack/backpack.obj", staticShader);
   std::vector<GameObject> modelObjects = model.moveGameObjects();
 
-  // Convert model GameObjects to entities
   for (auto &obj : modelObjects) {
     Entity modelEntity = gWorld.createEntity();
 
-    Transform transform;
+    TransformComponent transform;
     transform.position = glm::vec3(5.0f, 0.0f, 0.0f);
     transform.scale = glm::vec3(1.0f);
     transform.rotation = glm::vec3(0, 0, 0);
@@ -227,10 +226,10 @@ int main() {
       gWorld.addComponent(modelEntity, renderComp);
     }
 
-    Tag modelTag(MODEL);
+    TagComponent modelTag(MODEL);
     gWorld.addComponent(modelEntity, modelTag);
 
-    Physics physicsComp;
+    PhysicsComponent physicsComp;
     gWorld.addComponent(modelEntity, physicsComp);
 
     entities.emplace_back(modelEntity);
@@ -245,20 +244,20 @@ int main() {
   // ========== CREATE CAMERA ENTITY ==========
   Entity cameraEntity = gWorld.createEntity();
 
-  Transform cameraTransform;
+  TransformComponent cameraTransform;
   cameraTransform.position = glm::vec3(0.0f, 0.0f, 3.0f);
   gWorld.addComponent(cameraEntity, cameraTransform);
 
-  Camera camera(-90.0f, 0.0f, 45.0f);
+  CameraComponent camera(-90.0f, 0.0f, 45.0f);
   gWorld.addComponent(cameraEntity, camera);
 
-  CameraController controller(2.5f, 0.1f, 5.0f, false); // FPS mode
+  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false); // FPS mode
   gWorld.addComponent(cameraEntity, controller);
 
-  Physics cameraPhysics(-9.81f, 0.0f);
+  PhysicsComponent cameraPhysics(-9.81f, 0.0f);
   gWorld.addComponent(cameraEntity, cameraPhysics);
 
-  Tag cameraTag(ACTIVE);
+  TagComponent cameraTag(ACTIVE);
   gWorld.addComponent(cameraEntity, cameraTag);
 
   entities.push_back(cameraEntity);
@@ -279,22 +278,31 @@ int main() {
     gWorld.update(deltaTime);
 
     // Update viewPos for material (used by lighting calculations)
-    auto cameraEntities = gWorld.getEntitiesWith<Camera, Transform, Tag>();
-    for (Entity entity : cameraEntities) {
-      auto *tag = gWorld.getComponent<Tag>(entity);
-      if (tag && tag->type == ACTIVE) {
-        auto *camTransform = gWorld.getComponent<Transform>(entity);
-        if (camTransform) {
-          staticMaterial->setVec3("viewPos", camTransform->position);
-        }
-        break;
-      }
-    }
+    bool foundActiveCamera = false;
+    gWorld.forEachWith<CameraComponent, TransformComponent, TagComponent>(
+        [&](Entity entity, CameraComponent &camera,
+            TransformComponent &transform, TagComponent &tag) {
+          if (foundActiveCamera)
+            return; // Only process first active camera
+          if (tag.type == ACTIVE) {
+            staticMaterial->setVec3("viewPos", transform.position);
+            foundActiveCamera = true;
+          }
+        });
 
     // Render
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gWorld.render();
+
+    // static int frameCount = 0;
+    // if (++frameCount % 60 == 0) {
+    //   auto stats = gWorld.getCacheStats();
+    //   std::cout << "Cache Stats - Queries: " << stats.totalQueries
+    //             << ", Dirty: " << stats.dirtyQueries
+    //             << ", Cached Entities: " << stats.totalCachedEntities <<
+    //             "\n";
+    // }
 
     // Swap buffers
     glfwSwapBuffers(window);
@@ -321,7 +329,7 @@ void createLightEntities(LightingType type,
   for (int i = 0; i < 4; i++) {
     Entity pointLight = gWorld.createEntity();
 
-    Transform transform;
+    TransformComponent transform;
     transform.position = pointLightPositions[i];
     transform.scale = glm::vec3(0.2f); // For visualization cube
     gWorld.addComponent(pointLight, transform);
@@ -346,7 +354,7 @@ void createLightEntities(LightingType type,
 
   Entity spotlight = gWorld.createEntity();
 
-  Transform spotTransform;
+  TransformComponent spotTransform;
   gWorld.addComponent(spotlight, spotTransform);
 
   auto &slConfig = props.spotlight;

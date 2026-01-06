@@ -21,61 +21,58 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void render() override {
-    Camera *camera = nullptr;
-    Transform *cameraTransform = nullptr;
+    CameraComponent *activeCamera = nullptr;
+    TransformComponent *activeCameraTransform = nullptr;
 
-    auto cameraEntities = gWorld.getEntitiesWith<Camera, Transform, Tag>();
-    for (Entity entity : cameraEntities) {
-      auto *tag = gWorld.getComponent<Tag>(entity);
-      if (tag && tag->type == ACTIVE) {
-        camera = gWorld.getComponent<Camera>(entity);
-        cameraTransform = gWorld.getComponent<Transform>(entity);
-        break;
-      }
-    }
+    gWorld.forEachWith<CameraComponent, TransformComponent, TagComponent>(
+        [&](Entity entity, CameraComponent &camera,
+            TransformComponent &transform, TagComponent &tag) {
+          if (activeCamera)
+            return;
+          if (tag.type != ACTIVE)
+            return;
+          activeCamera = &camera;
+          activeCameraTransform = &transform;
+        });
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    if (camera && cameraTransform) {
+    if (activeCamera && activeCameraTransform) {
       float aspectRatio =
           static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
-      projection = camera->getProjectionMatrix(aspectRatio, 0.1f, 100.0f);
-      view = camera->getViewMatrix(cameraTransform->position);
+      projection = activeCamera->getProjectionMatrix(aspectRatio, 0.1f, 100.0f);
+      view = activeCamera->getViewMatrix(activeCameraTransform->position);
     }
 
-    auto entities = gWorld.getEntitiesWith<Transform, RenderComponent>();
-
-    for (Entity entity : entities) {
-      auto *transform = gWorld.getComponent<Transform>(entity);
-      auto *renderComp = gWorld.getComponent<RenderComponent>(entity);
-
-      if (transform && renderComp && renderComp->hasRenderer()) {
+    gWorld.forEachWith<TransformComponent,
+                       RenderComponent>([&](Entity entity,
+                                            TransformComponent &transform,
+                                            RenderComponent &renderComp) {
+      if (renderComp.hasRenderer()) {
         std::visit(
             [&](auto &&renderer) {
               using T = std::decay_t<decltype(renderer)>;
 
               if constexpr (std::is_same_v<T, std::shared_ptr<MeshRenderer>>) {
-                // Render non-indexed mesh
                 auto material = renderer->getMaterial();
-                material->setMat4("model", transform->getModelMatrix());
+                material->setMat4("model", transform.getModelMatrix());
                 material->setMat4("projection", projection);
                 material->setMat4("view", view);
                 renderer->render();
               } else if constexpr (std::is_same_v<
                                        T,
                                        std::shared_ptr<MeshRendererIndexed>>) {
-                // Render indexed mesh
                 auto material = renderer->getMaterial();
-                material->setMat4("model", transform->getModelMatrix());
+                material->setMat4("model", transform.getModelMatrix());
                 material->setMat4("projection", projection);
                 material->setMat4("view", view);
                 renderer->render();
               }
             },
-            renderComp->renderer);
+            renderComp.renderer);
       }
-    }
+    });
   }
 
   void setScreenSize(unsigned int width, unsigned int height) {

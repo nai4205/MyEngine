@@ -3,15 +3,15 @@
 
 #include <glm/glm.hpp>
 
-// Physics component - handles velocity, gravity, and jumping
-class Physics {
+// PhysicsComponent component - handles velocity, gravity, and jumping
+class PhysicsComponent {
 public:
   glm::vec3 velocity;
   float gravity;
   float groundLevel;
   bool isGrounded;
 
-  Physics(float gravityForce = -9.81f, float ground = 0.0f)
+  PhysicsComponent(float gravityForce = -9.81f, float ground = 0.0f)
       : velocity(0.0f), gravity(gravityForce), groundLevel(ground),
         isGrounded(false) {} // Objects start in air and fall
 

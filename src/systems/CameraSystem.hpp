@@ -1,5 +1,4 @@
-#ifndef CAMERA_SYSTEM_HPP
-#define CAMERA_SYSTEM_HPP
+#pragma once
 
 #include "../components/CameraComponent.hpp"
 #include "../components/Transform.hpp"
@@ -15,49 +14,42 @@ extern World gWorld;
 class CameraSystem : public System {
 public:
   void update(float &deltaTime) override {
-    // Query for all entities with Transform and Camera components
-    auto entities = gWorld.getEntitiesWith<Transform, Camera>();
-
-    for (Entity entity : entities) {
-      auto *camera = gWorld.getComponent<Camera>(entity);
-
-      if (camera) {
-        // Update camera vectors based on yaw and pitch
-        camera->updateCameraVectors();
-      }
-    }
+    // Update camera vectors for all cameras
+    gWorld.forEachWith<TransformComponent, CameraComponent>(
+        [](Entity entity, TransformComponent &transform,
+           CameraComponent &camera) { camera.updateCameraComponentVectors(); });
   }
 
   Entity getActiveCameraEntity(World &world) {
-    auto entities = gWorld.getEntitiesWith<Camera, Tag>();
+    Entity activeCameraEntity = NULL_ENTITY;
 
-    for (Entity entity : entities) {
-      auto *tag = gWorld.getComponent<Tag>(entity);
-      if (tag && tag->type == ACTIVE) {
-        return entity;
-      }
-    }
+    gWorld.forEachWith<CameraComponent, TagComponent>(
+        [&](Entity entity, CameraComponent &camera, TagComponent &tag) {
+          if (activeCameraEntity != NULL_ENTITY)
+            return; // Already found
+          if (tag.type == ACTIVE) {
+            activeCameraEntity = entity;
+          }
+        });
 
-    return NULL_ENTITY;
+    return activeCameraEntity;
   }
 
   // Get the main camera component
-  Camera *getActiveCamera(World &world) {
+  CameraComponent *getActiveCamera(World &world) {
     Entity cameraEntity = getActiveCameraEntity(gWorld);
     if (cameraEntity != NULL_ENTITY) {
-      return gWorld.getComponent<Camera>(cameraEntity);
+      return gWorld.getComponent<CameraComponent>(cameraEntity);
     }
     return nullptr;
   }
 
   // Get the main camera's transform
-  Transform *getActiveCameraTransform(World &world) {
+  TransformComponent *getActiveCameraTransform(World &world) {
     Entity cameraEntity = getActiveCameraEntity(gWorld);
     if (cameraEntity != NULL_ENTITY) {
-      return gWorld.getComponent<Transform>(cameraEntity);
+      return gWorld.getComponent<TransformComponent>(cameraEntity);
     }
     return nullptr;
   }
 };
-
-#endif // CAMERA_SYSTEM_HPP

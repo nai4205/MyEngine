@@ -4,15 +4,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Transform component - handles position, rotation, and scale
+// TransformComponent component - handles position, rotation, and scale
 // Provides the model matrix for rendering
-class Transform {
+class TransformComponent {
 public:
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
 
-  Transform(glm::vec3 pos = glm::vec3(0.0f), glm::vec3 rot = glm::vec3(0.0f),
+  TransformComponent(glm::vec3 pos = glm::vec3(0.0f), glm::vec3 rot = glm::vec3(0.0f),
             glm::vec3 scl = glm::vec3(1.0f))
       : position(pos), rotation(rot), scale(scl) {}
 

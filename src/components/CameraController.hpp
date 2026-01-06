@@ -1,5 +1,4 @@
-#ifndef CAMERA_CONTROLLER_HPP
-#define CAMERA_CONTROLLER_HPP
+#pragma once
 
 #include "CameraComponent.hpp"
 #include "Physics.hpp"
@@ -9,20 +8,21 @@
 // Camera movement directions
 enum CameraMovement { CAM_FORWARD, CAM_BACKWARD, CAM_LEFT, CAM_RIGHT };
 
-class CameraController {
+class CameraControllerComponent {
 public:
   float movementSpeed;
   float mouseSensitivity;
   float jumpForce;
   bool freeMode;
 
-  CameraController(float speed = 2.5f, float sensitivity = 0.1f,
-                   float jump = 5.0f, bool freeFly = false)
+  CameraControllerComponent(float speed = 2.5f, float sensitivity = 0.1f,
+                            float jump = 5.0f, bool freeFly = false)
       : movementSpeed(speed), mouseSensitivity(sensitivity), jumpForce(jump),
         freeMode(freeFly) {}
 
-  void processKeyboard(CameraMovement direction, Transform &transform,
-                       Camera &camera, Physics *physics, float deltaTime) {
+  void processKeyboard(CameraMovement direction, TransformComponent &transform,
+                       CameraComponent &camera, PhysicsComponent *physics,
+                       float deltaTime) {
     float velocity = movementSpeed * deltaTime;
     glm::vec3 moveDirection(0.0f);
 
@@ -40,22 +40,21 @@ public:
     transform.position += moveDirection * velocity;
   }
 
-  void processMouseMovement(Camera &camera, float xOffset, float yOffset) {
+  void processMouseMovement(CameraComponent &camera, float xOffset,
+                            float yOffset) {
     xOffset *= mouseSensitivity;
     yOffset *= mouseSensitivity;
 
     camera.rotate(xOffset, yOffset);
   }
 
-  void processMouseScroll(Camera &camera, float yOffset) {
+  void processMouseScroll(CameraComponent &camera, float yOffset) {
     camera.adjustZoom(yOffset);
   }
 
-  void processJump(Physics *physics) {
+  void processJump(PhysicsComponent *physics) {
     if (physics) {
       physics->jump(jumpForce);
     }
   }
 };
-
-#endif // CAMERA_CONTROLLER_HPP
