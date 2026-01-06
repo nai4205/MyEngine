@@ -13,7 +13,7 @@ public:
 
   Physics(float gravityForce = -9.81f, float ground = 0.0f)
       : velocity(0.0f), gravity(gravityForce), groundLevel(ground),
-        isGrounded(true) {}
+        isGrounded(false) {} // Objects start in air and fall
 
   void update(glm::vec3 &position, float deltaTime) {
     if (!isGrounded) {

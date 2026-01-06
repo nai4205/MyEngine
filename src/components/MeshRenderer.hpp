@@ -5,15 +5,12 @@
 #include "Mesh.hpp"
 #include <memory>
 
-// MeshRenderer component - combines mesh (geometry) and material (appearance)
-// Handles the actual rendering
 class MeshRenderer {
 public:
   MeshRenderer(std::shared_ptr<Mesh> meshData, std::shared_ptr<Material> mat,
                unsigned int vertCount = 36)
       : mesh(meshData), material(mat), vertexCount(vertCount) {}
 
-  // Render the mesh with the material
   void render() const {
     material->use();
     mesh->bind();
@@ -21,7 +18,6 @@ public:
     mesh->unbind();
   }
 
-  // Getters for modifying components
   Material *getMaterial() const { return material.get(); }
   Mesh *getMesh() const { return mesh.get(); }
 

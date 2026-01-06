@@ -1,7 +1,7 @@
 #ifndef CAMERA_CONTROLLER_HPP
 #define CAMERA_CONTROLLER_HPP
 
-#include "Camera.hpp"
+#include "CameraComponent.hpp"
 #include "Physics.hpp"
 #include "Transform.hpp"
 #include <glm/glm.hpp>

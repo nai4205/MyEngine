@@ -49,10 +49,10 @@ public:
     stbi_image_free(data);
   }
 
-  // Load compressed image from memory (PNG/JPG embedded textures)
   void loadImageFromMemory(const unsigned char *buffer, int len) {
     int width, height, nrChannels;
-    unsigned char *data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannels, 0);
+    unsigned char *data =
+        stbi_load_from_memory(buffer, len, &width, &height, &nrChannels, 0);
     if (data) {
       GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
       glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
@@ -64,8 +64,8 @@ public:
     }
   }
 
-  // Load raw RGBA data (uncompressed embedded textures)
-  void loadImageRaw(const unsigned char *data, int width, int height, int channels) {
+  void loadImageRaw(const unsigned char *data, int width, int height,
+                    int channels) {
     if (data) {
       GLenum format;
       if (channels == 1)
