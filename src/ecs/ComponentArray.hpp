@@ -21,7 +21,7 @@ public:
       sparse.resize(e + 1, SIZE_MAX);
     }
 
-    if (has(e)) {
+    if (has(&e)) {
       dense[sparse[e]] = component;
       return;
     }
@@ -49,7 +49,7 @@ public:
 
   T *get(Entity e) { return has(e) ? &dense[sparse[e]] : nullptr; }
 
-  bool has(Entity e) const {
+  bool has(Entity &e) const {
     return e < sparse.size() && sparse[e] != SIZE_MAX;
   }
 
