@@ -1,47 +1,60 @@
-#ifndef COMPONENT_ARRAY_HPP
-#define COMPONENT_ARRAY_HPP
+#pragma once
 
 #include "Entity.hpp"
-#include <unordered_map>
+#include <cassert>
+#include <vector>
 
-// Template class for storing components of a specific type
-template <typename T> class ComponentArray {
-private:
-  std::unordered_map<Entity, T> components;
-
-public:
-  // Insert a component for an entity
-  void insert(Entity entity, T component) { components[entity] = component; }
-
-  // Remove a component from an entity
-  void remove(Entity entity) { components.erase(entity); }
-
-  // Get a component for an entity (returns nullptr if not found)
-  T *get(Entity entity) {
-    auto it = components.find(entity);
-    if (it != components.end()) {
-      return &it->second;
-    }
-    return nullptr;
-  }
-
-  // Check if an entity has this component
-  bool has(Entity entity) const {
-    return components.find(entity) != components.end();
-  }
-
-  auto begin() { return components.begin(); }
-  auto end() { return components.end(); }
-  auto begin() const { return components.begin(); }
-  auto end() const { return components.end(); }
-
-  size_t size() const { return components.size(); }
-
-  void entityDestroyed(Entity entity) {
-    if (has(entity)) {
-      remove(entity);
-    }
-  }
+struct IComponentArray {
+  virtual ~IComponentArray() = default;
+  virtual void entityDestroyed(Entity e) = 0;
 };
 
-#endif // COMPONENT_ARRAY_HPP
+template <typename T> class ComponentArray : public IComponentArray {
+private:
+  std::vector<T> dense;
+  std::vector<Entity> denseEntities;
+  std::vector<size_t> sparse; // indexed by Entity
+
+public:
+  void insert(Entity e, T component) {
+    if (e >= sparse.size()) {
+      sparse.resize(e + 1, SIZE_MAX);
+    }
+
+    if (has(e)) {
+      dense[sparse[e]] = component;
+      return;
+    }
+
+    sparse[e] = dense.size();
+    denseEntities.push_back(e);
+    dense.push_back(component);
+  }
+
+  void remove(Entity e) {
+    if (!has(e))
+      return;
+
+    size_t index = sparse[e];
+    size_t last = dense.size() - 1;
+
+    dense[index] = dense[last];
+    denseEntities[index] = denseEntities[last];
+    sparse[denseEntities[index]] = index;
+
+    dense.pop_back();
+    denseEntities.pop_back();
+    sparse[e] = SIZE_MAX;
+  }
+
+  T *get(Entity e) { return has(e) ? &dense[sparse[e]] : nullptr; }
+
+  bool has(Entity e) const {
+    return e < sparse.size() && sparse[e] != SIZE_MAX;
+  }
+
+  auto begin() { return dense.begin(); }
+  auto end() { return dense.end(); }
+
+  void entityDestroyed(Entity e) override { remove(e); }
+};

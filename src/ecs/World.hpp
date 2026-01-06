@@ -7,7 +7,6 @@
 #include "Input.hpp"
 #include "System.hpp"
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 class World {
@@ -16,16 +15,15 @@ private:
   std::unique_ptr<ComponentManager> componentManager;
   std::vector<std::unique_ptr<System>> systems;
 
-  // Entity signatures - bitmask of which components each entity has
-  std::unordered_map<Entity, ComponentMask> entitySignatures;
+  std::vector<ComponentMask> entitySignatures;
 
-  // Input resource - accessible from any system
   Input input;
 
 public:
   World() {
     entityManager = std::make_unique<EntityManager>();
     componentManager = std::make_unique<ComponentManager>();
+    entitySignatures.reserve(MAX_COMPONENTS);
   }
 
   // ========== INPUT OPERATIONS ==========
@@ -34,14 +32,22 @@ public:
 
   // ========== ENTITY OPERATIONS ==========
 
-  Entity createEntity() { return entityManager->createEntity(); }
+  Entity createEntity() {
+    Entity entity = entityManager->createEntity();
+    if (entity >= entitySignatures.size()) {
+      entitySignatures.resize(entity + 1);
+    }
+    entitySignatures[entity].reset();
+    return entity;
+  }
 
   // Destroy an entity and remove all its components
   void destroyEntity(Entity entity) {
     entityManager->destroyEntity(entity);
 
-    // Remove entity signature
-    entitySignatures.erase(entity);
+    if (entity < entitySignatures.size()) {
+      entitySignatures[entity].reset();
+    }
   }
 
   uint32_t getLivingEntityCount() const {
@@ -56,20 +62,14 @@ public:
 
   template <typename T> void addComponent(Entity entity, T component) {
     componentManager->addComponent<T>(entity, component);
-
     ComponentTypeId typeId = componentManager->getComponentTypeId<T>();
     entitySignatures[entity].set(typeId);
   }
 
   template <typename T> void removeComponent(Entity entity) {
     componentManager->removeComponent<T>(entity);
-
-    // Update entity signature - clear the bit for this component type
     ComponentTypeId typeId = componentManager->getComponentTypeId<T>();
-    auto it = entitySignatures.find(entity);
-    if (it != entitySignatures.end()) {
-      it->second.reset(typeId);
-    }
+    entitySignatures[entity].reset(typeId);
   }
 
   template <typename T> T *getComponent(Entity entity) {
@@ -88,17 +88,14 @@ public:
       return result;
     }
 
-    // Build the query mask - set bits for all requested component types
     ComponentMask queryMask;
     (queryMask.set(componentManager->getComponentTypeId<ComponentTypes>()),
      ...);
 
-    // Iterate through all entity signatures and check with bitwise AND
-    for (const auto &[entity, signature] : entitySignatures) {
-      // Check if entity has ALL the requested components using bitwise AND
-      // (signature & queryMask) == queryMask means entity has all components
+    for (Entity entity = 0; entity < entitySignatures.size(); ++entity) {
+      const ComponentMask &signature = entitySignatures[entity];
       if ((signature & queryMask) == queryMask) {
-        result.push_back(entity);
+        result.emplace_back(entity);
       }
     }
 

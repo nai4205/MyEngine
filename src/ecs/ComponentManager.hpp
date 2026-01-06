@@ -8,34 +8,32 @@
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
 class ComponentManager {
 private:
-  std::unordered_map<std::type_index, std::shared_ptr<void>> componentArrays;
+  std::vector<std::unique_ptr<IComponentArray>> componentArrays;
   std::unordered_map<std::type_index, ComponentTypeId> componentTypeIds;
   ComponentTypeId nextComponentTypeId = 0;
 
-  template <typename T> std::shared_ptr<ComponentArray<T>> getComponentArray() {
-    std::type_index typeIndex = std::type_index(typeid(T));
-
-    auto it = componentArrays.find(typeIndex);
-    if (it == componentArrays.end()) {
-      return nullptr;
-    }
-
-    return std::static_pointer_cast<ComponentArray<T>>(it->second);
+  template <typename T> ComponentArray<T> *getComponentArray() {
+    ComponentTypeId id = getComponentTypeId<T>();
+    return static_cast<ComponentArray<T> *>(componentArrays[id].get());
   }
 
 public:
   template <typename T> void registerComponent() {
-    std::type_index typeIndex = std::type_index(typeid(T));
+    std::type_index typeIndex(typeid(T));
+    assert(componentTypeIds.find(typeIndex) == componentTypeIds.end());
 
-    assert(nextComponentTypeId < MAX_COMPONENTS &&
-           "Exceeded maximum number of component types!");
+    ComponentTypeId id = nextComponentTypeId++;
+    componentTypeIds[typeIndex] = id;
 
-    componentTypeIds[typeIndex] = nextComponentTypeId++;
+    if (id >= componentArrays.size()) {
+      componentArrays.resize(id + 1);
+    }
 
-    componentArrays[typeIndex] = std::make_shared<ComponentArray<T>>();
+    componentArrays[id] = std::make_unique<ComponentArray<T>>();
   }
 
   template <typename T> ComponentTypeId getComponentTypeId() {
@@ -45,50 +43,23 @@ public:
     return it->second;
   }
 
-  template <typename T> void addComponent(Entity entity, T component) {
-    auto array = getComponentArray<T>();
-    if (array) {
-      array->insert(entity, component);
-    }
+  template <typename T> void addComponent(Entity e, T component) {
+    getComponentArray<T>()->insert(e, component);
   }
 
-  // Remove a component from an entity
-  template <typename T> void removeComponent(Entity entity) {
-    auto array = getComponentArray<T>();
-    if (array) {
-      array->remove(entity);
-    }
+  template <typename T> void removeComponent(Entity e) {
+    getComponentArray<T>()->remove(e);
   }
 
-  // Get a component from an entity (returns nullptr if not found)
-  template <typename T> T *getComponent(Entity entity) {
-    auto array = getComponentArray<T>();
-    if (array) {
-      return array->get(entity);
-    }
-    return nullptr;
+  template <typename T> T *getComponent(Entity e) {
+    return getComponentArray<T>()->get(e);
   }
-
-  template <typename T> bool hasComponent(Entity entity) {
-    auto array = getComponentArray<T>();
-    if (array) {
-      return array->has(entity);
-    }
-    return false;
+  template <typename T> bool hasComponent(Entity e) {
+    return getComponentArray<T>()->has(e);
   }
 
   template <typename T> ComponentArray<T> *getArrayForIteration() {
-    auto array = getComponentArray<T>();
-    return array.get();
-  }
-
-  void entityDestroyed(Entity entity) {
-    for (auto &pair : componentArrays) {
-      // Type-erase by casting to base interface
-      // We need to call entityDestroyed on each array
-      // This is a bit tricky with type erasure, so we'll handle it differently
-      // For now, we'll manually remove from all arrays in World::destroyEntity
-    }
+    return getComponentArray<T>();
   }
 };
 
