@@ -12,10 +12,8 @@
 #include "components/CameraController.hpp"
 #include "components/LightingPresets.hpp"
 #include "components/MaterialComponent.hpp"
-#include "components/Mesh.hpp"
 #include "components/MeshComponent.hpp"
 #include "components/PhysicsComponent.hpp"
-#include "components/RenderComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "const_h.hpp"
 #include "ecs/Tag.hpp"
@@ -147,7 +145,6 @@ int main() {
   gWorld.registerComponent<PhysicsComponent>();
   gWorld.registerComponent<CameraComponent>();
   gWorld.registerComponent<CameraControllerComponent>();
-  gWorld.registerComponent<RenderComponent>();
   gWorld.registerComponent<TagComponent>();
   gWorld.registerComponent<DirectionalLightComponent>();
   gWorld.registerComponent<PointLightComponent>();

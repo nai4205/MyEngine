@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../components/MeshIndexed.hpp"
 #include "../shader_h.hpp"
 #include "../texture_2d_h.hpp"
 #include <memory>
@@ -14,6 +13,26 @@ struct MeshData {
   uint32_t ebo = 0;
   uint32_t vertexCount = 0;
   uint32_t indexCount = 0;
+};
+
+struct Vertex {
+  glm::vec3 Position;
+  glm::vec3 Normal;
+  glm::vec2 TexCoords;
+};
+
+struct VertexAttribute {
+  unsigned int location; // Shader location (0, 1, 2, etc.)
+  int componentCount;    // Number of components (3 for vec3, 2 for vec2)
+  unsigned int type;     // GL_FLOAT, GL_INT, etc.
+  bool normalized;       // Should values be normalized?
+  int stride;            // Bytes between consecutive vertices
+  const void *offset;    // Offset of this attribute in the vertex data
+
+  VertexAttribute(unsigned int loc, int count, unsigned int t = GL_FLOAT,
+                  bool norm = false, int str = 0, const void *off = nullptr)
+      : location(loc), componentCount(count), type(t), normalized(norm),
+        stride(str), offset(off) {}
 };
 
 class ResourceManager {

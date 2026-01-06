@@ -15,7 +15,6 @@
 
 class ModelLoader {
 public:
-  // Load model and create entities directly in the world
   static std::vector<Entity> load(World &world, const std::string &path,
                                   uint32_t shaderProgram,
                                   const glm::vec3 &position = glm::vec3(0.0f),
@@ -45,12 +44,10 @@ private:
                           const std::string &directory, uint32_t shaderProgram,
                           const glm::vec3 &position, const glm::vec3 &scale,
                           std::vector<Entity> &entities) {
-    // Process meshes in this node
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
       aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
       Entity entity = processMesh(world, mesh, scene, directory, shaderProgram);
 
-      // Set transform
       auto *transform = world.getComponent<TransformComponent>(entity);
       if (transform) {
         transform->position = position;
@@ -60,7 +57,6 @@ private:
       entities.push_back(entity);
     }
 
-    // Process children
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
       processNode(world, node->mChildren[i], scene, directory, shaderProgram,
                   position, scale, entities);
@@ -73,7 +69,6 @@ private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    // Extract vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex;
       vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y,
@@ -94,7 +89,6 @@ private:
       vertices.push_back(vertex);
     }
 
-    // Extract indices
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
       aiFace &face = mesh->mFaces[i];
       for (unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -102,33 +96,26 @@ private:
       }
     }
 
-    // Create mesh in resource manager
     auto &resources = ResourceManager::instance();
     MeshData meshData = resources.createIndexedMesh(vertices, indices);
 
-    // Create entity
     Entity entity = world.createEntity();
 
-    // Add transform component
     TransformComponent transform;
     world.addComponent(entity, transform);
 
-    // Add mesh component
     MeshComponent meshComp;
     meshComp.vao = meshData.vao;
     meshComp.vertexCount = meshData.vertexCount;
     meshComp.indexCount = meshData.indexCount;
     world.addComponent(entity, meshComp);
 
-    // Add material component
     MaterialComponent material;
     material.shaderProgram = shaderProgram;
 
-    // Load textures from material
     if (mesh->mMaterialIndex >= 0) {
       aiMaterial *mat = scene->mMaterials[mesh->mMaterialIndex];
 
-      // Diffuse texture
       if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
         aiString str;
         mat->GetTexture(aiTextureType_DIFFUSE, 0, &str);
@@ -137,7 +124,6 @@ private:
         material.useTextures = true;
       }
 
-      // Specular texture
       if (mat->GetTextureCount(aiTextureType_SPECULAR) > 0) {
         aiString str;
         mat->GetTexture(aiTextureType_SPECULAR, 0, &str);
