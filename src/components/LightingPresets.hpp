@@ -1,10 +1,7 @@
 #ifndef LIGHTING_PRESETS_HPP
 #define LIGHTING_PRESETS_HPP
 
-#include "LightComponent.hpp"
-#include "LightManager.hpp"
 #include <glm/glm.hpp>
-#include <memory>
 
 enum class LightingType { DESERT, FACTORY, HORROR, BIOCHEMICAL_LAB };
 
@@ -147,44 +144,6 @@ public:
     }
 
     return props;
-  }
-
-  // Apply a lighting preset to a LightManager
-  static void applyToLightManager(LightManager &lightManager, LightingType type,
-                                  const glm::vec3 pointLightPositions[4]) {
-    auto props = getProperties(type);
-
-    auto dirLight = std::make_shared<DirectionalLight>(
-        props.dirLightDirection, props.dirLightAmbient, props.dirLightDiffuse,
-        props.dirLightSpecular);
-    lightManager.setDirectionalLight(dirLight);
-
-    for (int i = 0; i < 4; i++) {
-      auto &plConfig = props.pointLights[i];
-      auto pointLight = std::make_shared<PointLight>(
-          pointLightPositions[i],
-          plConfig.color * plConfig.ambientMultiplier, // ambient
-          plConfig.color,                              // diffuse
-          plConfig.color                               // specular
-      );
-      pointLight->constant = plConfig.constant;
-      pointLight->linear = plConfig.linear;
-      pointLight->quadratic = plConfig.quadratic;
-      lightManager.setPointLight(i, pointLight);
-    }
-
-    auto &slConfig = props.spotlight;
-    auto spotlight = std::make_shared<SpotLight>(
-        glm::vec3(0.0f), // position (updated per frame)
-        glm::vec3(0.0f), // direction (updated per frame)
-        slConfig.ambient, slConfig.diffuse, slConfig.specular);
-    spotlight->constant = slConfig.constant;
-    spotlight->linear = slConfig.linear;
-    spotlight->quadratic = slConfig.quadratic;
-    spotlight->cutOff = glm::cos(glm::radians(slConfig.cutOffDegrees));
-    spotlight->outerCutOff =
-        glm::cos(glm::radians(slConfig.outerCutOffDegrees));
-    lightManager.setSpotLight(spotlight);
   }
 
   static glm::vec4 getClearColor(LightingType type) {

@@ -9,7 +9,7 @@
 
 #include "GLFW/glfw3.h"
 #include "components/CameraComponent.hpp"
-#include "components/CameraController.hpp"
+#include "components/CameraControllerComponent.hpp"
 #include "components/LightingPresets.hpp"
 #include "components/MaterialComponent.hpp"
 #include "components/MeshComponent.hpp"
