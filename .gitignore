@@ -1,2 +1,6 @@
-src/assets/*
-build/*
+# Build artifacts
+build/
+
+# Large asset files
+src/assets/
+assets/
