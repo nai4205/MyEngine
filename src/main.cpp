@@ -12,6 +12,7 @@
 #include "components/CameraControllerComponent.hpp"
 #include "components/LightingPresets.hpp"
 #include "components/MaterialComponent.hpp"
+#include "components/MaterialPresets.hpp"
 #include "components/MeshComponent.hpp"
 #include "components/PhysicsComponent.hpp"
 #include "components/TransformComponent.hpp"
@@ -113,8 +114,15 @@ int main() {
       {1, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)(3 * sizeof(float))},
       {2, 2, GL_FLOAT, false, 8 * sizeof(float), (void *)(6 * sizeof(float))}};
 
+  std::vector<VertexAttribute> planeLayout = {
+      {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
+      {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+       (void *)(3 * sizeof(float))}};
+
   MeshData cubeMesh = resources.createMesh(
       cubeVerticesWithTexture, sizeof(cubeVerticesWithTexture), cubeLayout, 36);
+  MeshData planeMesh = resources.createMesh(
+      planeVertices, sizeof(planeVertices), planeLayout, 6);
 
   std::vector<VertexAttribute> lightCubeLayout = {
       {0, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)0},
@@ -159,6 +167,25 @@ int main() {
   // ========== CREATE ENTITIES ==========
   std::vector<Entity> entities;
   entities.reserve(MAX_ENTITIES);
+
+  // ========== Floor ==========
+  Entity floor = gWorld.createEntity();
+  TransformComponent floorTransform;
+  floorTransform = glm::vec3(0.0f, 0.0f, 0.0f);
+  gWorld.addComponent(floor, floorTransform);
+  MeshComponent floorMesh;
+  floorMesh.vao = planeMesh.vao;
+  floorMesh.vertexCount = planeMesh.vertexCount;
+  floorMesh.indexCount = planeMesh.indexCount;
+  gWorld.addComponent(floor, floorMesh);
+  MaterialComponent floorMaterial =
+      MaterialPresets::create(staticShaderID, MaterialType::BLACK_RUBBER);
+  // floorMat.shaderProgram = staticShaderID;
+  // floorMat.textures[0] = containerDiffuse;
+  // floorMat.textures[1] = containerSpecular;
+  // floorMat.useTextures = false;
+  // floorMat.shininess = 5.0f;
+  gWorld.addComponent(floor, floorMaterial);
 
   for (unsigned int i = 0; i < 10; i++) {
     Entity cube = gWorld.createEntity();
@@ -217,7 +244,7 @@ int main() {
   CameraComponent camera(-90.0f, 0.0f, 45.0f);
   gWorld.addComponent(cameraEntity, camera);
 
-  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false); // FPS mode
+  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, true); // FPS mode
   gWorld.addComponent(cameraEntity, controller);
 
   PhysicsComponent cameraPhysics(-9.81f, 0.0f);
@@ -226,7 +253,7 @@ int main() {
   TagComponent cameraTag(ACTIVE);
   gWorld.addComponent(cameraEntity, cameraTag);
 
-  entities.push_back(cameraEntity);
+  entities.emplace_back(cameraEntity);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -236,11 +263,9 @@ int main() {
     const float &deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    // Poll input events FIRST
     gWorld.getInput().newFrame();
     glfwPollEvents();
 
-    // Update all systems (input, physics, camera)
     gWorld.update(deltaTime);
 
     // Update viewPos for material (used by lighting calculations)
@@ -320,7 +345,7 @@ void createLightEntities(LightingType type,
       slConfig.ambient, slConfig.diffuse, slConfig.specular, slConfig.constant,
       slConfig.linear, slConfig.quadratic, slConfig.cutOffDegrees,
       slConfig.outerCutOffDegrees, true);
-  gWorld.addComponent(spotlight, spotComp);
+  // gWorld.addComponent(spotlight, spotComp);
 
   entities.emplace_back(spotlight);
 }

@@ -109,7 +109,7 @@ public:
 
     glBindVertexArray(0);
 
-    meshes.push_back(data);
+    meshes.emplace_back(data);
     return data;
   }
 
@@ -149,7 +149,7 @@ public:
 
     glBindVertexArray(0);
 
-    meshes.push_back(data);
+    meshes.emplace_back(data);
     return data;
   }
 

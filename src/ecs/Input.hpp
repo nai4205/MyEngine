@@ -1,12 +1,9 @@
-#ifndef INPUT_HPP
-#define INPUT_HPP
+#pragma once
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <unordered_set>
 
-// Input state manager - stores current frame's input state
-// Can be accessed from any system without needing the GLFWwindow
 class Input {
 private:
   std::unordered_set<int> keysPressed;
@@ -21,7 +18,6 @@ private:
   bool firstMouse = true;
 
 public:
-  // Called at the start of each frame to reset per-frame state
   void newFrame() {
     keysJustPressed.clear();
     keysJustReleased.clear();
@@ -83,5 +79,3 @@ public:
     firstMouse = true;
   }
 };
-
-#endif // INPUT_HPP

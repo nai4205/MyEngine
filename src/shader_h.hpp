@@ -13,6 +13,7 @@
 #include <string>
 
 class Shader {
+
 public:
   unsigned int ID;
   // constructor generates the shader on the fly
@@ -101,6 +102,13 @@ public:
                  glm::value_ptr(value));
   }
 
+  ~Shader() {
+    if (ID != 0) {
+      glDeleteProgram(ID);
+      ID = 0;
+    }
+  }
+
 private:
   // utility function for checking shader compilation/linking errors.
   // ------------------------------------------------------------------------
@@ -130,4 +138,5 @@ private:
     }
   }
 };
+
 #endif

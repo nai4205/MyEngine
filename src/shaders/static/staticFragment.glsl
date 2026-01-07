@@ -110,13 +110,13 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
   if (material.useTex) {
     diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
   } else {
-    diffuse = material.vDiffuse * diff;
+    diffuse = light.diffuse * diff * material.vDiffuse;
   }
   vec3 specular;
   if (material.useTex) {
     specular = light.specular * spec * texture(material.texture_specular1, TexCoords).rgb;
   } else {
-    specular = material.vSpecular * spec;
+    specular = light.specular * spec * material.vSpecular;
   }
   return (ambient + diffuse + specular);
 }
@@ -144,13 +144,13 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
   if (material.useTex) {
     diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
   } else {
-    diffuse = material.vDiffuse * diff;
+    diffuse = light.diffuse * diff * material.vDiffuse;
   }
   vec3 specular;
   if (material.useTex) {
     specular = light.specular * spec * texture(material.texture_specular1, TexCoords).rgb;
   } else {
-    specular = material.vSpecular * spec;
+    specular = light.specular * spec * material.vSpecular;
   }
   ambient *= attenuation;
   diffuse *= attenuation;
@@ -184,13 +184,13 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
   if (material.useTex) {
     diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
   } else {
-    diffuse = material.vDiffuse * diff;
+    diffuse = light.diffuse * diff * material.vDiffuse;
   }
   vec3 specular;
   if (material.useTex) {
     specular = light.specular * spec * texture(material.texture_specular1, TexCoords).rgb;
   } else {
-    specular = material.vSpecular * spec;
+    specular = light.specular * spec * material.vSpecular;
   }
   ambient *= attenuation * intensity;
   diffuse *= attenuation * intensity;

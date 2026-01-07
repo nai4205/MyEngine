@@ -1,9 +1,9 @@
 #ifndef MATERIAL_PRESETS_HPP
 #define MATERIAL_PRESETS_HPP
 
-#include "Material.hpp"
+#include "MaterialComponent.hpp"
 #include <glm/glm.hpp>
-#include <memory>
+#include <cstdint>
 #include <unordered_map>
 
 enum class MaterialType {
@@ -182,14 +182,20 @@ public:
     return presets.at(type);
   }
 
-  static std::shared_ptr<Material> create(std::shared_ptr<Shader> shader,
-                                          MaterialType type) {
+  static MaterialComponent create(uint32_t shaderProgram, MaterialType type) {
     auto props = getProperties(type);
-    return std::make_shared<Material>(shader, props.ambient, props.diffuse,
-                                      props.specular, props.shininess);
+    MaterialComponent material;
+    material.shaderProgram = shaderProgram;
+    material.ambient = props.ambient;
+    material.diffuse = props.diffuse;
+    material.specular = props.specular;
+    material.shininess = props.shininess;
+    material.useTextures = false;
+    material.receivesLighting = true;
+    return material;
   }
 
-  static void applyTo(Material &material, MaterialType type) {
+  static void applyTo(MaterialComponent &material, MaterialType type) {
     auto props = getProperties(type);
     material.ambient = props.ambient;
     material.diffuse = props.diffuse;
