@@ -1,5 +1,5 @@
 #pragma once
-#include <GL/gl.h>
+#include <glad/glad.h>
 #include <stdint.h>
 
 struct MeshComponent {

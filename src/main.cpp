@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <cstdio>
-#include <glad/gl.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -66,7 +66,7 @@ int main() {
   glfwSetKeyCallback(window, key_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  if (!gladLoaderLoadGL()) {
+  if (!gladLoadGL()) {
     std::cout << "Failed to initalize GLAD" << std::endl;
     return -1;
   }
@@ -179,7 +179,7 @@ int main() {
   floorMesh.indexCount = planeMesh.indexCount;
   gWorld.addComponent(floor, floorMesh);
   MaterialComponent floorMaterial =
-      MaterialPresets::create(staticShaderID, MaterialType::BLACK_RUBBER);
+      MaterialPresets::create(staticShaderID, MaterialType::OBSIDIAN);
   // floorMat.shaderProgram = staticShaderID;
   // floorMat.textures[0] = containerDiffuse;
   // floorMat.textures[1] = containerSpecular;
@@ -215,7 +215,7 @@ int main() {
   }
 
   // ========== CREATE LIGHTING SETUP ==========
-  LightingType currentLighting = LightingType::DESERT;
+  LightingType currentLighting = LightingType::HORROR;
   glm::vec4 clearColor = LightingPresets::getClearColor(currentLighting);
 
   // ========== LOAD MODEL ==========
@@ -244,7 +244,7 @@ int main() {
   CameraComponent camera(-90.0f, 0.0f, 45.0f);
   gWorld.addComponent(cameraEntity, camera);
 
-  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, true); // FPS mode
+  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false); // FPS mode
   gWorld.addComponent(cameraEntity, controller);
 
   PhysicsComponent cameraPhysics(-9.81f, 0.0f);
@@ -345,7 +345,7 @@ void createLightEntities(LightingType type,
       slConfig.ambient, slConfig.diffuse, slConfig.specular, slConfig.constant,
       slConfig.linear, slConfig.quadratic, slConfig.cutOffDegrees,
       slConfig.outerCutOffDegrees, true);
-  // gWorld.addComponent(spotlight, spotComp);
+  gWorld.addComponent(spotlight, spotComp);
 
   entities.emplace_back(spotlight);
 }

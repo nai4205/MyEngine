@@ -11,7 +11,7 @@ struct Material {
 };
 
 struct SpotLight {
-  bool active;
+  bool isActive;
   vec3 position;
   vec3 direction;
   float cutOff;
@@ -78,7 +78,7 @@ void main()
   }
 
   // spot light
-  if (spotLight.active)
+  if (spotLight.isActive)
   {
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
   }

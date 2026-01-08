@@ -135,9 +135,9 @@ private:
       shader->setFloat("spotLight.quadratic", spotLight->quadratic);
       shader->setFloat("spotLight.cutOff", spotLight->cutOff);
       shader->setFloat("spotLight.outerCutOff", spotLight->outerCutOff);
-      shader->setBool("spotLight.active", spotLight->active);
+      shader->setBool("spotLight.isActive", spotLight->active);
     } else {
-      shader->setBool("spotLight.active", false);
+      shader->setBool("spotLight.isActive", false);
     }
   }
 };

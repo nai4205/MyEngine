@@ -3,7 +3,7 @@
 
 #include "glm/detail/type_mat.hpp"
 #include "glm/detail/type_vec.hpp"
-#include <glad/gl.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
