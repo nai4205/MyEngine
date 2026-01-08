@@ -1317,6 +1317,8 @@ CMakeFiles/app.dir/src/main.cpp.o: src/main.cpp \
   src/ecs/System.hpp \
   src/ecs/Tag.hpp \
   src/ecs/World.hpp \
+  src/glad/include/KHR/khrplatform.h \
+  src/glad/include/glad/glad.h \
   src/components/MaterialComponent.hpp \
   src/components/MeshComponent.hpp \
   src/components/TransformComponent.hpp \

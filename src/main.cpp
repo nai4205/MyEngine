@@ -244,7 +244,7 @@ int main() {
   CameraComponent camera(-90.0f, 0.0f, 45.0f);
   gWorld.addComponent(cameraEntity, camera);
 
-  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, true); // FPS mode
+  CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false); // FPS mode
   gWorld.addComponent(cameraEntity, controller);
 
   PhysicsComponent cameraPhysics(-9.81f, 0.0f);

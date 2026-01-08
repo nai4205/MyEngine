@@ -1319,6 +1319,8 @@ CMakeFiles/app.dir/src/main.cpp.o
  /Users/naikorn/Documents/projects/openglcpp/src/ecs/System.hpp
  /Users/naikorn/Documents/projects/openglcpp/src/ecs/Tag.hpp
  /Users/naikorn/Documents/projects/openglcpp/src/ecs/World.hpp
+ /Users/naikorn/Documents/projects/openglcpp/src/glad/include/KHR/khrplatform.h
+ /Users/naikorn/Documents/projects/openglcpp/src/glad/include/glad/glad.h
  /Users/naikorn/Documents/projects/openglcpp/src/components/MaterialComponent.hpp
  /Users/naikorn/Documents/projects/openglcpp/src/components/MeshComponent.hpp
  /Users/naikorn/Documents/projects/openglcpp/src/components/TransformComponent.hpp

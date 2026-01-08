@@ -1133,8 +1133,6 @@ CMakeFiles/app.dir/src/main.cpp.o: \
   /Users/naikorn/Documents/projects/openglcpp/src/components/MaterialComponent.hpp \
   /Users/naikorn/Documents/projects/openglcpp/src/components/MaterialPresets.hpp \
   /Users/naikorn/Documents/projects/openglcpp/src/components/MeshComponent.hpp \
-  /Users/naikorn/Documents/projects/openglcpp/include/glad/gl.h \
-  /Users/naikorn/Documents/projects/openglcpp/include/glad/../../src/glad/include/KHR/khrplatform.h \
   /Users/naikorn/Documents/projects/openglcpp/src/const_h.hpp \
   /Users/naikorn/Documents/projects/openglcpp/src/ecs/Tag.hpp \
   /Users/naikorn/Documents/projects/openglcpp/src/ecs/World.hpp \
