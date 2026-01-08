@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../gl_common.hpp"
 #include "../resources/ResourceManager.hpp"
 
 #include "../components/MaterialComponent.hpp"
@@ -8,8 +9,6 @@
 #include "../ecs/System.hpp"
 #include "../ecs/World.hpp"
 #include "../ecs/utils/CameraUtils.hpp"
-#include <glad/glad.h>
-#include <glm/glm.hpp>
 
 extern World gWorld;
 

@@ -1,13 +1,12 @@
 #ifndef PHYSICS_SYSTEM_HPP
 #define PHYSICS_SYSTEM_HPP
 
+#include "../gl_common.hpp"
 #include "../components/PhysicsComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 #include <random>
 
 extern World gWorld;

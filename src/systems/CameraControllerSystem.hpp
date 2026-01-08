@@ -1,12 +1,12 @@
 #pragma once
 
+#include "../gl_common.hpp"
 #include "../components/CameraComponent.hpp"
 #include "../components/CameraControllerComponent.hpp"
 #include "../components/PhysicsComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/World.hpp"
-#include <GLFW/glfw3.h>
 
 extern World gWorld;
 

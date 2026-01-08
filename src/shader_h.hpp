@@ -1,11 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include "glm/detail/type_mat.hpp"
-#include "glm/detail/type_vec.hpp"
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "gl_common.hpp"
 
 #include <fstream>
 #include <iostream>
