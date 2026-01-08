@@ -179,7 +179,7 @@ int main() {
   floorMesh.indexCount = planeMesh.indexCount;
   gWorld.addComponent(floor, floorMesh);
   MaterialComponent floorMaterial =
-      MaterialPresets::create(staticShaderID, MaterialType::BLACK_RUBBER);
+      MaterialPresets::create(staticShaderID, MaterialType::OBSIDIAN);
   // floorMat.shaderProgram = staticShaderID;
   // floorMat.textures[0] = containerDiffuse;
   // floorMat.textures[1] = containerSpecular;
@@ -215,7 +215,7 @@ int main() {
   }
 
   // ========== CREATE LIGHTING SETUP ==========
-  LightingType currentLighting = LightingType::DESERT;
+  LightingType currentLighting = LightingType::HORROR;
   glm::vec4 clearColor = LightingPresets::getClearColor(currentLighting);
 
   // ========== LOAD MODEL ==========
@@ -345,7 +345,7 @@ void createLightEntities(LightingType type,
       slConfig.ambient, slConfig.diffuse, slConfig.specular, slConfig.constant,
       slConfig.linear, slConfig.quadratic, slConfig.cutOffDegrees,
       slConfig.outerCutOffDegrees, true);
-  // gWorld.addComponent(spotlight, spotComp);
+  gWorld.addComponent(spotlight, spotComp);
 
   entities.emplace_back(spotlight);
 }

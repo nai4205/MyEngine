@@ -34,7 +34,13 @@ target_link_directories(app PRIVATE
 target_link_libraries(app
   ${GLFW_LIBRARIES}
   ${ASSIMP_LIBRARIES}
-  "-framework OpenGL"
   dl
   pthread
 )
+
+# Platform-specific OpenGL linking
+if(APPLE)
+  target_link_libraries(app "-framework OpenGL")
+elseif(UNIX AND NOT APPLE)
+  target_link_libraries(app GL)
+endif()
