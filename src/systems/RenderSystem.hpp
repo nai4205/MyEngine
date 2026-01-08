@@ -8,7 +8,7 @@
 #include "../ecs/System.hpp"
 #include "../ecs/World.hpp"
 #include "../ecs/utils/CameraUtils.hpp"
-#include <glad/gl.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 extern World gWorld;

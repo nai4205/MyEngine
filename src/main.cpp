@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <cstdio>
-#include <glad/gl.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -66,7 +66,7 @@ int main() {
   glfwSetKeyCallback(window, key_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  if (!gladLoaderLoadGL()) {
+  if (!gladLoadGL()) {
     std::cout << "Failed to initalize GLAD" << std::endl;
     return -1;
   }
