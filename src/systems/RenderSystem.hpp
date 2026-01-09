@@ -19,6 +19,15 @@ private:
   unsigned int screenWidth = 800;
   unsigned int screenHeight = 600;
 
+  // Struct to hold all entity data for rendering
+  struct RenderableEntity {
+    Entity entity;
+    TransformComponent *transform;
+    MeshComponent *mesh;
+    MaterialComponent *material;
+    TagComponent *tag;
+  };
+
 public:
   RenderSystem(unsigned int width = 800, unsigned int height = 600)
       : screenWidth(width), screenHeight(height) {}
@@ -30,18 +39,47 @@ public:
 
     auto &resources = ResourceManager::instance();
 
+    std::vector<RenderableEntity> renderables;
     bool hasOutlined = false;
-    gWorld.forEachWith<TagComponent>([&](Entity entity, TagComponent &tag) {
-      if (tag.has(OUTLINED)) {
-        hasOutlined = true;
-        return;
+
+    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
+        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
+            MaterialComponent &material) {
+          if (!mesh.isValid())
+            return;
+
+          RenderableEntity renderable;
+          renderable.entity = entity;
+          renderable.transform = &transform;
+          renderable.mesh = &mesh;
+          renderable.material = &material;
+          renderable.tag = gWorld.getComponent<TagComponent>(entity);
+
+          if (renderable.tag && renderable.tag->has(OUTLINED)) {
+            hasOutlined = true;
+          }
+
+          renderables.emplace_back(renderable);
+        });
+
+    std::vector<RenderableEntity> singleSided;
+    singleSided.reserve(renderables.size() / 2);
+    std::vector<RenderableEntity> doubleSided;
+    doubleSided.reserve(renderables.size() / 2);
+
+    for (const auto &renderable : renderables) {
+      if (renderable.material->doubleSided) {
+        doubleSided.emplace_back(renderable);
+      } else {
+        singleSided.emplace_back(renderable);
       }
-    });
+    }
+
+    glEnable(GL_CULL_FACE);
     if (hasOutlined) {
       // Render non-outlined entities with stencil writing disabled
       glStencilMask(0x00);
-      renderLitEntities(camera, resources, false, false);
-      renderUnlitEntities(camera, resources, false);
+      renderEntities(camera, resources, singleSided, false, false);
 
       // Stencil outlining
       // Mask - 0xFF -> each bit is written as is
@@ -49,127 +87,128 @@ public:
       // Step 1: Render outlined entities with stencil writing enabled
       glStencilFunc(GL_ALWAYS, 1, 0xFF);
       glStencilMask(0xFF);
-      renderLitEntities(camera, resources, true, false);
+      renderEntities(camera, resources, singleSided, true, false);
 
       // Step 2: Render outlines (scaled up, single color, where stencil != 1)
       glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
       glStencilMask(0x00);
       // glDisable(GL_DEPTH_TEST);
-      renderOutlines(camera, resources);
+      renderOutlines(camera, resources, singleSided);
 
       glStencilMask(0xFF);
       glStencilFunc(GL_ALWAYS, 0, 0xFF);
       // glEnable(GL_DEPTH_TEST);
     } else {
-
-      glEnable(GL_CULL_FACE);
-      glCullFace(GL_BACK);
-      renderLitEntities(camera, resources, false, false);
-      renderUnlitEntities(camera, resources, false);
-      glDisable(GL_CULL_FACE);
+      renderEntities(camera, resources, singleSided, false, false);
     }
 
+    // Render transparent objects last, sorted back-to-front
     // Disable depth writing so transparent objects don't block objects behind
     // them
     glDepthMask(GL_FALSE);
-    renderTransparentEntities(camera, resources);
+    renderTransparentEntities(camera, resources, singleSided);
+    glDepthMask(GL_TRUE);
+
+    glDisable(GL_CULL_FACE);
+    if (hasOutlined) {
+      // Render non-outlined entities with stencil writing disabled
+      glStencilMask(0x00);
+      renderEntities(camera, resources, doubleSided, false, false);
+
+      // Stencil outlining
+      // Mask - 0xFF -> each bit is written as is
+      //      - 0x00 -> each bit ends up as 0
+      // Step 1: Render outlined entities with stencil writing enabled
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
+      renderEntities(camera, resources, doubleSided, true, false);
+
+      // Step 2: Render outlines (scaled up, single color, where stencil != 1)
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      // glDisable(GL_DEPTH_TEST);
+      renderOutlines(camera, resources, doubleSided);
+
+      glStencilMask(0xFF);
+      glStencilFunc(GL_ALWAYS, 0, 0xFF);
+      // glEnable(GL_DEPTH_TEST);
+    } else {
+      renderEntities(camera, resources, doubleSided, false, false);
+    }
+
+    // Render transparent objects last, sorted back-to-front
+    // Disable depth writing so transparent objects don't block objects behind
+    // them
+    glDepthMask(GL_FALSE);
+    renderTransparentEntities(camera, resources, singleSided);
     glDepthMask(GL_TRUE);
   }
 
 private:
-  void renderLitEntities(const ActiveCameraData &camera,
-                         ResourceManager &resources, bool onlyOutlined,
-                         bool renderTransparent) {
+  void renderEntities(const ActiveCameraData &camera,
+                      ResourceManager &resources,
+                      const std::vector<RenderableEntity> &renderables,
+                      bool onlyOutlined, bool renderTransparent) {
     std::unordered_set<uint32_t> configuredShaders;
 
-    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
-        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
-            MaterialComponent &material) {
-          if (!mesh.isValid() || !material.receivesLighting)
-            return;
+    for (const auto &renderable : renderables) {
+      if (renderable.material->hasTransparency != renderTransparent)
+        continue;
 
-          // Skip transparent objects when rendering opaque and vice versa
-          if (material.hasTransparency != renderTransparent)
-            return;
+      // Check outline tag
+      bool hasOutlineTag = renderable.tag && renderable.tag->has(OUTLINED);
+      if (hasOutlineTag != onlyOutlined)
+        continue;
 
-          bool hasOutlineTag =
-              gWorld.hasComponent<TagComponent>(entity) &&
-              gWorld.getComponent<TagComponent>(entity)->has(OUTLINED);
-          if (hasOutlineTag != onlyOutlined)
-            return;
+      Shader *shader = resources.getShader(renderable.material->shaderProgram);
+      if (!shader)
+        continue;
 
-          Shader *shader = resources.getShader(material.shaderProgram);
-          if (!shader)
-            return;
+      shader->use();
 
-          shader->use();
+      // Configure shader once per unique shader program
+      if (configuredShaders.find(renderable.material->shaderProgram) ==
+          configuredShaders.end()) {
+        shader->setMat4("view", camera.view);
+        shader->setMat4("projection", camera.projection);
+        if (renderable.material->receivesLighting) {
+          shader->setVec3("viewPos", camera.position);
+        }
+        configuredShaders.insert(renderable.material->shaderProgram);
+      }
 
-          if (configuredShaders.find(material.shaderProgram) ==
-              configuredShaders.end()) {
-            shader->setMat4("view", camera.view);
-            shader->setMat4("projection", camera.projection);
-            shader->setVec3("viewPos", camera.position);
-            configuredShaders.insert(material.shaderProgram);
-          }
+      shader->setMat4("model", renderable.transform->getModelMatrix());
 
-          shader->setMat4("model", transform.getModelMatrix());
-          shader->setVec3("material.vAmbient", material.ambient);
-          shader->setVec3("material.vDiffuse", material.diffuse);
-          shader->setVec3("material.vSpecular", material.specular);
-          shader->setFloat("material.shininess", material.shininess);
-          shader->setBool("material.useTex", material.useTextures);
+      if (renderable.material->receivesLighting) {
+        // Lit entity
+        shader->setVec3("material.vAmbient", renderable.material->ambient);
+        shader->setVec3("material.vDiffuse", renderable.material->diffuse);
+        shader->setVec3("material.vSpecular", renderable.material->specular);
+        shader->setFloat("material.shininess", renderable.material->shininess);
+        shader->setBool("material.useTex", renderable.material->useTextures);
 
-          if (material.useTextures) {
-            for (size_t i = 0; i < MAX_MATERIAL_TEXTURES; i++) {
-              if (material.textures[i] != 0) {
-                glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, material.textures[i]);
-              }
+        if (renderable.material->useTextures) {
+          for (size_t i = 0; i < MAX_MATERIAL_TEXTURES; i++) {
+            if (renderable.material->textures[i] != 0) {
+              glActiveTexture(GL_TEXTURE0 + i);
+              glBindTexture(GL_TEXTURE_2D, renderable.material->textures[i]);
             }
-            shader->setInt("material.texture_diffuse1", 0);
-            shader->setInt("material.texture_specular1", 1);
           }
+          shader->setInt("material.texture_diffuse1", 0);
+          shader->setInt("material.texture_specular1", 1);
+        }
+      } else {
+        // Unlit entity (light source shader)
+        shader->setVec3("objectColor", renderable.material->diffuse);
+      }
 
-          drawMesh(mesh);
-        });
-  }
-
-  void renderUnlitEntities(const ActiveCameraData &camera,
-                           ResourceManager &resources, bool renderTransparent) {
-    std::unordered_set<uint32_t> configuredShaders;
-
-    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
-        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
-            MaterialComponent &material) {
-          if (!mesh.isValid() || material.receivesLighting)
-            return;
-
-          // Skip transparent objects when rendering opaque and vice versa
-          if (material.hasTransparency != renderTransparent)
-            return;
-
-          Shader *shader = resources.getShader(material.shaderProgram);
-          if (!shader)
-            return;
-
-          shader->use();
-
-          if (configuredShaders.find(material.shaderProgram) ==
-              configuredShaders.end()) {
-            shader->setMat4("view", camera.view);
-            shader->setMat4("projection", camera.projection);
-            configuredShaders.insert(material.shaderProgram);
-          }
-
-          shader->setMat4("model", transform.getModelMatrix());
-          shader->setVec3("objectColor", material.diffuse);
-
-          drawMesh(mesh);
-        });
+      drawMesh(*renderable.mesh);
+    }
   }
 
   void renderOutlines(const ActiveCameraData &camera,
-                      ResourceManager &resources) {
+                      ResourceManager &resources,
+                      const std::vector<RenderableEntity> &renderables) {
     Shader *outlineShader = resources.getShader("singleColor");
     if (!outlineShader)
       return;
@@ -181,99 +220,83 @@ private:
 
     const float outlineScale = 1.05;
 
-    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
-        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
-            MaterialComponent &material) {
-          if (!gWorld.hasComponent<TagComponent>(entity))
-            return;
+    for (const auto &renderable : renderables) {
+      if (!renderable.tag || !renderable.tag->has(OUTLINED))
+        continue;
 
-          TagComponent *tag = gWorld.getComponent<TagComponent>(entity);
-          if (!tag->has(OUTLINED))
-            return;
+      TransformComponent scaledTransform = *renderable.transform;
+      scaledTransform.scale *= outlineScale;
 
-          if (!mesh.isValid())
-            return;
+      outlineShader->setMat4("model", scaledTransform.getModelMatrix());
+      outlineShader->setBool("useTex", renderable.material->useTextures);
 
-          TransformComponent scaledTransform = transform;
-          scaledTransform.scale *= outlineScale;
+      if (renderable.material->useTextures &&
+          renderable.material->textures[0] != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, renderable.material->textures[0]);
+        outlineShader->setInt("texture_diffuse1", 0);
+      }
 
-          outlineShader->setMat4("model", scaledTransform.getModelMatrix());
-          outlineShader->setBool("useTex", material.useTextures);
-
-          if (material.useTextures && material.textures[0] != 0) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, material.textures[0]);
-            outlineShader->setInt("texture_diffuse1", 0);
-          }
-
-          drawMesh(mesh);
-        });
+      drawMesh(*renderable.mesh);
+    }
   }
 
-  void renderTransparentEntities(const ActiveCameraData &camera,
-                                 ResourceManager &resources) {
+  void
+  renderTransparentEntities(const ActiveCameraData &camera,
+
+                            ResourceManager &resources,
+                            const std::vector<RenderableEntity> &renderables) {
     std::unordered_set<uint32_t> configuredShaders;
 
-    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
-        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
-            MaterialComponent &material) {
-          if (!mesh.isValid() || !material.hasTransparency)
-            return;
+    for (const auto &renderable : renderables) {
+      if (!renderable.material->hasTransparency)
+        continue;
 
-          if (material.receivesLighting) {
-            Shader *shader = resources.getShader(material.shaderProgram);
-            if (!shader)
-              return;
+      Shader *shader = resources.getShader(renderable.material->shaderProgram);
+      if (!shader)
+        continue;
 
-            shader->use();
+      shader->use();
 
-            if (configuredShaders.find(material.shaderProgram) ==
-                configuredShaders.end()) {
-              shader->setMat4("view", camera.view);
-              shader->setMat4("projection", camera.projection);
-              shader->setVec3("viewPos", camera.position);
-              configuredShaders.insert(material.shaderProgram);
+      // Configure shader once per unique shader program
+      if (configuredShaders.find(renderable.material->shaderProgram) ==
+          configuredShaders.end()) {
+        shader->setMat4("view", camera.view);
+        shader->setMat4("projection", camera.projection);
+        if (renderable.material->receivesLighting) {
+          shader->setVec3("viewPos", camera.position);
+        }
+        configuredShaders.insert(renderable.material->shaderProgram);
+      }
+
+      shader->setMat4("model", renderable.transform->getModelMatrix());
+
+      // Branch: lit vs unlit
+      if (renderable.material->receivesLighting) {
+        // Lit transparent entity
+        shader->setVec3("material.vAmbient", renderable.material->ambient);
+        shader->setVec3("material.vDiffuse", renderable.material->diffuse);
+        shader->setVec3("material.vSpecular", renderable.material->specular);
+        shader->setFloat("material.shininess", renderable.material->shininess);
+        shader->setBool("material.useTex", renderable.material->useTextures);
+
+        if (renderable.material->useTextures) {
+          for (size_t i = 0; i < MAX_MATERIAL_TEXTURES; i++) {
+            if (renderable.material->textures[i] != 0) {
+              glActiveTexture(GL_TEXTURE0 + i);
+              glBindTexture(GL_TEXTURE_2D, renderable.material->textures[i]);
             }
-
-            shader->setMat4("model", transform.getModelMatrix());
-            shader->setVec3("material.vAmbient", material.ambient);
-            shader->setVec3("material.vDiffuse", material.diffuse);
-            shader->setVec3("material.vSpecular", material.specular);
-            shader->setFloat("material.shininess", material.shininess);
-            shader->setBool("material.useTex", material.useTextures);
-
-            if (material.useTextures) {
-              for (size_t i = 0; i < MAX_MATERIAL_TEXTURES; i++) {
-                if (material.textures[i] != 0) {
-                  glActiveTexture(GL_TEXTURE0 + i);
-                  glBindTexture(GL_TEXTURE_2D, material.textures[i]);
-                }
-              }
-              shader->setInt("material.texture_diffuse1", 0);
-              shader->setInt("material.texture_specular1", 1);
-            }
-
-            drawMesh(mesh);
-          } else {
-            Shader *shader = resources.getShader(material.shaderProgram);
-            if (!shader)
-              return;
-
-            shader->use();
-
-            if (configuredShaders.find(material.shaderProgram) ==
-                configuredShaders.end()) {
-              shader->setMat4("view", camera.view);
-              shader->setMat4("projection", camera.projection);
-              configuredShaders.insert(material.shaderProgram);
-            }
-
-            shader->setMat4("model", transform.getModelMatrix());
-            shader->setVec3("objectColor", material.diffuse);
-
-            drawMesh(mesh);
           }
-        });
+          shader->setInt("material.texture_diffuse1", 0);
+          shader->setInt("material.texture_specular1", 1);
+        }
+      } else {
+        // Unlit transparent entity
+        shader->setVec3("objectColor", renderable.material->diffuse);
+      }
+
+      drawMesh(*renderable.mesh);
+    }
   }
 
   void drawMesh(const MeshComponent &mesh) {

@@ -75,11 +75,8 @@ public:
 
     createFloor(world, planeMesh, staticShaderID);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
-    glDisable(GL_CULL_FACE);
 
     // createGrass(world, grassMesh, staticShaderID, grassTexture);
 
@@ -122,6 +119,7 @@ private:
 
     MaterialComponent material =
         MaterialPresets::create(shaderID, MaterialType::OBSIDIAN);
+    material.doubleSided = true;
     world.addComponent(floor, material);
   }
 

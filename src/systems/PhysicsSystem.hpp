@@ -23,7 +23,7 @@ public:
             PhysicsComponent &physics) {
           if (hJustPressed) {
             auto *tag = gWorld.getComponent<TagComponent>(entity);
-            if (!tag->has(ACTIVE)) {
+            if (!tag || !tag->has(ACTIVE)) {
               glm::vec3 direction = glm::vec3(0, 2, 0);
               physics.applyImpulse(direction);
             }
