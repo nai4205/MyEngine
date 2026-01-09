@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- exporter: blender2ogre 0.9.0 -->
+<!-- export_time: Fri, 09 Jan 2026 17:21:07 +0000 -->
+<!-- blender_version: 5.0.0 (release; Darwin) -->
+<!-- previous_export_time: Fri, 09 Jan 2026 17:17:00 +0000 -->
+<scene author="naikorn" formatVersion="1.1" >
+  <nodes >
+    <node name="Camera" >
+      <position x="-5.049405" y="0.747859" z="2.348317" />
+      <rotation qw="0.534816" qx="0.447543" qy="-0.553205" qz="0.455677" />
+      <scale x="1.000000" y="1.000000" z="1.000000" />
+      <camera fov="1.080839" name="Camera" projectionType="perspective" >
+        <clipping far="100.000000" near="0.100000" />
+      </camera>
+    </node>
+    <node name="main_sphere" >
+      <position x="0.831312" y="-0.000734" z="-4.045850" />
+      <rotation qw="0.593994" qx="0.000000" qy="0.804469" qz="-0.000000" />
+      <scale x="1.000000" y="1.000000" z="1.000000" />
+      <entity meshFile="Sphere.002.mesh" name="main_sphere" >
+        <userData />
+      </entity>
+      <node name="Cone" >
+        <position x="0.000325" y="0.109856" z="1.118663" />
+        <rotation qw="0.792499" qx="0.599677" qy="0.088976" qz="0.066452" />
+        <scale x="0.388794" y="0.288248" z="0.388794" />
+        <entity meshFile="Cone.mesh" name="Cone" >
+          <userData />
+        </entity>
+        <node name="Arm" >
+          <position x="-0.000002" y="-0.323487" z="-0.010832" />
+          <rotation qw="0.067296" qx="0.372859" qy="-0.592583" qz="-0.710840" />
+          <scale x="0.526680" y="0.497408" z="0.582915" />
+          <entity meshFile="Sphere.mesh" name="Arm" >
+            <userData />
+          </entity>
+          <node name="Arm.001" >
+            <position x="-0.000002" y="0.267069" z="2.503210" />
+            <rotation qw="1.000000" qx="0.000000" qy="0.000000" qz="-0.000000" />
+            <scale x="1.000000" y="1.000000" z="1.000000" />
+            <entity meshFile="Sphere.010.mesh" name="Arm.001" >
+              <userData />
+            </entity>
+            <node name="Arm.002" >
+              <position x="0.000000" y="0.218624" z="1.739447" />
+              <rotation qw="0.585698" qx="0.000000" qy="0.810530" qz="-0.000000" />
+              <scale x="1.000000" y="1.000000" z="1.000000" />
+              <entity meshFile="Sphere.014.mesh" name="Arm.002" >
+                <userData />
+              </entity>
+              <node name="Arm.003" >
+                <position x="0.019405" y="-0.671387" z="-0.185537" />
+                <rotation qw="0.883941" qx="0.048598" qy="0.464185" qz="0.028609" />
+                <scale x="1.000000" y="1.000000" z="1.000000" />
+                <entity meshFile="Sphere.015.mesh" name="Arm.003" >
+                  <userData />
+                </entity>
+                <node name="Arm.005" >
+                  <position x="-0.318119" y="0.774222" z="3.355723" />
+                  <rotation qw="1.000000" qx="-0.000000" qy="-0.000000" qz="0.000000" />
+                  <scale x="1.000000" y="1.000000" z="1.000000" />
+                  <entity meshFile="Sphere.017.mesh" name="Arm.005" >
+                    <userData />
+                  </entity>
+                  <node name="Arm.006" >
+                    <position x="-0.057186" y="-0.006001" z="0.761902" />
+                    <rotation qw="0.880456" qx="-0.014388" qy="-0.026774" qz="0.473153" />
+                    <scale x="1.000000" y="1.000000" z="1.000000" />
+                    <entity meshFile="Sphere.018.mesh" name="Arm.006" >
+                      <userData />
+                    </entity>
+                    <node name="Cube" >
+                      <position x="-0.094430" y="0.036360" z="0.989017" />
+                      <rotation qw="0.747789" qx="0.000000" qy="0.663937" qz="-0.000000" />
+                      <scale x="0.544977" y="0.300570" z="0.709013" />
+                      <entity meshFile="Cube.mesh" name="Cube" >
+                        <userData />
+                      </entity>
+                      <node name="Cylinder" >
+                        <position x="1.378412" y="-0.072495" z="-1.025213" />
+                        <rotation qw="0.136308" qx="0.295944" qy="-0.606479" qz="-0.725273" />
+                        <scale x="0.844821" y="1.334290" z="1.011623" />
+                        <entity meshFile="Cylinder.mesh" name="Cylinder" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.003" >
+                          <position x="2.361820" y="-0.096615" z="-0.101273" />
+                          <rotation qw="0.707107" qx="-0.707107" qy="-0.000000" qz="0.000000" />
+                          <scale x="1.581626" y="0.166336" z="0.478187" />
+                          <entity meshFile="Cube.013.mesh" name="Cube.003" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.003" >
+                            <position x="0.993891" y="0.088257" z="-0.002701" />
+                            <rotation qw="0.449411" qx="-0.799228" qy="-0.036257" qz="0.397430" />
+                            <scale x="0.830651" y="1.022364" z="0.963760" />
+                            <entity meshFile="Cylinder.003.mesh" name="Cylinder.003" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.006" >
+                              <position x="4.046448" y="0.014379" z="9.907990" />
+                              <rotation qw="0.587534" qx="-0.587534" qy="-0.393451" qz="-0.393451" />
+                              <scale x="10.369591" y="0.790352" z="0.978125" />
+                              <entity meshFile="Cube.015.mesh" name="Cube.006" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                      <node name="Cylinder.001" >
+                        <position x="1.378413" y="-0.072517" z="0.012264" />
+                        <rotation qw="0.502015" qx="0.614263" qy="-0.415883" qz="-0.444638" />
+                        <scale x="0.722264" y="1.507325" z="0.425891" />
+                        <entity meshFile="Cylinder.001.mesh" name="Cylinder.001" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.001" >
+                          <position x="-2.801666" y="0.004072" z="1.422118" />
+                          <rotation qw="0.678237" qx="-0.678237" qy="0.199988" qz="0.199988" />
+                          <scale x="2.469500" y="0.261387" z="0.401177" />
+                          <entity meshFile="Cube.003.mesh" name="Cube.001" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.002" >
+                            <position x="-0.875683" y="0.221100" z="0.002275" />
+                            <rotation qw="0.614519" qx="-0.738861" qy="-0.004669" qz="0.276458" />
+                            <scale x="0.357428" y="1.043165" z="2.240233" />
+                            <entity meshFile="Cylinder.002.mesh" name="Cylinder.002" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.002" >
+                              <position x="3.912201" y="-0.002203" z="4.568977" />
+                              <rotation qw="0.301371" qx="-0.301371" qy="0.639668" qz="0.639668" />
+                              <scale x="5.883089" y="0.571745" z="0.958621" />
+                              <entity meshFile="Cube.009.mesh" name="Cube.002" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                      <node name="Cylinder.005" >
+                        <position x="1.378412" y="-0.072517" z="1.051531" />
+                        <rotation qw="0.122691" qx="0.280791" qy="-0.617516" qz="-0.724415" />
+                        <scale x="0.818453" y="1.336973" z="1.033072" />
+                        <entity meshFile="Cylinder.007.mesh" name="Cylinder.005" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.004" >
+                          <position x="2.486460" y="0.135479" z="0.015762" />
+                          <rotation qw="0.707107" qx="-0.707107" qy="0.000000" qz="-0.000000" />
+                          <scale x="1.584433" y="0.166466" z="0.478224" />
+                          <entity meshFile="Cube.011.mesh" name="Cube.004" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.004" >
+                            <position x="0.993890" y="0.088226" z="0.015018" />
+                            <rotation qw="0.442410" qx="-0.801483" qy="-0.044257" qz="0.399923" />
+                            <scale x="0.919461" y="1.022365" z="0.879436" />
+                            <entity meshFile="Cylinder.004.mesh" name="Cylinder.004" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.010" >
+                              <position x="3.968597" y="-0.022858" z="10.056473" />
+                              <rotation qw="0.587534" qx="-0.587534" qy="-0.393451" qz="-0.393451" />
+                              <scale x="10.369591" y="0.790352" z="0.978125" />
+                              <entity meshFile="Cube.019.mesh" name="Cube.010" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                    </node>
+                  </node>
+                </node>
+              </node>
+            </node>
+          </node>
+        </node>
+      </node>
+      <node name="Cone.001" >
+        <position x="-0.044020" y="0.076459" z="-1.135598" />
+        <rotation qw="0.717252" qx="-0.618992" qy="0.243536" qz="-0.207580" />
+        <scale x="0.388794" y="0.288248" z="0.388794" />
+        <entity meshFile="Cone.001.mesh" name="Cone.001" >
+          <userData />
+        </entity>
+        <node name="Arm.004" >
+          <position x="0.014886" y="-0.265207" z="-0.006940" />
+          <rotation qw="0.774943" qx="-0.541487" qy="-0.325861" qz="-0.008348" />
+          <scale x="0.495378" y="0.508552" z="0.600477" />
+          <entity meshFile="Sphere.020.mesh" name="Arm.004" >
+            <userData />
+          </entity>
+          <node name="Arm.007" >
+            <position x="0.000000" y="0.267069" z="2.503209" />
+            <rotation qw="1.000000" qx="0.000000" qy="0.000000" qz="0.000000" />
+            <scale x="1.000000" y="1.000000" z="1.000000" />
+            <entity meshFile="Sphere.021.mesh" name="Arm.007" >
+              <userData />
+            </entity>
+            <node name="Arm.008" >
+              <position x="0.000006" y="0.218622" z="1.739446" />
+              <rotation qw="0.922387" qx="0.000000" qy="-0.386268" qz="0.000000" />
+              <scale x="1.000000" y="1.000000" z="1.000000" />
+              <entity meshFile="Sphere.022.mesh" name="Arm.008" >
+                <userData />
+              </entity>
+              <node name="Arm.009" >
+                <position x="0.019401" y="-0.671387" z="-0.185535" />
+                <rotation qw="0.980770" qx="-0.100092" qy="0.159392" qz="0.051626" />
+                <scale x="1.000000" y="1.000000" z="1.000000" />
+                <entity meshFile="Sphere.023.mesh" name="Arm.009" >
+                  <userData />
+                </entity>
+                <node name="Arm.010" >
+                  <position x="-0.318120" y="0.774223" z="3.355724" />
+                  <rotation qw="1.000000" qx="-0.000000" qy="0.000000" qz="0.000000" />
+                  <scale x="1.000000" y="1.000000" z="1.000000" />
+                  <entity meshFile="Sphere.024.mesh" name="Arm.010" >
+                    <userData />
+                  </entity>
+                  <node name="Arm.011" >
+                    <position x="-0.057185" y="-0.005999" z="0.761907" />
+                    <rotation qw="0.997876" qx="0.001752" qy="-0.030344" qz="-0.057618" />
+                    <scale x="1.000000" y="1.000000" z="1.000000" />
+                    <entity meshFile="Sphere.025.mesh" name="Arm.011" >
+                      <userData />
+                    </entity>
+                    <node name="Cube.011" >
+                      <position x="-0.094430" y="0.036360" z="0.989018" />
+                      <rotation qw="0.747789" qx="0.000000" qy="0.663937" qz="-0.000000" />
+                      <scale x="0.544976" y="0.300570" z="0.709013" />
+                      <entity meshFile="Cube.027.mesh" name="Cube.011" >
+                        <userData />
+                      </entity>
+                      <node name="Cylinder.006" >
+                        <position x="1.378412" y="-0.072496" z="-1.025196" />
+                        <rotation qw="0.279561" qx="0.121664" qy="-0.724329" qz="-0.618378" />
+                        <scale x="0.816430" y="1.334289" z="1.034671" />
+                        <entity meshFile="Cylinder.009.mesh" name="Cylinder.006" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.015" >
+                          <position x="2.470892" y="-0.139348" z="-0.116500" />
+                          <rotation qw="0.707107" qx="-0.707107" qy="-0.000000" qz="0.000000" />
+                          <scale x="1.587045" y="0.169242" z="0.505769" />
+                          <entity meshFile="Cube.031.mesh" name="Cube.015" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.009" >
+                            <position x="0.993889" y="0.088234" z="-0.002693" />
+                            <rotation qw="0.799019" qx="-0.450025" qy="-0.397207" qz="0.035687" />
+                            <scale x="0.823361" y="1.022364" z="0.969995" />
+                            <entity meshFile="Cylinder.012.mesh" name="Cylinder.009" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.017" >
+                              <position x="4.296276" y="-0.065781" z="10.241760" />
+                              <rotation qw="0.587534" qx="-0.587534" qy="-0.393451" qz="-0.393451" />
+                              <scale x="10.369592" y="0.790353" z="0.978125" />
+                              <entity meshFile="Cube.033.mesh" name="Cube.017" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                      <node name="Cylinder.007" >
+                        <position x="1.378422" y="-0.072502" z="0.012278" />
+                        <rotation qw="0.678624" qx="0.516635" qy="-0.406602" qz="-0.327464" />
+                        <scale x="0.691809" y="1.507326" z="0.473761" />
+                        <entity meshFile="Cylinder.010.mesh" name="Cylinder.007" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.012" >
+                          <position x="-2.801679" y="0.004068" z="1.422112" />
+                          <rotation qw="0.678236" qx="-0.678237" qy="0.199988" qz="0.199988" />
+                          <scale x="2.469500" y="0.261387" z="0.401177" />
+                          <entity meshFile="Cube.028.mesh" name="Cube.012" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.008" >
+                            <position x="-0.875677" y="0.221031" z="0.002295" />
+                            <rotation qw="0.595742" qx="-0.745523" qy="-0.005596" qz="0.298757" />
+                            <scale x="0.395287" y="1.043166" z="2.233865" />
+                            <entity meshFile="Cylinder.011.mesh" name="Cylinder.008" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.013" >
+                              <position x="3.912182" y="-0.002209" z="4.569012" />
+                              <rotation qw="0.301371" qx="-0.301371" qy="0.639668" qz="0.639668" />
+                              <scale x="5.883090" y="0.571745" z="0.958621" />
+                              <entity meshFile="Cube.029.mesh" name="Cube.013" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                      <node name="Cylinder.011" >
+                        <position x="1.378414" y="-0.072499" z="1.051548" />
+                        <rotation qw="0.091667" qx="0.237148" qy="-0.645066" qz="-0.720589" />
+                        <scale x="0.756436" y="1.336973" z="1.079309" />
+                        <entity meshFile="Cylinder.014.mesh" name="Cylinder.011" >
+                          <userData />
+                        </entity>
+                        <node name="Cube.014" >
+                          <position x="2.376482" y="0.091759" z="-0.471462" />
+                          <rotation qw="0.700697" qx="-0.713343" qy="0.010751" qz="-0.007057" />
+                          <scale x="1.587385" y="0.169074" z="0.492824" />
+                          <entity meshFile="Cube.030.mesh" name="Cube.014" >
+                            <userData />
+                          </entity>
+                          <node name="Cylinder.010" >
+                            <position x="0.993891" y="0.088226" z="0.015022" />
+                            <rotation qw="0.440896" qx="-0.801927" qy="-0.046464" qz="0.400455" />
+                            <scale x="0.939969" y="1.022364" z="0.857480" />
+                            <entity meshFile="Cylinder.013.mesh" name="Cylinder.010" >
+                              <userData />
+                            </entity>
+                            <node name="Cube.021" >
+                              <position x="4.196266" y="-0.007303" z="10.334435" />
+                              <rotation qw="0.587534" qx="-0.587534" qy="-0.393451" qz="-0.393451" />
+                              <scale x="10.369591" y="0.790352" z="0.978125" />
+                              <entity meshFile="Cube.037.mesh" name="Cube.021" >
+                                <userData />
+                              </entity>
+                            </node>
+                          </node>
+                        </node>
+                      </node>
+                    </node>
+                  </node>
+                </node>
+              </node>
+            </node>
+          </node>
+        </node>
+      </node>
+      <node name="outer_eyelid" >
+        <position x="-0.820803" y="0.010746" z="-0.003570" />
+        <rotation qw="1.000000" qx="0.000000" qy="-0.000000" qz="-0.000000" />
+        <scale x="1.000000" y="0.794558" z="0.749989" />
+        <entity meshFile="Sphere.005.mesh" name="outer_eyelid" >
+          <userData />
+        </entity>
+        <node name="bottom_eyelid" >
+          <position x="0.291825" y="-0.267202" z="0.004816" />
+          <rotation qw="1.000000" qx="0.000000" qy="0.000000" qz="-0.000000" />
+          <scale x="0.400000" y="0.125856" z="0.435258" />
+          <entity meshFile="Cube.002.mesh" name="bottom_eyelid" >
+            <userData />
+          </entity>
+        </node>
+        <node name="inner_eye" >
+          <position x="0.111948" y="0.056738" z="0.005491" />
+          <rotation qw="1.000000" qx="0.000000" qy="-0.000000" qz="-0.000000" />
+          <scale x="0.199039" y="0.328280" z="0.361459" />
+          <entity meshFile="Sphere.007.mesh" name="inner_eye" >
+            <userData />
+          </entity>
+          <node name="Plane" >
+            <position x="-0.495959" y="0.013950" z="0.004944" />
+            <rotation qw="0.701632" qx="-0.000000" qy="0.000000" qz="-0.712534" />
+            <scale x="0.805169" y="5.023956" z="0.774651" />
+            <entity meshFile="Plane.mesh" name="Plane" >
+              <userData />
+            </entity>
+          </node>
+        </node>
+        <node name="top_eyelid" >
+          <position x="0.317304" y="0.349571" z="0.002894" />
+          <rotation qw="1.000000" qx="0.000000" qy="0.000000" qz="-0.000000" />
+          <scale x="0.400000" y="0.125856" z="0.435258" />
+          <entity meshFile="Cube.001.mesh" name="top_eyelid" >
+            <userData />
+          </entity>
+        </node>
+      </node>
+      <node name="Plane.001" >
+        <position x="-0.790841" y="0.059466" z="0.001889" />
+        <rotation qw="0.701832" qx="-0.000000" qy="0.000000" qz="-0.712342" />
+        <scale x="0.210000" y="1.000000" z="0.210000" />
+        <entity meshFile="Plane.001.mesh" name="Plane.001" >
+          <userData />
+        </entity>
+      </node>
+      <node name="Plane.002" >
+        <position x="-0.803154" y="0.059466" z="0.001889" />
+        <rotation qw="0.701832" qx="-0.000000" qy="0.000000" qz="-0.712342" />
+        <scale x="0.210000" y="1.000000" z="0.210000" />
+        <entity meshFile="Plane.002.mesh" name="Plane.002" >
+          <userData />
+        </entity>
+      </node>
+      <node name="Point" >
+        <position x="-0.286916" y="0.064939" z="0.000595" />
+        <rotation qw="0.096907" qx="-0.696251" qy="-0.704664" qz="-0.096397" />
+        <scale x="1.000000" y="1.000000" z="1.000000" />
+        <light name="Point" powerScale="30.519998168945314" type="spot" >
+          <colourDiffuse b="1.000000" g="0.005051" r="0.000000" />
+          <colourSpecular b="1.000000" g="0.005051" r="0.000000" />
+          <lightRange falloff="1.0" inner="0.6152802829714403" outer="0.982620358467102" />
+          <lightAttenuation constant="1.0" linear="1.125000" quadratic="4.687500" range="40.0" />
+        </light>
+      </node>
+    </node>
+    <node name="Sun" >
+      <position x="-2.550725" y="4.134804" z="2.413562" />
+      <rotation qw="0.972751" qx="0.000000" qy="0.000000" qz="0.231853" />
+      <scale x="1.000000" y="1.000000" z="1.000000" />
+      <light name="Sun" powerScale="184.7849853515625" type="spot" >
+        <colourDiffuse b="1.000000" g="1.000000" r="1.000000" />
+        <colourSpecular b="1.000000" g="1.000000" r="1.000000" />
+        <lightRange falloff="1.0" inner="3.1415927410125732" outer="3.1415927410125732" />
+        <lightAttenuation constant="1.0" linear="1.125000" quadratic="4.687500" range="40.0" />
+      </light>
+    </node>
+  </nodes>
+  <externals >
+    <item type="material" >
+      <file name="bump.ball.material" />
+    </item>
+  </externals>
+  <environment >
+    <colourBackground b="0.050876" g="0.050876" r="0.050876" />
+  </environment>
+</scene>
