@@ -78,6 +78,8 @@ int main() {
                                    : glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -90,7 +92,7 @@ int main() {
     gWorld.update(deltaTime);
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     gWorld.render();
 
     glfwSwapBuffers(window);

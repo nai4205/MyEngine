@@ -1,19 +1,27 @@
 #ifndef TAG_HPP
 #define TAG_HPP
 
+#include <unordered_set>
+
 enum TagComponentTypes {
   ACTIVE,
-  MODEL,  // For loaded 3D models
+  MODEL,
+  OUTLINED,
 };
 
-// TagComponent component - simple enum-based tag for entity identification
 struct TagComponent {
-  TagComponentTypes type;
+  std::unordered_set<TagComponentTypes> tags;
 
-  TagComponent() : type() {};
-  TagComponent(TagComponentTypes tagType) : type(tagType) {};
+  TagComponent() = default;
+  TagComponent(TagComponentTypes tagType) { tags.insert(tagType); }
+  TagComponent(std::initializer_list<TagComponentTypes> tagList)
+      : tags(tagList) {}
 
-  bool operator==(const TagComponentTypes &other) const { return type == other; }
+  void add(TagComponentTypes tag) { tags.insert(tag); }
+  void remove(TagComponentTypes tag) { tags.erase(tag); }
+  bool has(TagComponentTypes tag) const { return tags.find(tag) != tags.end(); }
+
+  bool operator==(const TagComponentTypes &other) const { return has(other); }
 };
 
 #endif // TAG_HPP

@@ -118,7 +118,7 @@ private:
     gWorld.forEachWith<CameraComponent, TransformComponent, TagComponent>(
         [&](Entity entity, CameraComponent &camera,
             TransformComponent &transform, TagComponent &tag) {
-          if (!activeCamera && tag.type == ACTIVE) {
+          if (!activeCamera && tag.has(ACTIVE)) {
             activeCamera = &camera;
             cameraTransform = &transform;
           }

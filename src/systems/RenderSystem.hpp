@@ -7,6 +7,7 @@
 #include "../components/MeshComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
+#include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
 #include "../ecs/utils/CameraUtils.hpp"
 
@@ -28,20 +29,57 @@ public:
 
     auto &resources = ResourceManager::instance();
 
-    renderLitEntities(camera, resources);
+    bool hasOutlined = false;
+    gWorld.forEachWith<TagComponent>([&](Entity entity, TagComponent &tag) {
+      if (tag.has(OUTLINED)) {
+        hasOutlined = true;
+        return;
+      }
+    });
+    if (hasOutlined) {
+      // Mask - 0xFF -> each bit is written as is
+      //      - 0x00 -> each bit ends up as 0
+      // Step 1: Render non-outlined entities with stencil writing disabled
+      glStencilMask(0x00);
+      renderLitEntities(camera, resources, false);
+      renderUnlitEntities(camera, resources);
 
-    renderUnlitEntities(camera, resources);
+      // Step 2: Render outlined entities with stencil writing enabled
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      glStencilMask(0xFF);
+      renderLitEntities(camera, resources, true);
+
+      // Step 3: Render outlines (scaled up, single color, where stencil != 1)
+      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+      glStencilMask(0x00);
+      glDisable(GL_DEPTH_TEST);
+      renderOutlines(camera, resources);
+
+      glStencilMask(0xFF);
+      glStencilFunc(GL_ALWAYS, 0, 0xFF);
+      glEnable(GL_DEPTH_TEST);
+    } else {
+
+      renderLitEntities(camera, resources, false);
+      renderUnlitEntities(camera, resources);
+    }
   }
 
 private:
   void renderLitEntities(const ActiveCameraData &camera,
-                         ResourceManager &resources) {
+                         ResourceManager &resources, bool onlyOutlined) {
     std::unordered_set<uint32_t> configuredShaders;
 
     gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
         [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
             MaterialComponent &material) {
           if (!mesh.isValid() || !material.receivesLighting)
+            return;
+
+          bool hasOutlineTag =
+              gWorld.hasComponent<TagComponent>(entity) &&
+              gWorld.getComponent<TagComponent>(entity)->has(OUTLINED);
+          if (hasOutlineTag != onlyOutlined)
             return;
 
           Shader *shader = resources.getShader(material.shaderProgram);
@@ -105,6 +143,41 @@ private:
 
           shader->setMat4("model", transform.getModelMatrix());
           shader->setVec3("objectColor", material.diffuse);
+
+          drawMesh(mesh);
+        });
+  }
+
+  void renderOutlines(const ActiveCameraData &camera,
+                      ResourceManager &resources) {
+    Shader *outlineShader = resources.getShader("singleColor");
+    if (!outlineShader)
+      return;
+
+    outlineShader->use();
+    outlineShader->setMat4("view", camera.view);
+    outlineShader->setMat4("projection", camera.projection);
+    outlineShader->setFloat("outlineWidth", 0.05);
+
+    const float outlineScale = 1.05;
+
+    gWorld.forEachWith<TransformComponent, MeshComponent, MaterialComponent>(
+        [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
+            MaterialComponent &material) {
+          if (!gWorld.hasComponent<TagComponent>(entity))
+            return;
+
+          TagComponent *tag = gWorld.getComponent<TagComponent>(entity);
+          if (!tag->has(OUTLINED))
+            return;
+
+          if (!mesh.isValid())
+            return;
+
+          TransformComponent scaledTransform = transform;
+          scaledTransform.scale *= outlineScale;
+
+          outlineShader->setMat4("model", scaledTransform.getModelMatrix());
 
           drawMesh(mesh);
         });

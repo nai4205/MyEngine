@@ -24,7 +24,7 @@ inline ActiveCameraData getActiveCamera(World &world, float aspectRatio,
           TagComponent &tag) {
         if (data.found)
           return;
-        if (tag.type != ACTIVE)
+        if (!tag.has(ACTIVE))
           return;
 
         data.found = true;

@@ -27,7 +27,7 @@ public:
         [&](Entity entity, CameraComponent &camera, TagComponent &tag) {
           if (activeCameraEntity != NULL_ENTITY)
             return; // Already found
-          if (tag.type == ACTIVE) {
+          if (tag.has(ACTIVE)) {
             activeCameraEntity = entity;
           }
         });

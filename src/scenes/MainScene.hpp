@@ -30,6 +30,10 @@ public:
         "light", "../src/shaders/lightSource/lightSourceVertex.glsl",
         "../src/shaders/lightSource/lightSourceFragment.glsl");
 
+    uint32_t singleColorShaderID = resources.loadShader(
+        "singleColor", "../src/shaders/stencil/shaderSingleColorVertex.glsl",
+        "../src/shaders/stencil/shaderSingleColorFrag.glsl");
+
     std::vector<VertexAttribute> cubeLayout = {
         {0, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)0},
         {1, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)(3 * sizeof(float))},
@@ -131,6 +135,10 @@ private:
 
       PhysicsComponent physics;
       world.addComponent(cube, physics);
+
+      TagComponent tag(OUTLINED);
+      tag.add(MODEL);
+      world.addComponent(cube, tag);
     }
   }
 
@@ -196,6 +204,9 @@ private:
         glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 
     for (Entity e : backpackEntities) {
+      TagComponent tag;
+      tag.add(OUTLINED);
+      world.addComponent(e, tag);
       trackEntity(e);
     }
   }
