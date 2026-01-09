@@ -3,6 +3,8 @@
 #include "components/SpotLightComponent.hpp"
 #include "gl_common.hpp"
 #include <iostream>
+#include <string>
+#include <thread>
 
 #include "ecs/World.hpp"
 #include "scenes/MainScene.hpp"
@@ -22,8 +24,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+const unsigned int TARGET_FPS = 60;
 bool wireframe = false;
 float lastFrame = 0.0f;
+float lastTitleUpdate = 0.0f;
+int frameCount = 0;
 
 int main() {
   // GLFW/GLAD setup (unchanged)
@@ -33,7 +38,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   GLFWwindow *window =
-      glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Learning OpenGL", NULL, NULL);
+      glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL Application", NULL, NULL);
   if (!window) {
     std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
@@ -92,15 +97,35 @@ int main() {
     float deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    frameCount++;
+
+    // Update window title with FPS every 0.1 seconds
+    if (currentFrame - lastTitleUpdate >= 0.1f) {
+      float fps = frameCount / (currentFrame - lastTitleUpdate);
+      std::string title =
+          "OpenGL Application - FPS: " + std::to_string(static_cast<int>(fps));
+      glfwSetWindowTitle(window, title.c_str());
+      frameCount = 0;
+      lastTitleUpdate = currentFrame;
+    }
+
     gWorld.getInput().newFrame();
     glfwPollEvents();
 
     gWorld.update(deltaTime);
 
-    // Clear is now handled inside RenderSystem for the framebuffer
     gWorld.render();
 
     glfwSwapBuffers(window);
+    if (TARGET_FPS > 0) {
+      double frameTime = 1.0 / TARGET_FPS;
+      double elapsed = glfwGetTime() - currentFrame;
+      if (elapsed < frameTime) {
+        double sleepTime = frameTime - elapsed;
+        std::this_thread::sleep_for(std::chrono::microseconds(
+            static_cast<long long>(sleepTime * 1000000)));
+      }
+    }
   }
 
   glfwTerminate();

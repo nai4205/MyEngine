@@ -221,6 +221,7 @@ private:
       material.diffuse = plConfig.color;
       material.useTextures = false;
       material.receivesLighting = false;
+      material.doubleSided = true;
       world.addComponent(pointLight, material);
     }
 
