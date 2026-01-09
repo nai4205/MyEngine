@@ -19,4 +19,5 @@ struct MaterialComponent {
 
   bool useTextures = false;
   bool receivesLighting = true;
+  bool hasTransparency = false;
 };

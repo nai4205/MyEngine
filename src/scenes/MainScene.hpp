@@ -57,16 +57,34 @@ public:
         planeVertices, sizeof(planeVertices), planeLayout, 6);
     MeshData lightCubeMesh = resources.createMesh(
         lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
+    MeshData grassMesh = resources.createMesh(
+        grassVertices, sizeof(grassVertices), cubeLayout, 6);
 
     uint32_t containerDiffuse =
         resources.loadTexture("../src/assets/container2.png");
     uint32_t containerSpecular =
         resources.loadTexture("../src/assets/container2_specular.png");
 
+    uint32_t grassTexture = resources.loadTexture("../src/assets/grass.png");
+    uint32_t windowTexture = resources.loadTexture("../src/assets/window.png");
+
+    glBindTexture(GL_TEXTURE_2D, grassTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     createFloor(world, planeMesh, staticShaderID);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
+    glDisable(GL_CULL_FACE);
+
+    // createGrass(world, grassMesh, staticShaderID, grassTexture);
+
+    createGrass(world, grassMesh, staticShaderID, windowTexture,
+                true); // Windows are transparent
 
     createLights(world, lightCubeMesh, lightSourceShaderID);
 
@@ -83,7 +101,7 @@ public:
   const glm::vec4 &getClearColor() const override { return clearColor; }
 
 private:
-  static constexpr LightingType sceneTheme = LightingType::FACTORY;
+  static constexpr LightingType sceneTheme = LightingType::DESERT;
 
   LightingType currentLighting = sceneTheme;
   glm::vec4 clearColor = LightingPresets::getClearColor(sceneTheme);
@@ -136,9 +154,9 @@ private:
       PhysicsComponent physics;
       world.addComponent(cube, physics);
 
-      TagComponent tag(OUTLINED);
-      tag.add(MODEL);
-      world.addComponent(cube, tag);
+      // TagComponent tag(OUTLINED);
+      // tag.add(MODEL);
+      // world.addComponent(cube, tag);
     }
   }
 
@@ -195,7 +213,7 @@ private:
         slConfig.ambient, slConfig.diffuse, slConfig.specular,
         slConfig.constant, slConfig.linear, slConfig.quadratic,
         slConfig.cutOffDegrees, slConfig.outerCutOffDegrees, true);
-    world.addComponent(spotlight, spotComp);
+    // world.addComponent(spotlight, spotComp);
   }
 
   void createBackpack(World &world, uint32_t shaderID) {
@@ -204,10 +222,40 @@ private:
         glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 
     for (Entity e : backpackEntities) {
-      TagComponent tag;
-      tag.add(OUTLINED);
-      world.addComponent(e, tag);
+      // TagComponent tag;
+      // tag.add(OUTLINED);
+      // world.addComponent(e, tag);
       trackEntity(e);
+    }
+  }
+
+  void createGrass(World &world, const MeshData &mesh, uint32_t shaderID,
+                   uint32_t grassTexture, bool isTransparent = false) {
+    for (unsigned int i = 0; i < 10; i++) {
+      Entity grass = world.createEntity();
+      trackEntity(grass);
+
+      TransformComponent transform;
+      transform.position = glm::vec3(i, -0.5, i);
+      world.addComponent(grass, transform);
+
+      MeshComponent meshComp;
+      meshComp.vao = mesh.vao;
+      meshComp.vertexCount = mesh.vertexCount;
+      meshComp.indexCount = 0;
+      world.addComponent(grass, meshComp);
+
+      MaterialComponent material;
+      material.shaderProgram = shaderID;
+      material.textures[0] = grassTexture;
+      material.useTextures = true;
+      material.shininess = 32.0f;
+      material.hasTransparency = isTransparent;
+      world.addComponent(grass, material);
+
+      // TagComponent tag;
+      // tag.add(OUTLINED);
+      // world.addComponent(grass, tag);
     }
   }
 

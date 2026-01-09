@@ -58,10 +58,11 @@ public:
       glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
                    GL_UNSIGNED_BYTE, data);
       glGenerateMipmap(GL_TEXTURE_2D);
-      stbi_image_free(data);
     } else {
       std::cerr << "Failed to load embedded texture from memory" << std::endl;
     }
+
+    stbi_image_free(data);
   }
 
   void loadImageRaw(const unsigned char *data, int width, int height,
@@ -112,11 +113,11 @@ public:
                       GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-      stbi_image_free(data);
     } else {
       std::cout << "Texture failed to load at path: " << path << std::endl;
-      stbi_image_free(data);
     }
+
+    stbi_image_free(data);
 
     return textureID;
   }

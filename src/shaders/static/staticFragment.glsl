@@ -84,7 +84,9 @@ void main()
   }
 
   if (material.useTex) {
-    FragColor = vec4(result * vec3(texture(material.texture_diffuse1, TexCoords)), 1.0);
+    vec4 texColor = texture(material.texture_diffuse1, TexCoords);
+    if (texColor.a < 0.1) discard;
+    FragColor = vec4(result * texColor.rgb, texColor.a);
   } else {
     FragColor = vec4(result, 1.0);
   }
