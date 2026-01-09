@@ -107,6 +107,8 @@ public:
     // glDisable(GL_DEPTH_TEST);
     // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
+    glm::vec3 clearColor = getClearColor();
+    resources.setClearColorForFramebuffer("main", clearColor);
   }
 
   const std::string &getName() const override {

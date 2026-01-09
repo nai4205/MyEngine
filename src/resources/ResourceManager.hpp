@@ -191,7 +191,7 @@ public:
 
   // ========== FRAMEBUFFERS ==========
   Framebuffer *createFramebuffer(const std::string &name, unsigned int width,
-                                  unsigned int height) {
+                                 unsigned int height) {
     auto fb = std::make_unique<Framebuffer>(width, height);
     Framebuffer *ptr = fb.get();
     framebuffers[name] = std::move(fb);
@@ -209,6 +209,15 @@ public:
     if (it != framebuffers.end()) {
       it->second->resize(width, height);
     }
+  }
+
+  void setClearColorForFramebuffer(const std::string &name,
+                                   glm::vec3 clearColor) {
+    auto it = framebuffers.find(name);
+    if (it == framebuffers.end())
+      return;
+    auto frameBuffer = it->second.get();
+    frameBuffer->clearColor = clearColor;
   }
 
   void cleanup() {

@@ -63,8 +63,9 @@ public:
       glEnable(GL_DEPTH_TEST);
 
       // Clear the framebuffer
-      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+      glClearColor(fb->clearColor.x, fb->clearColor.y, fb->clearColor.z, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+              GL_STENCIL_BUFFER_BIT);
     }
 
     std::vector<RenderableEntity> renderables;
@@ -113,7 +114,7 @@ public:
       fb->unbind();
       glDisable(GL_DEPTH_TEST);
 
-      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      glClearColor(fb->clearColor.x, fb->clearColor.y, fb->clearColor.z, 1.0);
       glClear(GL_COLOR_BUFFER_BIT);
 
       Shader *screenShader = resources.getShader("postprocess");
@@ -337,9 +338,9 @@ private:
 
   void setupScreenQuad() {
     // Screen quad vertices (position + texCoords)
-    float quadVertices[] = {
-        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+    float quadVertices[] = {-1.0f, 1.0f,  0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
+                            1.0f,  -1.0f, 1.0f, 0.0f, -1.0f, 1.0f,  0.0f, 1.0f,
+                            1.0f,  -1.0f, 1.0f, 0.0f, 1.0f,  1.0f,  1.0f, 1.0f};
 
     unsigned int quadVBO;
     glGenVertexArrays(1, &screenQuadVAO);

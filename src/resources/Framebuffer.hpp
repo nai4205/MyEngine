@@ -10,6 +10,7 @@ public:
   unsigned int rbo = 0;
   unsigned int width = 0;
   unsigned int height = 0;
+  glm::vec3 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
   Framebuffer() = default;
 
