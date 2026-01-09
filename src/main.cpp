@@ -77,8 +77,9 @@ int main() {
   glm::vec4 clearColor = mainScene ? mainScene->getClearColor()
                                    : glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
+  glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  glFrontFace(GL_CW);
+  glFrontFace(GL_CCW);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);

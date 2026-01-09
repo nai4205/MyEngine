@@ -113,6 +113,41 @@ public:
     return data;
   }
 
+  MeshData createIndexedMesh(const float *vertices, size_t verticesSizeInBytes,
+                             const unsigned int *indices, size_t indicesCount,
+                             const std::vector<VertexAttribute> &attributes,
+                             uint32_t vertexCount) {
+    MeshData data;
+    data.vertexCount = vertexCount;
+    data.indexCount = static_cast<uint32_t>(indicesCount);
+
+    glGenVertexArrays(1, &data.vao);
+    glGenBuffers(1, &data.vbo);
+    glGenBuffers(1, &data.ebo);
+
+    glBindVertexArray(data.vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
+    glBufferData(GL_ARRAY_BUFFER, verticesSizeInBytes, vertices,
+                 GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(unsigned int),
+                 indices, GL_STATIC_DRAW);
+
+    for (const VertexAttribute &attr : attributes) {
+      glVertexAttribPointer(attr.location, attr.componentCount, attr.type,
+                            attr.normalized ? GL_TRUE : GL_FALSE, attr.stride,
+                            attr.offset);
+      glEnableVertexAttribArray(attr.location);
+    }
+
+    glBindVertexArray(0);
+
+    meshes.emplace_back(data);
+    return data;
+  }
+
   MeshData createIndexedMesh(const std::vector<Vertex> &vertices,
                              const std::vector<uint32_t> &indices) {
     MeshData data;

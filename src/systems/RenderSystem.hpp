@@ -62,24 +62,10 @@ public:
           renderables.emplace_back(renderable);
         });
 
-    std::vector<RenderableEntity> singleSided;
-    singleSided.reserve(renderables.size() / 2);
-    std::vector<RenderableEntity> doubleSided;
-    doubleSided.reserve(renderables.size() / 2);
-
-    for (const auto &renderable : renderables) {
-      if (renderable.material->doubleSided) {
-        doubleSided.emplace_back(renderable);
-      } else {
-        singleSided.emplace_back(renderable);
-      }
-    }
-
-    glEnable(GL_CULL_FACE);
     if (hasOutlined) {
       // Render non-outlined entities with stencil writing disabled
       glStencilMask(0x00);
-      renderEntities(camera, resources, singleSided, false, false);
+      renderEntities(camera, resources, renderables, false, false);
 
       // Stencil outlining
       // Mask - 0xFF -> each bit is written as is
@@ -87,60 +73,26 @@ public:
       // Step 1: Render outlined entities with stencil writing enabled
       glStencilFunc(GL_ALWAYS, 1, 0xFF);
       glStencilMask(0xFF);
-      renderEntities(camera, resources, singleSided, true, false);
+      renderEntities(camera, resources, renderables, true, false);
 
       // Step 2: Render outlines (scaled up, single color, where stencil != 1)
       glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
       glStencilMask(0x00);
       // glDisable(GL_DEPTH_TEST);
-      renderOutlines(camera, resources, singleSided);
+      renderOutlines(camera, resources, renderables);
 
       glStencilMask(0xFF);
       glStencilFunc(GL_ALWAYS, 0, 0xFF);
       // glEnable(GL_DEPTH_TEST);
     } else {
-      renderEntities(camera, resources, singleSided, false, false);
+      renderEntities(camera, resources, renderables, false, false);
     }
 
     // Render transparent objects last, sorted back-to-front
     // Disable depth writing so transparent objects don't block objects behind
     // them
     glDepthMask(GL_FALSE);
-    renderTransparentEntities(camera, resources, singleSided);
-    glDepthMask(GL_TRUE);
-
-    glDisable(GL_CULL_FACE);
-    if (hasOutlined) {
-      // Render non-outlined entities with stencil writing disabled
-      glStencilMask(0x00);
-      renderEntities(camera, resources, doubleSided, false, false);
-
-      // Stencil outlining
-      // Mask - 0xFF -> each bit is written as is
-      //      - 0x00 -> each bit ends up as 0
-      // Step 1: Render outlined entities with stencil writing enabled
-      glStencilFunc(GL_ALWAYS, 1, 0xFF);
-      glStencilMask(0xFF);
-      renderEntities(camera, resources, doubleSided, true, false);
-
-      // Step 2: Render outlines (scaled up, single color, where stencil != 1)
-      glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-      glStencilMask(0x00);
-      // glDisable(GL_DEPTH_TEST);
-      renderOutlines(camera, resources, doubleSided);
-
-      glStencilMask(0xFF);
-      glStencilFunc(GL_ALWAYS, 0, 0xFF);
-      // glEnable(GL_DEPTH_TEST);
-    } else {
-      renderEntities(camera, resources, doubleSided, false, false);
-    }
-
-    // Render transparent objects last, sorted back-to-front
-    // Disable depth writing so transparent objects don't block objects behind
-    // them
-    glDepthMask(GL_FALSE);
-    renderTransparentEntities(camera, resources, singleSided);
+    renderTransparentEntities(camera, resources, renderables);
     glDepthMask(GL_TRUE);
   }
 
@@ -202,7 +154,7 @@ private:
         shader->setVec3("objectColor", renderable.material->diffuse);
       }
 
-      drawMesh(*renderable.mesh);
+      drawMesh(*renderable.mesh, *renderable.material);
     }
   }
 
@@ -237,7 +189,7 @@ private:
         outlineShader->setInt("texture_diffuse1", 0);
       }
 
-      drawMesh(*renderable.mesh);
+      drawMesh(*renderable.mesh, *renderable.material);
     }
   }
 
@@ -295,11 +247,18 @@ private:
         shader->setVec3("objectColor", renderable.material->diffuse);
       }
 
-      drawMesh(*renderable.mesh);
+      drawMesh(*renderable.mesh, *renderable.material);
     }
   }
 
-  void drawMesh(const MeshComponent &mesh) {
+  void drawMesh(const MeshComponent &mesh, const MaterialComponent &material) {
+    if (material.doubleSided) {
+      glDisable(GL_CULL_FACE);
+    } else {
+      glEnable(GL_CULL_FACE);
+      glCullFace(GL_BACK);
+    }
+
     glBindVertexArray(mesh.vao);
     if (mesh.isIndexed()) {
       glDrawElements(GL_TRIANGLES, mesh.indexCount, mesh.indexType, nullptr);

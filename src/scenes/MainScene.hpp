@@ -40,6 +40,11 @@ public:
         {2, 2, GL_FLOAT, false, 8 * sizeof(float),
          (void *)(6 * sizeof(float))}};
 
+    std::vector<VertexAttribute> cubeLayoutNoTexture = {
+        {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
+        {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+         (void *)(3 * sizeof(float))}};
+
     std::vector<VertexAttribute> planeLayout = {
         {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
         {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
