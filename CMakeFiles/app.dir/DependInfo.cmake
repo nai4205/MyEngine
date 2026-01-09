@@ -9,6 +9,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/naikorn/Documents/projects/openglcpp/src/glad/src/glad.c" "CMakeFiles/app.dir/src/glad/src/glad.c.o" "gcc" "CMakeFiles/app.dir/src/glad/src/glad.c.o.d"
+  "/Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp" "CMakeFiles/app.dir/src/animation/Animation.cpp.o" "gcc" "CMakeFiles/app.dir/src/animation/Animation.cpp.o.d"
+  "/Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp" "CMakeFiles/app.dir/src/animation/Animator.cpp.o" "gcc" "CMakeFiles/app.dir/src/animation/Animator.cpp.o.d"
+  "/Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp" "CMakeFiles/app.dir/src/animation/Bone.cpp.o" "gcc" "CMakeFiles/app.dir/src/animation/Bone.cpp.o.d"
   "/Users/naikorn/Documents/projects/openglcpp/src/main.cpp" "CMakeFiles/app.dir/src/main.cpp.o" "gcc" "CMakeFiles/app.dir/src/main.cpp.o.d"
   "/Users/naikorn/Documents/projects/openglcpp/src/stb.cpp" "CMakeFiles/app.dir/src/stb.cpp.o" "gcc" "CMakeFiles/app.dir/src/stb.cpp.o.d"
   )

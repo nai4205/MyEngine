@@ -29,21 +29,25 @@ public:
     resources.createFramebuffer("main", screenWidth, screenHeight);
 
     // Load shaders
-    uint32_t staticShaderID = resources.loadShader(
-        "static", "../src/shaders/static/staticVertex.glsl",
-        "../src/shaders/static/staticFragment.glsl");
+    uint32_t staticShaderID =
+        resources.loadShader("static", "src/shaders/static/staticVertex.glsl",
+                             "src/shaders/static/staticFragment.glsl");
 
     uint32_t lightSourceShaderID = resources.loadShader(
-        "light", "../src/shaders/lightSource/lightSourceVertex.glsl",
-        "../src/shaders/lightSource/lightSourceFragment.glsl");
+        "light", "src/shaders/lightSource/lightSourceVertex.glsl",
+        "src/shaders/lightSource/lightSourceFragment.glsl");
 
     uint32_t singleColorShaderID = resources.loadShader(
-        "singleColor", "../src/shaders/stencil/shaderSingleColorVertex.glsl",
-        "../src/shaders/stencil/shaderSingleColorFrag.glsl");
+        "singleColor", "src/shaders/stencil/shaderSingleColorVertex.glsl",
+        "src/shaders/stencil/shaderSingleColorFrag.glsl");
 
     uint32_t postProcessShaderID = resources.loadShader(
-        "postprocess", "../src/shaders/postprocess/screenVertex.glsl",
-        "../src/shaders/postprocess/screenFragment.glsl");
+        "postprocess", "src/shaders/postprocess/screenVertex.glsl",
+        "src/shaders/postprocess/screenFragment.glsl");
+
+    uint32_t animatedShaderID = resources.loadShader(
+        "animated", "src/shaders/animated/animatedVertex.glsl",
+        "src/shaders/animated/animatedFragment.glsl");
 
     std::vector<VertexAttribute> cubeLayout = {
         {0, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)0},
@@ -76,12 +80,12 @@ public:
     MeshData grassMesh = resources.createMesh(
         grassVertices, sizeof(grassVertices), cubeLayout, 6);
     uint32_t containerDiffuse =
-        resources.loadTexture("../src/assets/container2.png");
+        resources.loadTexture("src/assets/container2.png");
     uint32_t containerSpecular =
-        resources.loadTexture("../src/assets/container2_specular.png");
+        resources.loadTexture("src/assets/container2_specular.png");
 
-    uint32_t grassTexture = resources.loadTexture("../src/assets/grass.png");
-    uint32_t windowTexture = resources.loadTexture("../src/assets/window.png");
+    uint32_t grassTexture = resources.loadTexture("src/assets/grass.png");
+    uint32_t windowTexture = resources.loadTexture("src/assets/window.png");
 
     glBindTexture(GL_TEXTURE_2D, grassTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -100,8 +104,11 @@ public:
 
     createLights(world, lightCubeMesh, lightSourceShaderID);
 
-    createModel(world, staticShaderID, "../src/assets/backpack/backpack.obj");
-    createModel(world, staticShaderID, "../src/assets/robotgrouped/robot.obj");
+    createModel(world, staticShaderID, "src/assets/backpack/backpack.obj");
+
+    // Load animated Black Dragon model with baked animations
+    createAnimatedModel(world, animatedShaderID,
+                        "src/assets/wolf/Wolf_dae.dae");
 
     createCamera(world);
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -258,6 +265,41 @@ private:
     }
   }
 
+  void createAnimatedModel(World &world, uint32_t shaderID, std::string path) {
+    std::vector<Entity> modelEntities = ModelLoader::loadWithAnimation(
+        world, path, shaderID, glm::vec3(0.0f, 0.0f, -2.0f), glm::vec3(1.0f));
+
+    for (Entity e : modelEntities) {
+      trackEntity(e);
+
+      // Check if this entity has AnimationComponent and auto-play first
+      // animation
+      auto *animComp = world.getComponent<AnimationComponent>(e);
+      if (animComp && !animComp->animations.empty()) {
+        // Print all available animations
+        std::cout << "\n=== Available Animations ("
+                  << animComp->animations.size() << ") ===" << std::endl;
+        int index = 1;
+        for (const auto &[name, anim] : animComp->animations) {
+          std::cout << "  " << index++ << ". " << name << std::endl;
+        }
+        std::cout << "==============================\n" << std::endl;
+
+        // Play first animation automatically
+        auto it = animComp->animations.begin();
+        animComp->play(it->first);
+        std::cout << "Playing animation: " << it->first << std::endl;
+      }
+    }
+
+    for (Entity e : modelEntities) {
+      auto *name = world.getComponent<NameComponent>(e);
+      if (name) {
+        std::cout << "- " << name->name << std::endl;
+      }
+    }
+  }
+
   void createGrass(World &world, const MeshData &mesh, uint32_t shaderID,
                    uint32_t grassTexture, bool isTransparent = false) {
     for (unsigned int i = 0; i < 10; i++) {
@@ -300,7 +342,7 @@ private:
     CameraComponent cam(-90.0f, 0.0f, 45.0f);
     world.addComponent(camera, cam);
 
-    CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false);
+    CameraControllerComponent controller(10.0f, 0.1f, 5.0f, false);
     world.addComponent(camera, controller);
 
     PhysicsComponent physics(-9.81f, 0.0f);

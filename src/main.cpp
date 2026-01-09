@@ -1,6 +1,9 @@
+#include "components/AnimationComponent.hpp"
 #include "components/DirectionalLightComponent.hpp"
 #include "components/NameComponent.hpp"
+#include "components/ParentComponent.hpp"
 #include "components/PointLightComponent.hpp"
+#include "components/SkeletonComponent.hpp"
 #include "components/SpotLightComponent.hpp"
 #include "gl_common.hpp"
 #include <iostream>
@@ -10,6 +13,7 @@
 #include "ecs/World.hpp"
 #include "scenes/MainScene.hpp"
 #include "scenes/SceneManager.hpp"
+#include "systems/AnimationSystem.hpp"
 #include "systems/CameraControllerSystem.hpp"
 #include "systems/CameraSystem.hpp"
 #include "systems/LightingSystem.hpp"
@@ -69,8 +73,14 @@ int main() {
   gWorld.registerComponent<PointLightComponent>();
   gWorld.registerComponent<SpotLightComponent>();
 
+  // Animation components
+  gWorld.registerComponent<AnimationComponent>();
+  gWorld.registerComponent<SkeletonComponent>();
+  gWorld.registerComponent<ParentComponent>();
+
   gWorld.addSystem<CameraControllerSystem>(window);
   gWorld.addSystem<PhysicsSystem>();
+  gWorld.addSystem<AnimationSystem>();  // Must run before RenderSystem
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
   gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);

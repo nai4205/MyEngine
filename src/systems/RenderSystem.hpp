@@ -3,8 +3,11 @@
 #include "../gl_common.hpp"
 #include "../resources/ResourceManager.hpp"
 
+#include "../components/AnimationComponent.hpp"
 #include "../components/MaterialComponent.hpp"
 #include "../components/MeshComponent.hpp"
+#include "../components/ParentComponent.hpp"
+#include "../components/SkeletonComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"
@@ -26,6 +29,7 @@ private:
     MeshComponent *mesh;
     MaterialComponent *material;
     TagComponent *tag;
+    SkeletonComponent *skeleton;
   };
 
 public:
@@ -81,6 +85,7 @@ public:
           renderable.mesh = &mesh;
           renderable.material = &material;
           renderable.tag = gWorld.getComponent<TagComponent>(entity);
+          renderable.skeleton = gWorld.getComponent<SkeletonComponent>(entity);
 
           if (renderable.tag && renderable.tag->has(OUTLINED)) {
             hasOutlined = true;
@@ -170,6 +175,24 @@ private:
     glDepthMask(GL_TRUE);
   }
 
+  AnimationComponent *findAnimationComponentForEntity(Entity entity) {
+    // Check if this entity has a ParentComponent
+    auto *parentComp = gWorld.getComponent<ParentComponent>(entity);
+    if (parentComp && parentComp->parent != NULL_ENTITY) {
+      // Get AnimationComponent from parent entity
+      auto *animComp = gWorld.getComponent<AnimationComponent>(parentComp->parent);
+      if (animComp && animComp->animator && animComp->isPlaying) {
+        return animComp;
+      }
+    }
+    // Fallback: check if entity itself has AnimationComponent
+    auto *animComp = gWorld.getComponent<AnimationComponent>(entity);
+    if (animComp && animComp->animator && animComp->isPlaying) {
+      return animComp;
+    }
+    return nullptr;
+  }
+
   void renderEntities(const ActiveCameraData &camera,
                       ResourceManager &resources,
                       const std::vector<RenderableEntity> &renderables,
@@ -203,6 +226,25 @@ private:
       }
 
       shader->setMat4("model", renderable.transform->getModelMatrix());
+
+      // Upload bone matrices for animated entities
+      if (renderable.skeleton && renderable.skeleton->isAnimated) {
+        AnimationComponent *animComp = findAnimationComponentForEntity(renderable.entity);
+        if (animComp && animComp->animator) {
+          const auto &transforms = animComp->animator->getFinalBoneMatrices();
+
+          for (size_t i = 0; i < transforms.size(); ++i) {
+            shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
+                           transforms[i]);
+          }
+        } else {
+          // Fallback: upload identity matrices if no animation found
+          for (int i = 0; i < 150; ++i) {
+            shader->setMat4("finalBonesMatrices[" + std::to_string(i) + "]",
+                           glm::mat4(1.0f));
+          }
+        }
+      }
 
       if (renderable.material->receivesLighting) {
         // Lit entity
@@ -332,6 +374,17 @@ private:
       glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
     }
     glBindVertexArray(0);
+  }
+
+  AnimationComponent *findAnimationComponent() {
+    AnimationComponent *result = nullptr;
+    gWorld.forEachWith<AnimationComponent>(
+        [&](Entity entity, AnimationComponent &anim) {
+          if (anim.animator && anim.isPlaying) {
+            result = &anim;
+          }
+        });
+    return result;
   }
 
   void setupScreenQuad() {

@@ -1,1 +1,38 @@
-build/compile_commands.json
+[
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/c++  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include -std=gnu++20 -arch arm64 -o CMakeFiles/app.dir/src/animation/Animation.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp",
+  "output": "CMakeFiles/app.dir/src/animation/Animation.cpp.o"
+},
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/c++  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include -std=gnu++20 -arch arm64 -o CMakeFiles/app.dir/src/animation/Animator.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp",
+  "output": "CMakeFiles/app.dir/src/animation/Animator.cpp.o"
+},
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/c++  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include -std=gnu++20 -arch arm64 -o CMakeFiles/app.dir/src/animation/Bone.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp",
+  "output": "CMakeFiles/app.dir/src/animation/Bone.cpp.o"
+},
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/cc  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include  -arch arm64 -o CMakeFiles/app.dir/src/glad/src/glad.c.o -c /Users/naikorn/Documents/projects/openglcpp/src/glad/src/glad.c",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/glad/src/glad.c",
+  "output": "CMakeFiles/app.dir/src/glad/src/glad.c.o"
+},
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/c++  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include -std=gnu++20 -arch arm64 -o CMakeFiles/app.dir/src/main.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/main.cpp",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/main.cpp",
+  "output": "CMakeFiles/app.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/naikorn/Documents/projects/openglcpp",
+  "command": "/usr/bin/c++  -I/Users/naikorn/Documents/projects/openglcpp/src/glad/include -I/Users/naikorn/Documents/projects/openglcpp/include -I/opt/homebrew/Cellar/glfw/3.4/include -I/opt/homebrew/Cellar/assimp/6.0.2/include -std=gnu++20 -arch arm64 -o CMakeFiles/app.dir/src/stb.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/stb.cpp",
+  "file": "/Users/naikorn/Documents/projects/openglcpp/src/stb.cpp",
+  "output": "CMakeFiles/app.dir/src/stb.cpp.o"
+}
+]

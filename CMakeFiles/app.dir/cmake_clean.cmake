@@ -1,4 +1,10 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/app.dir/src/animation/Animation.cpp.o"
+  "CMakeFiles/app.dir/src/animation/Animation.cpp.o.d"
+  "CMakeFiles/app.dir/src/animation/Animator.cpp.o"
+  "CMakeFiles/app.dir/src/animation/Animator.cpp.o.d"
+  "CMakeFiles/app.dir/src/animation/Bone.cpp.o"
+  "CMakeFiles/app.dir/src/animation/Bone.cpp.o.d"
   "CMakeFiles/app.dir/src/glad/src/glad.c.o"
   "CMakeFiles/app.dir/src/glad/src/glad.c.o.d"
   "CMakeFiles/app.dir/src/main.cpp.o"

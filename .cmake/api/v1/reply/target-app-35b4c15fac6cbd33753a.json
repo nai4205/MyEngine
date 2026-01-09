@@ -27,28 +27,39 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 17,
+				"line" : 18,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 28,
+				"line" : 29,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 33,
+				"line" : 34,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 43,
 				"parent" : 0
 			},
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 21,
+				"line" : 22,
 				"parent" : 0
 			}
 		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
 	},
 	"compileGroups" : 
 	[
@@ -56,57 +67,25 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -arch arm64 -fcolor-diagnostics"
+					"fragment" : "-std=gnu++20 -arch arm64"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 4,
+					"backtrace" : 5,
 					"path" : "/Users/naikorn/Documents/projects/openglcpp/src/glad/include"
 				},
 				{
-					"backtrace" : 4,
+					"backtrace" : 5,
 					"path" : "/Users/naikorn/Documents/projects/openglcpp/include"
 				},
 				{
-					"backtrace" : 4,
+					"backtrace" : 5,
 					"path" : "/opt/homebrew/Cellar/glfw/3.4/include"
 				},
 				{
-					"backtrace" : 4,
-					"path" : "/opt/homebrew/Cellar/assimp/6.0.2/include"
-				}
-			],
-			"language" : "C",
-			"sourceIndexes" : 
-			[
-				23
-			]
-		},
-		{
-			"compileCommandFragments" : 
-			[
-				{
-					"fragment" : "-std=gnu++20 -arch arm64 -fcolor-diagnostics"
-				}
-			],
-			"includes" : 
-			[
-				{
-					"backtrace" : 4,
-					"path" : "/Users/naikorn/Documents/projects/openglcpp/src/glad/include"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/Users/naikorn/Documents/projects/openglcpp/include"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "/opt/homebrew/Cellar/glfw/3.4/include"
-				},
-				{
-					"backtrace" : 4,
+					"backtrace" : 5,
 					"path" : "/opt/homebrew/Cellar/assimp/6.0.2/include"
 				}
 			],
@@ -121,8 +100,43 @@
 			},
 			"sourceIndexes" : 
 			[
-				24,
-				28
+				0,
+				2,
+				4,
+				36,
+				44
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : " -arch arm64"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "/Users/naikorn/Documents/projects/openglcpp/src/glad/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/Users/naikorn/Documents/projects/openglcpp/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/opt/homebrew/Cellar/glfw/3.4/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/opt/homebrew/Cellar/assimp/6.0.2/include"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				35
 			]
 		}
 	],
@@ -161,11 +175,6 @@
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "-framework OpenGL",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 3,
 				"fragment" : "-ldl",
 				"role" : "libraries"
 			},
@@ -173,10 +182,38 @@
 				"backtrace" : 3,
 				"fragment" : "-lpthread",
 				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-framework OpenGL",
+				"role" : "libraries"
 			}
 		],
 		"language" : "CXX"
 	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 3,
+			"fragment" : "glfw"
+		},
+		{
+			"backtrace" : 3,
+			"fragment" : "assimp"
+		},
+		{
+			"backtrace" : 3,
+			"fragment" : "dl"
+		},
+		{
+			"backtrace" : 3,
+			"fragment" : "pthread"
+		},
+		{
+			"backtrace" : 4,
+			"fragment" : "-framework OpenGL"
+		}
+	],
 	"name" : "app",
 	"nameOnDisk" : "app",
 	"paths" : 
@@ -187,14 +224,23 @@
 	"sourceGroups" : 
 	[
 		{
-			"name" : "Header Files",
+			"name" : "Source Files",
 			"sourceIndexes" : 
 			[
 				0,
-				1,
 				2,
-				3,
 				4,
+				35,
+				36,
+				44
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				1,
+				3,
 				5,
 				6,
 				7,
@@ -213,25 +259,34 @@
 				20,
 				21,
 				22,
+				23,
+				24,
 				25,
 				26,
 				27,
+				28,
 				29,
 				30,
 				31,
 				32,
 				33,
 				34,
-				35
-			]
-		},
-		{
-			"name" : "Source Files",
-			"sourceIndexes" : 
-			[
-				23,
-				24,
-				28
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53
 			]
 		}
 	],
@@ -239,186 +294,279 @@
 	[
 		{
 			"backtrace" : 1,
-			"path" : "src/components/CameraComponent.hpp",
+			"compileGroupIndex" : 0,
+			"path" : "src/animation/Animation.cpp",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/animation/Animation.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/animation/Animator.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/animation/Animator.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/animation/Bone.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/animation/Bone.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/animation/BoneInfo.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/components/AnimationComponent.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/components/CameraComponent.hpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/CameraControllerComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/DirectionalLightComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/LightComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/LightingPresets.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/MaterialComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/MaterialPresets.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/MeshComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/components/NameComponent.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/components/ParentComponent.hpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/PhysicsComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/PointLightComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/components/SkeletonComponent.hpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/SpotLightComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/components/TransformComponent.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/const_h.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/ComponentArray.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/ComponentManager.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/ComponentMask.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/Entity.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/EntityManager.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/Input.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/System.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/Tag.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/World.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/ecs/utils/CameraUtils.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/gl_common.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/glad/src/glad.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/glad/src/glad.c",
-			"sourceGroupIndex" : 1
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"compileGroupIndex" : 1,
-			"path" : "src/main.cpp",
+			"path" : "src/resources/Framebuffer.hpp",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/resources/ModelLoader.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/resources/ResourceManager.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/scenes/MainScene.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/scenes/Scene.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/scenes/SceneManager.hpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/shader_h.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/stb.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"compileGroupIndex" : 1,
-			"path" : "src/stb.cpp",
+			"path" : "src/systems/AnimationSystem.hpp",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/systems/CameraControllerSystem.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/systems/CameraSystem.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/systems/GLSettingsSystem.hpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/systems/LightingSystem.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/systems/PhysicsSystem.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/systems/RenderSystem.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/texture_2d_h.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/types_h.hpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

@@ -22,6 +22,18 @@ struct Vertex {
   glm::vec2 TexCoords;
 };
 
+struct AnimatedVertex {
+  glm::vec3 Position;
+  glm::vec3 Normal;
+  glm::vec2 TexCoords;
+  glm::ivec4 BoneIDs;    // Up to 4 bones per vertex
+  glm::vec4 Weights;     // Corresponding weights
+
+  AnimatedVertex()
+      : Position(0.0f), Normal(0.0f), TexCoords(0.0f), BoneIDs(-1),
+        Weights(0.0f) {}
+};
+
 struct VertexAttribute {
   unsigned int location; // Shader location (0, 1, 2, etc.)
   int componentCount;    // Number of components (3 for vec3, 2 for vec2)
@@ -182,6 +194,57 @@ public:
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, TexCoords));
+
+    glBindVertexArray(0);
+
+    meshes.emplace_back(data);
+    return data;
+  }
+
+  MeshData createIndexedAnimatedMesh(const std::vector<AnimatedVertex> &vertices,
+                                     const std::vector<uint32_t> &indices) {
+    MeshData data;
+    data.vertexCount = static_cast<uint32_t>(vertices.size());
+    data.indexCount = static_cast<uint32_t>(indices.size());
+
+    glGenVertexArrays(1, &data.vao);
+    glGenBuffers(1, &data.vbo);
+    glGenBuffers(1, &data.ebo);
+
+    glBindVertexArray(data.vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(AnimatedVertex),
+                 vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t),
+                 indices.data(), GL_STATIC_DRAW);
+
+    // Position (location 0)
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertex),
+                          (void *)0);
+
+    // Normal (location 1)
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertex),
+                          (void *)offsetof(AnimatedVertex, Normal));
+
+    // TexCoords (location 2)
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertex),
+                          (void *)offsetof(AnimatedVertex, TexCoords));
+
+    // BoneIDs (location 3) - integer attribute
+    glEnableVertexAttribArray(3);
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(AnimatedVertex),
+                           (void *)offsetof(AnimatedVertex, BoneIDs));
+
+    // Weights (location 4)
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(AnimatedVertex),
+                          (void *)offsetof(AnimatedVertex, Weights));
 
     glBindVertexArray(0);
 

@@ -72,10 +72,52 @@ include CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/codegen:
 .PHONY : CMakeFiles/app.dir/codegen
 
+CMakeFiles/app.dir/src/animation/Animation.cpp.o: CMakeFiles/app.dir/flags.make
+CMakeFiles/app.dir/src/animation/Animation.cpp.o: src/animation/Animation.cpp
+CMakeFiles/app.dir/src/animation/Animation.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/app.dir/src/animation/Animation.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/src/animation/Animation.cpp.o -MF CMakeFiles/app.dir/src/animation/Animation.cpp.o.d -o CMakeFiles/app.dir/src/animation/Animation.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp
+
+CMakeFiles/app.dir/src/animation/Animation.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/app.dir/src/animation/Animation.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp > CMakeFiles/app.dir/src/animation/Animation.cpp.i
+
+CMakeFiles/app.dir/src/animation/Animation.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/app.dir/src/animation/Animation.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/naikorn/Documents/projects/openglcpp/src/animation/Animation.cpp -o CMakeFiles/app.dir/src/animation/Animation.cpp.s
+
+CMakeFiles/app.dir/src/animation/Animator.cpp.o: CMakeFiles/app.dir/flags.make
+CMakeFiles/app.dir/src/animation/Animator.cpp.o: src/animation/Animator.cpp
+CMakeFiles/app.dir/src/animation/Animator.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/app.dir/src/animation/Animator.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/src/animation/Animator.cpp.o -MF CMakeFiles/app.dir/src/animation/Animator.cpp.o.d -o CMakeFiles/app.dir/src/animation/Animator.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp
+
+CMakeFiles/app.dir/src/animation/Animator.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/app.dir/src/animation/Animator.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp > CMakeFiles/app.dir/src/animation/Animator.cpp.i
+
+CMakeFiles/app.dir/src/animation/Animator.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/app.dir/src/animation/Animator.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/naikorn/Documents/projects/openglcpp/src/animation/Animator.cpp -o CMakeFiles/app.dir/src/animation/Animator.cpp.s
+
+CMakeFiles/app.dir/src/animation/Bone.cpp.o: CMakeFiles/app.dir/flags.make
+CMakeFiles/app.dir/src/animation/Bone.cpp.o: src/animation/Bone.cpp
+CMakeFiles/app.dir/src/animation/Bone.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/app.dir/src/animation/Bone.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/src/animation/Bone.cpp.o -MF CMakeFiles/app.dir/src/animation/Bone.cpp.o.d -o CMakeFiles/app.dir/src/animation/Bone.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp
+
+CMakeFiles/app.dir/src/animation/Bone.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/app.dir/src/animation/Bone.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp > CMakeFiles/app.dir/src/animation/Bone.cpp.i
+
+CMakeFiles/app.dir/src/animation/Bone.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/app.dir/src/animation/Bone.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/naikorn/Documents/projects/openglcpp/src/animation/Bone.cpp -o CMakeFiles/app.dir/src/animation/Bone.cpp.s
+
 CMakeFiles/app.dir/src/glad/src/glad.c.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/src/glad/src/glad.c.o: src/glad/src/glad.c
 CMakeFiles/app.dir/src/glad/src/glad.c.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/app.dir/src/glad/src/glad.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/app.dir/src/glad/src/glad.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/app.dir/src/glad/src/glad.c.o -MF CMakeFiles/app.dir/src/glad/src/glad.c.o.d -o CMakeFiles/app.dir/src/glad/src/glad.c.o -c /Users/naikorn/Documents/projects/openglcpp/src/glad/src/glad.c
 
 CMakeFiles/app.dir/src/glad/src/glad.c.i: cmake_force
@@ -89,7 +131,7 @@ CMakeFiles/app.dir/src/glad/src/glad.c.s: cmake_force
 CMakeFiles/app.dir/src/main.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/src/main.cpp.o: src/main.cpp
 CMakeFiles/app.dir/src/main.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/app.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/app.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/src/main.cpp.o -MF CMakeFiles/app.dir/src/main.cpp.o.d -o CMakeFiles/app.dir/src/main.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/main.cpp
 
 CMakeFiles/app.dir/src/main.cpp.i: cmake_force
@@ -103,7 +145,7 @@ CMakeFiles/app.dir/src/main.cpp.s: cmake_force
 CMakeFiles/app.dir/src/stb.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/src/stb.cpp.o: src/stb.cpp
 CMakeFiles/app.dir/src/stb.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/app.dir/src/stb.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/app.dir/src/stb.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/src/stb.cpp.o -MF CMakeFiles/app.dir/src/stb.cpp.o.d -o CMakeFiles/app.dir/src/stb.cpp.o -c /Users/naikorn/Documents/projects/openglcpp/src/stb.cpp
 
 CMakeFiles/app.dir/src/stb.cpp.i: cmake_force
@@ -116,6 +158,9 @@ CMakeFiles/app.dir/src/stb.cpp.s: cmake_force
 
 # Object files for target app
 app_OBJECTS = \
+"CMakeFiles/app.dir/src/animation/Animation.cpp.o" \
+"CMakeFiles/app.dir/src/animation/Animator.cpp.o" \
+"CMakeFiles/app.dir/src/animation/Bone.cpp.o" \
 "CMakeFiles/app.dir/src/glad/src/glad.c.o" \
 "CMakeFiles/app.dir/src/main.cpp.o" \
 "CMakeFiles/app.dir/src/stb.cpp.o"
@@ -123,12 +168,15 @@ app_OBJECTS = \
 # External object files for target app
 app_EXTERNAL_OBJECTS =
 
+app: CMakeFiles/app.dir/src/animation/Animation.cpp.o
+app: CMakeFiles/app.dir/src/animation/Animator.cpp.o
+app: CMakeFiles/app.dir/src/animation/Bone.cpp.o
 app: CMakeFiles/app.dir/src/glad/src/glad.c.o
 app: CMakeFiles/app.dir/src/main.cpp.o
 app: CMakeFiles/app.dir/src/stb.cpp.o
 app: CMakeFiles/app.dir/build.make
 app: CMakeFiles/app.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable app"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/naikorn/Documents/projects/openglcpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable app"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/app.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

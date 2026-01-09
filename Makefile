@@ -129,6 +129,78 @@ app/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/build
 .PHONY : app/fast
 
+src/animation/Animation.o: src/animation/Animation.cpp.o
+.PHONY : src/animation/Animation.o
+
+# target to build an object file
+src/animation/Animation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animation.cpp.o
+.PHONY : src/animation/Animation.cpp.o
+
+src/animation/Animation.i: src/animation/Animation.cpp.i
+.PHONY : src/animation/Animation.i
+
+# target to preprocess a source file
+src/animation/Animation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animation.cpp.i
+.PHONY : src/animation/Animation.cpp.i
+
+src/animation/Animation.s: src/animation/Animation.cpp.s
+.PHONY : src/animation/Animation.s
+
+# target to generate assembly for a file
+src/animation/Animation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animation.cpp.s
+.PHONY : src/animation/Animation.cpp.s
+
+src/animation/Animator.o: src/animation/Animator.cpp.o
+.PHONY : src/animation/Animator.o
+
+# target to build an object file
+src/animation/Animator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animator.cpp.o
+.PHONY : src/animation/Animator.cpp.o
+
+src/animation/Animator.i: src/animation/Animator.cpp.i
+.PHONY : src/animation/Animator.i
+
+# target to preprocess a source file
+src/animation/Animator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animator.cpp.i
+.PHONY : src/animation/Animator.cpp.i
+
+src/animation/Animator.s: src/animation/Animator.cpp.s
+.PHONY : src/animation/Animator.s
+
+# target to generate assembly for a file
+src/animation/Animator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Animator.cpp.s
+.PHONY : src/animation/Animator.cpp.s
+
+src/animation/Bone.o: src/animation/Bone.cpp.o
+.PHONY : src/animation/Bone.o
+
+# target to build an object file
+src/animation/Bone.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Bone.cpp.o
+.PHONY : src/animation/Bone.cpp.o
+
+src/animation/Bone.i: src/animation/Bone.cpp.i
+.PHONY : src/animation/Bone.i
+
+# target to preprocess a source file
+src/animation/Bone.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Bone.cpp.i
+.PHONY : src/animation/Bone.cpp.i
+
+src/animation/Bone.s: src/animation/Bone.cpp.s
+.PHONY : src/animation/Bone.s
+
+# target to generate assembly for a file
+src/animation/Bone.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/animation/Bone.cpp.s
+.PHONY : src/animation/Bone.cpp.s
+
 src/glad/src/glad.o: src/glad/src/glad.c.o
 .PHONY : src/glad/src/glad.o
 
@@ -210,6 +282,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... app"
+	@echo "... src/animation/Animation.o"
+	@echo "... src/animation/Animation.i"
+	@echo "... src/animation/Animation.s"
+	@echo "... src/animation/Animator.o"
+	@echo "... src/animation/Animator.i"
+	@echo "... src/animation/Animator.s"
+	@echo "... src/animation/Bone.o"
+	@echo "... src/animation/Bone.i"
+	@echo "... src/animation/Bone.s"
 	@echo "... src/glad/src/glad.o"
 	@echo "... src/glad/src/glad.i"
 	@echo "... src/glad/src/glad.s"
