@@ -62,6 +62,29 @@ public:
           renderables.emplace_back(renderable);
         });
 
+    std::vector<RenderableEntity> singleSided;
+    singleSided.reserve(renderables.size() / 2);
+    std::vector<RenderableEntity> doubleSided;
+    doubleSided.reserve(renderables.size() / 2);
+
+    for (const auto &renderable : renderables) {
+      if (renderable.material->doubleSided) {
+        doubleSided.emplace_back(renderable);
+      } else {
+        singleSided.emplace_back(renderable);
+      }
+    }
+
+    glEnable(GL_CULL_FACE);
+    renderEntitiesWithCulling(camera, resources, singleSided, hasOutlined);
+    glDisable(GL_CULL_FACE);
+    renderEntitiesWithCulling(camera, resources, doubleSided, hasOutlined);
+  }
+
+private:
+  void renderEntitiesWithCulling(
+      const ActiveCameraData camera, ResourceManager &resources,
+      const std::vector<RenderableEntity> &renderables, bool hasOutlined) {
     if (hasOutlined) {
       // Render non-outlined entities with stencil writing disabled
       glStencilMask(0x00);
@@ -96,7 +119,6 @@ public:
     glDepthMask(GL_TRUE);
   }
 
-private:
   void renderEntities(const ActiveCameraData &camera,
                       ResourceManager &resources,
                       const std::vector<RenderableEntity> &renderables,
@@ -154,7 +176,7 @@ private:
         shader->setVec3("objectColor", renderable.material->diffuse);
       }
 
-      drawMesh(*renderable.mesh, *renderable.material);
+      drawMesh(*renderable.mesh);
     }
   }
 
@@ -189,7 +211,7 @@ private:
         outlineShader->setInt("texture_diffuse1", 0);
       }
 
-      drawMesh(*renderable.mesh, *renderable.material);
+      drawMesh(*renderable.mesh);
     }
   }
 
@@ -247,18 +269,11 @@ private:
         shader->setVec3("objectColor", renderable.material->diffuse);
       }
 
-      drawMesh(*renderable.mesh, *renderable.material);
+      drawMesh(*renderable.mesh);
     }
   }
 
-  void drawMesh(const MeshComponent &mesh, const MaterialComponent &material) {
-    if (material.doubleSided) {
-      glDisable(GL_CULL_FACE);
-    } else {
-      glEnable(GL_CULL_FACE);
-      glCullFace(GL_BACK);
-    }
-
+  void drawMesh(const MeshComponent &mesh) {
     glBindVertexArray(mesh.vao);
     if (mesh.isIndexed()) {
       glDrawElements(GL_TRIANGLES, mesh.indexCount, mesh.indexType, nullptr);

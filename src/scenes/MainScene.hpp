@@ -254,6 +254,7 @@ private:
       material.useTextures = true;
       material.shininess = 32.0f;
       material.hasTransparency = isTransparent;
+      material.doubleSided = true;
       world.addComponent(grass, material);
 
       // TagComponent tag;
