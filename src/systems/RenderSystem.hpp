@@ -10,7 +10,6 @@
 #include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
 #include "../ecs/utils/CameraUtils.hpp"
-#include <map>
 
 extern World gWorld;
 
@@ -21,7 +20,6 @@ private:
   unsigned int screenQuadVAO = 0;
   int postProcessEffect = 0; // 0 = normal, 1 = invert, 2 = grayscale, etc.
 
-  // Struct to hold all entity data for rendering
   struct RenderableEntity {
     Entity entity;
     TransformComponent *transform;

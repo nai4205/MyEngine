@@ -1,4 +1,5 @@
 #include "components/DirectionalLightComponent.hpp"
+#include "components/NameComponent.hpp"
 #include "components/PointLightComponent.hpp"
 #include "components/SpotLightComponent.hpp"
 #include "gl_common.hpp"
@@ -16,7 +17,6 @@
 #include "systems/RenderSystem.hpp"
 
 World gWorld;
-RenderSystem *gRenderSystem = nullptr;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -31,7 +31,6 @@ float lastTitleUpdate = 0.0f;
 int frameCount = 0;
 
 int main() {
-  // GLFW/GLAD setup (unchanged)
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,6 +64,7 @@ int main() {
   gWorld.registerComponent<CameraComponent>();
   gWorld.registerComponent<CameraControllerComponent>();
   gWorld.registerComponent<TagComponent>();
+  gWorld.registerComponent<NameComponent>();
   gWorld.registerComponent<DirectionalLightComponent>();
   gWorld.registerComponent<PointLightComponent>();
   gWorld.registerComponent<SpotLightComponent>();
@@ -73,7 +73,7 @@ int main() {
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
-  gRenderSystem = gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
+  gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
 
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
@@ -144,19 +144,21 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 
   // Post-processing effect controls (number keys 0-5)
-  if (action == GLFW_PRESS && gRenderSystem) {
-    if (key == GLFW_KEY_0)
-      gRenderSystem->setPostProcessEffect(0); // Normal
-    else if (key == GLFW_KEY_1)
-      gRenderSystem->setPostProcessEffect(1); // Invert
-    else if (key == GLFW_KEY_2)
-      gRenderSystem->setPostProcessEffect(2); // Grayscale
-    else if (key == GLFW_KEY_3)
-      gRenderSystem->setPostProcessEffect(3); // Sharpen
-    else if (key == GLFW_KEY_4)
-      gRenderSystem->setPostProcessEffect(4); // Blur
-    else if (key == GLFW_KEY_5)
-      gRenderSystem->setPostProcessEffect(5); // Edge detection
+  if (action == GLFW_PRESS) {
+    if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
+      if (key == GLFW_KEY_0)
+        renderSystem->setPostProcessEffect(0); // Normal
+      else if (key == GLFW_KEY_1)
+        renderSystem->setPostProcessEffect(1); // Invert
+      else if (key == GLFW_KEY_2)
+        renderSystem->setPostProcessEffect(2); // Grayscale
+      else if (key == GLFW_KEY_3)
+        renderSystem->setPostProcessEffect(3); // Sharpen
+      else if (key == GLFW_KEY_4)
+        renderSystem->setPostProcessEffect(4); // Blur
+      else if (key == GLFW_KEY_5)
+        renderSystem->setPostProcessEffect(5); // Edge detection
+    }
   }
 
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -172,7 +174,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   resources.resizeFramebuffer("main", width, height);
 
   // Update render system screen size
-  if (gRenderSystem) {
-    gRenderSystem->setScreenSize(width, height);
+  if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
+    renderSystem->setScreenSize(width, height);
   }
 }

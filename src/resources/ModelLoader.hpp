@@ -4,6 +4,7 @@
 
 #include "../components/MaterialComponent.hpp"
 #include "../components/MeshComponent.hpp"
+#include "../components/NameComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/World.hpp"
 
@@ -68,6 +69,7 @@ private:
                             uint32_t shaderProgram) {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
+    std::string meshName = mesh->mName.C_Str();
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
       Vertex vertex;
@@ -103,6 +105,9 @@ private:
 
     TransformComponent transform;
     world.addComponent(entity, transform);
+
+    NameComponent name(meshName);
+    world.addComponent(entity, name);
 
     MeshComponent meshComp;
     meshComp.vao = meshData.vao;

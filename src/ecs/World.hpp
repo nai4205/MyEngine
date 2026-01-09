@@ -6,6 +6,7 @@
 #include "EntityManager.hpp"
 #include "Input.hpp"
 #include "System.hpp"
+#include "../components/NameComponent.hpp"
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
@@ -110,6 +111,31 @@ public:
     return componentManager->hasComponent<T>(entity);
   }
 
+  // ========== ENTITY SEARCH OPERATIONS ==========
+
+  Entity findEntityByName(const std::string &name) {
+    const auto &entities = getEntitiesWith<NameComponent>();
+    for (Entity entity : entities) {
+      auto *nameComp = getComponent<NameComponent>(entity);
+      if (nameComp && nameComp->name == name) {
+        return entity;
+      }
+    }
+    return NULL_ENTITY;
+  }
+
+  std::vector<Entity> findEntitiesByNameContains(const std::string &substring) {
+    std::vector<Entity> result;
+    const auto &entities = getEntitiesWith<NameComponent>();
+    for (Entity entity : entities) {
+      auto *nameComp = getComponent<NameComponent>(entity);
+      if (nameComp && nameComp->name.find(substring) != std::string::npos) {
+        result.push_back(entity);
+      }
+    }
+    return result;
+  }
+
   // ========== OPTIMIZED QUERY OPERATIONS ==========
   template <typename... ComponentTypes>
   const std::vector<Entity> &getEntitiesWith() {
@@ -203,6 +229,15 @@ public:
     T *systemPtr = system.get();
     systems.emplace_back(std::move(system));
     return systemPtr;
+  }
+
+  template <typename T> T *getSystem() {
+    for (auto &system : systems) {
+      if (T *castedSystem = dynamic_cast<T *>(system.get())) {
+        return castedSystem;
+      }
+    }
+    return nullptr;
   }
 
   void update(float deltaTime) {

@@ -100,7 +100,8 @@ public:
 
     createLights(world, lightCubeMesh, lightSourceShaderID);
 
-    createBackpack(world, staticShaderID);
+    createModel(world, staticShaderID, "../src/assets/backpack/backpack.obj");
+    createModel(world, staticShaderID, "../src/assets/robotgrouped/robot.obj");
 
     createCamera(world);
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -239,16 +240,21 @@ private:
     // world.addComponent(spotlight, spotComp);
   }
 
-  void createBackpack(World &world, uint32_t shaderID) {
-    std::vector<Entity> backpackEntities = ModelLoader::load(
-        world, "../src/assets/backpack/backpack.obj", shaderID,
-        glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+  void createModel(World &world, uint32_t shaderID, std::string path) {
+    std::vector<Entity> modelEntities = ModelLoader::load(
+        world, path, shaderID, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
 
-    for (Entity e : backpackEntities) {
+    for (Entity e : modelEntities) {
       // TagComponent tag;
       // tag.add(OUTLINED);
       // world.addComponent(e, tag);
       trackEntity(e);
+    }
+    for (Entity e : modelEntities) {
+      auto *name = world.getComponent<NameComponent>(e);
+      if (name) {
+        std::cout << "- " << name->name << std::endl;
+      }
     }
   }
 
