@@ -18,6 +18,8 @@ class RenderSystem : public System {
 private:
   unsigned int screenWidth = 800;
   unsigned int screenHeight = 600;
+  unsigned int screenQuadVAO = 0;
+  int postProcessEffect = 0; // 0 = normal, 1 = invert, 2 = grayscale, etc.
 
   // Struct to hold all entity data for rendering
   struct RenderableEntity {
@@ -30,7 +32,22 @@ private:
 
 public:
   RenderSystem(unsigned int width = 800, unsigned int height = 600)
-      : screenWidth(width), screenHeight(height) {}
+      : screenWidth(width), screenHeight(height) {
+    setupScreenQuad();
+  }
+
+  ~RenderSystem() {
+    if (screenQuadVAO) {
+      glDeleteVertexArrays(1, &screenQuadVAO);
+    }
+  }
+
+  void setPostProcessEffect(int effect) { postProcessEffect = effect; }
+
+  void setScreenSize(unsigned int width, unsigned int height) {
+    screenWidth = width;
+    screenHeight = height;
+  }
 
   void render() override {
     float aspectRatio =
@@ -38,6 +55,17 @@ public:
     auto camera = getActiveCamera(gWorld, aspectRatio);
 
     auto &resources = ResourceManager::instance();
+    Framebuffer *fb = resources.getFramebuffer("main");
+
+    // === FIRST PASS: Render scene to framebuffer ===
+    if (fb) {
+      fb->bind();
+      glEnable(GL_DEPTH_TEST);
+
+      // Clear the framebuffer
+      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
 
     std::vector<RenderableEntity> renderables;
     bool hasOutlined = false;
@@ -79,6 +107,30 @@ public:
     renderEntitiesWithCulling(camera, resources, singleSided, hasOutlined);
     glDisable(GL_CULL_FACE);
     renderEntitiesWithCulling(camera, resources, doubleSided, hasOutlined);
+
+    // === SECOND PASS: Render framebuffer to screen with post-processing ===
+    if (fb) {
+      fb->unbind();
+      glDisable(GL_DEPTH_TEST);
+
+      glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT);
+
+      Shader *screenShader = resources.getShader("postprocess");
+      if (screenShader) {
+        screenShader->use();
+        screenShader->setInt("screenTexture", 0);
+        screenShader->setInt("effect", postProcessEffect);
+
+        glBindVertexArray(screenQuadVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, fb->colorTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+      }
+
+      glEnable(GL_DEPTH_TEST);
+    }
   }
 
 private:
@@ -283,8 +335,25 @@ private:
     glBindVertexArray(0);
   }
 
-  void setScreenSize(unsigned int width, unsigned int height) {
-    screenWidth = width;
-    screenHeight = height;
+  void setupScreenQuad() {
+    // Screen quad vertices (position + texCoords)
+    float quadVertices[] = {
+        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+
+    unsigned int quadVBO;
+    glGenVertexArrays(1, &screenQuadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(screenQuadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices,
+                 GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                          (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
+                          (void *)(2 * sizeof(float)));
+    glBindVertexArray(0);
   }
 };

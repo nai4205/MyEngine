@@ -427,4 +427,16 @@ static const float grassVertices[] = {
     0.0f,  1.0f, 1.0f, 0.0f, 0.5f,  1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
     0.5f,  1.0f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f, 1.0f, -0.5f, 1.0f, 0.0f, 0.0f,
     0.0f,  1.0f, 0.0f, 1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f};
+
+// Screen quad for post-processing (position + texCoords)
+static const float screenQuadVertices[] = {
+    // positions   // texCoords
+    -1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+
+    -1.0f,  1.0f,  0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f, 1.0f
+};
 #endif // CONST_H

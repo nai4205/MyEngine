@@ -12,8 +12,10 @@ public:
   }
 
   template <typename T, typename... Args>
-  void registerScene(const std::string &name, Args &&...args) {
-    scenes[name] = std::make_unique<T>(std::forward<Args>(args)...);
+  void registerScene(const std::string &name, float screenWidth,
+                     float screenHeight, Args &&...args) {
+    scenes[name] = std::make_unique<T>(screenWidth, screenHeight,
+                                       std::forward<Args>(args)...);
   }
 
   void loadScene(const std::string &name, World &world) {

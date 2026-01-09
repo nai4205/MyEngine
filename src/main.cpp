@@ -14,6 +14,7 @@
 #include "systems/RenderSystem.hpp"
 
 World gWorld;
+RenderSystem *gRenderSystem = nullptr;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -67,10 +68,10 @@ int main() {
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
-  gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
+  gRenderSystem = gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
 
   auto &sceneManager = SceneManager::instance();
-  sceneManager.registerScene<MainScene>("main");
+  sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.loadScene("main", gWorld);
 
   auto *mainScene = sceneManager.getCurrentScene();
@@ -96,8 +97,7 @@ int main() {
 
     gWorld.update(deltaTime);
 
-    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // Clear is now handled inside RenderSystem for the framebuffer
     gWorld.render();
 
     glfwSwapBuffers(window);
@@ -118,6 +118,22 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
   }
 
+  // Post-processing effect controls (number keys 0-5)
+  if (action == GLFW_PRESS && gRenderSystem) {
+    if (key == GLFW_KEY_0)
+      gRenderSystem->setPostProcessEffect(0); // Normal
+    else if (key == GLFW_KEY_1)
+      gRenderSystem->setPostProcessEffect(1); // Invert
+    else if (key == GLFW_KEY_2)
+      gRenderSystem->setPostProcessEffect(2); // Grayscale
+    else if (key == GLFW_KEY_3)
+      gRenderSystem->setPostProcessEffect(3); // Sharpen
+    else if (key == GLFW_KEY_4)
+      gRenderSystem->setPostProcessEffect(4); // Blur
+    else if (key == GLFW_KEY_5)
+      gRenderSystem->setPostProcessEffect(5); // Edge detection
+  }
+
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
@@ -125,4 +141,13 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
+
+  // Resize the framebuffer to match new window size
+  auto &resources = ResourceManager::instance();
+  resources.resizeFramebuffer("main", width, height);
+
+  // Update render system screen size
+  if (gRenderSystem) {
+    gRenderSystem->setScreenSize(width, height);
+  }
 }

@@ -2,6 +2,7 @@
 
 #include "../shader_h.hpp"
 #include "../texture_2d_h.hpp"
+#include "Framebuffer.hpp"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -188,6 +189,28 @@ public:
     return data;
   }
 
+  // ========== FRAMEBUFFERS ==========
+  Framebuffer *createFramebuffer(const std::string &name, unsigned int width,
+                                  unsigned int height) {
+    auto fb = std::make_unique<Framebuffer>(width, height);
+    Framebuffer *ptr = fb.get();
+    framebuffers[name] = std::move(fb);
+    return ptr;
+  }
+
+  Framebuffer *getFramebuffer(const std::string &name) {
+    auto it = framebuffers.find(name);
+    return (it != framebuffers.end()) ? it->second.get() : nullptr;
+  }
+
+  void resizeFramebuffer(const std::string &name, unsigned int width,
+                         unsigned int height) {
+    auto it = framebuffers.find(name);
+    if (it != framebuffers.end()) {
+      it->second->resize(width, height);
+    }
+  }
+
   void cleanup() {
     for (auto &mesh : meshes) {
       if (mesh.vao)
@@ -202,6 +225,7 @@ public:
     shadersByID.clear();
     textureCache.clear();
     texturesByID.clear();
+    framebuffers.clear();
   }
 
   ~ResourceManager() { cleanup(); }
@@ -216,4 +240,5 @@ private:
   std::unordered_map<uint32_t, std::shared_ptr<Shader>> shadersByID;
   std::unordered_map<std::string, std::shared_ptr<Texture2D>> textureCache;
   std::unordered_map<uint32_t, std::shared_ptr<Texture2D>> texturesByID;
+  std::unordered_map<std::string, std::unique_ptr<Framebuffer>> framebuffers;
 };

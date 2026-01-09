@@ -19,9 +19,16 @@
 
 class MainScene : public Scene {
 public:
+  MainScene(float width, float height)
+      : screenWidth(width), screenHeight(height) {}
+
   void load(World &world) override {
     auto &resources = ResourceManager::instance();
 
+    // Create framebuffer for post-processing
+    resources.createFramebuffer("main", screenWidth, screenHeight);
+
+    // Load shaders
     uint32_t staticShaderID = resources.loadShader(
         "static", "../src/shaders/static/staticVertex.glsl",
         "../src/shaders/static/staticFragment.glsl");
@@ -33,6 +40,10 @@ public:
     uint32_t singleColorShaderID = resources.loadShader(
         "singleColor", "../src/shaders/stencil/shaderSingleColorVertex.glsl",
         "../src/shaders/stencil/shaderSingleColorFrag.glsl");
+
+    uint32_t postProcessShaderID = resources.loadShader(
+        "postprocess", "../src/shaders/postprocess/screenVertex.glsl",
+        "../src/shaders/postprocess/screenFragment.glsl");
 
     std::vector<VertexAttribute> cubeLayout = {
         {0, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)0},
@@ -64,7 +75,6 @@ public:
         lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
     MeshData grassMesh = resources.createMesh(
         grassVertices, sizeof(grassVertices), cubeLayout, 6);
-
     uint32_t containerDiffuse =
         resources.loadTexture("../src/assets/container2.png");
     uint32_t containerSpecular =
@@ -93,6 +103,10 @@ public:
     createBackpack(world, staticShaderID);
 
     createCamera(world);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glDisable(GL_DEPTH_TEST);
+    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT);
   }
 
   const std::string &getName() const override {
@@ -103,6 +117,9 @@ public:
   const glm::vec4 &getClearColor() const override { return clearColor; }
 
 private:
+  float screenWidth;
+  float screenHeight;
+
   static constexpr LightingType sceneTheme = LightingType::DESERT;
 
   LightingType currentLighting = sceneTheme;
