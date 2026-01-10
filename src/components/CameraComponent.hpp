@@ -47,8 +47,15 @@ public:
   // Get projection matrix
   glm::mat4 getProjectionMatrix(float aspectRatio, float nearPlane = 0.1f,
                                 float farPlane = 100.0f) const {
-    return glm::perspective(glm::radians(zoom), aspectRatio, nearPlane,
-                            farPlane);
+    if (isOrthographic) {
+      // Use orthoHeight as the base size, calculate width from aspect ratio
+      float halfHeight = orthoHeight * 0.5f;
+      float halfWidth = halfHeight * aspectRatio;
+      return glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, nearPlane, farPlane);
+    } else {
+      return glm::perspective(glm::radians(zoom), aspectRatio, nearPlane,
+                              farPlane);
+    }
   }
 
   // Calculate the new Front vector

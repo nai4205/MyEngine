@@ -112,14 +112,22 @@ private:
 
   void createCubes(World &world, const MeshData &mesh, uint32_t shaderID,
                    uint32_t diffuseTex, uint32_t specularTex) {
+    std::cout << "Creating 10 cubes for 2D scene..." << std::endl;
     for (unsigned int i = 0; i < 10; i++) {
       Entity cube = world.createEntity();
       trackEntity(cube);
 
       TransformComponent transform;
-      // 2D platformer: fixed X (depth), varying Z (horizontal), fixed Y
-      // (height)
-      transform.position = glm::vec3(10.0f, 0.0f, i - 4.5f);
+      // 2.5D platformer: platforms arranged horizontally
+      transform.position = glm::vec3(0.0f, -2.0f, (i - 4.5f) * 2.5f);
+      // Scale: thin platforms (0.3 depth, 0.5 height, 2.0 width)
+      transform.scale = glm::vec3(0.3f, 0.5f, 2.0f);
+      if (i == 0) {
+        std::cout << "  First platform at: (" << transform.position.x << ", "
+                  << transform.position.y << ", " << transform.position.z
+                  << "), scale: (" << transform.scale.x << ", " << transform.scale.y
+                  << ", " << transform.scale.z << ")" << std::endl;
+      }
       world.addComponent(cube, transform);
 
       MeshComponent meshComp;
@@ -207,14 +215,15 @@ private:
     trackEntity(camera);
 
     TransformComponent transform;
-    transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    transform.position = glm::vec3(-10.0f, 3.0f, 0.0f); // Back and above
     world.addComponent(camera, transform);
 
-    CameraComponent cam(0.0f, 0.0f, 45.0f);
+    // 2.5D Perspective camera: yaw=0 (look along +X), pitch=-15 (slight downward angle)
+    CameraComponent cam(0.0f, -15.0f, 45.0f);
     world.addComponent(camera, cam);
 
-    CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false);
-    world.addComponent(camera, controller);
+    // CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false);
+    // world.addComponent(camera, controller);
 
     TagComponent tag(ACTIVE);
     world.addComponent(camera, tag);

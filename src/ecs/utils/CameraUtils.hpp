@@ -5,6 +5,7 @@
 #include "../../ecs/Tag.hpp"
 #include "../World.hpp"
 #include <glm/glm.hpp>
+#include <iostream>
 
 struct ActiveCameraData {
   bool found = false;
@@ -33,7 +34,22 @@ inline ActiveCameraData getActiveCamera(World &world, float aspectRatio,
         data.view = camera.getViewMatrix(transform.position);
         data.projection =
             camera.getProjectionMatrix(aspectRatio, nearPlane, farPlane);
+
+        // Debug logging (only once)
+        static bool logged = false;
+        if (!logged) {
+          std::cout << "Active camera found - Pos: (" << transform.position.x << ", "
+                    << transform.position.y << ", " << transform.position.z
+                    << "), Front: (" << camera.front.x << ", " << camera.front.y
+                    << ", " << camera.front.z << "), Ortho: "
+                    << (camera.isOrthographic ? "YES" : "NO") << std::endl;
+          logged = true;
+        }
       });
+
+  if (!data.found) {
+    std::cout << "WARNING: No active camera found!" << std::endl;
+  }
 
   return data;
 }
