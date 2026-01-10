@@ -2,6 +2,7 @@
 
 #include "../ecs/World.hpp"
 #include "glm/detail/type_vec.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -12,6 +13,8 @@ public:
   virtual void load(World &world) = 0;
 
   virtual void unload(World &world) {
+    std::cout << "Unloading scene '" << getName() << "' - destroying "
+              << trackedEntities.size() << " entities" << std::endl;
     for (Entity e : trackedEntities) {
       world.destroyEntity(e);
     }

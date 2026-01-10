@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 // CameraComponent component - calculates view matrix from orientation
 // Uses GameObject's Transform for position
@@ -19,16 +20,23 @@ public:
   glm::vec3 worldUp;
 
   // CameraComponent properties
-  float zoom; // FOV in degrees
+  float zoom; // FOV in degrees for perspective, or ortho size for orthographic
+  bool isOrthographic;
+  float orthoWidth;
+  float orthoHeight;
 
   // Constructor
   CameraComponent(float initialYaw = -90.0f, float initialPitch = 0.0f,
-         float initialZoom = 45.0f,
-         glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f))
+                  float initialZoom = 45.0f,
+                  glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f),
+                  bool ortho = false, float orthoW = 10.0f, float orthoH = 10.0f)
       : yaw(initialYaw), pitch(initialPitch), zoom(initialZoom),
         worldUp(upVector), front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        up(glm::vec3(0.0f, 1.0f, 0.0f)), right(glm::vec3(1.0f, 0.0f, 0.0f)) {
+        up(glm::vec3(0.0f, 1.0f, 0.0f)), right(glm::vec3(1.0f, 0.0f, 0.0f)),
+        isOrthographic(ortho), orthoWidth(orthoW), orthoHeight(orthoH) {
     updateCameraComponentVectors();
+    std::cout << "Camera initialized - Yaw: " << yaw << "°, Pitch: " << pitch
+              << "° (" << (isOrthographic ? "Orthographic" : "Perspective") << ")" << std::endl;
   }
 
   // Get view matrix using provided position (from Transform)
@@ -69,6 +77,9 @@ public:
     }
 
     updateCameraComponentVectors();
+
+    // std::cout << "Camera Angles - Yaw: " << yaw << "°, Pitch: " << pitch <<
+    // "°" << std::endl;
   }
 
   // Modify zoom (used by CameraComponentController)

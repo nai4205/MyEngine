@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "../components/CameraComponent.hpp"
@@ -17,16 +18,17 @@
 #include "../resources/ModelLoader.hpp"
 #include "../resources/ResourceManager.hpp"
 #include "Scene.hpp"
+#include <iostream>
 
-class MainScene : public Scene {
+class Scene2D : public Scene {
 public:
-  MainScene(float width, float height)
+  Scene2D(float width, float height)
       : screenWidth(width), screenHeight(height) {}
 
   void load(World &world) override {
-    std::cout << "Loading MainScene..." << std::endl;
+    std::cout << "Loading Scene2D..." << std::endl;
     Entity sceneEntity = world.createEntity();
-    SceneComponent sceneComp = SceneComponent("main");
+    SceneComponent sceneComp = SceneComponent("Scene2D");
     TagComponent tagComp;
     tagComp.add(ACTIVESCENE);
     world.addComponent(sceneEntity, sceneComp);
@@ -35,7 +37,7 @@ public:
     auto &resources = ResourceManager::instance();
 
     // Create framebuffer for post-processing
-    resources.createFramebuffer("main", screenWidth, screenHeight);
+    resources.createFramebuffer("Scene2D", screenWidth, screenHeight);
 
     // Load shaders
     uint32_t staticShaderID = resources.loadShader(
@@ -65,11 +67,6 @@ public:
         {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
          (void *)(3 * sizeof(float))}};
 
-    std::vector<VertexAttribute> planeLayout = {
-        {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
-        {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-         (void *)(3 * sizeof(float))}};
-
     std::vector<VertexAttribute> lightCubeLayout = {
         {0, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)0},
         {1, 3, GL_FLOAT, false, 6 * sizeof(float),
@@ -78,51 +75,27 @@ public:
     MeshData cubeMesh =
         resources.createMesh(cubeVerticesWithTexture,
                              sizeof(cubeVerticesWithTexture), cubeLayout, 36);
-    MeshData planeMesh = resources.createMesh(
-        planeVertices, sizeof(planeVertices), planeLayout, 6);
     MeshData lightCubeMesh = resources.createMesh(
         lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
-    MeshData grassMesh = resources.createMesh(
-        grassVertices, sizeof(grassVertices), cubeLayout, 6);
+
     uint32_t containerDiffuse =
         resources.loadTexture("../src/assets/container2.png");
     uint32_t containerSpecular =
         resources.loadTexture("../src/assets/container2_specular.png");
 
-    uint32_t grassTexture = resources.loadTexture("../src/assets/grass.png");
-    uint32_t windowTexture = resources.loadTexture("../src/assets/window.png");
-
-    glBindTexture(GL_TEXTURE_2D, grassTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    createFloor(world, planeMesh, staticShaderID);
-
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
 
-    // createGrass(world, grassMesh, staticShaderID, grassTexture);
-
-    createGrass(world, grassMesh, staticShaderID, windowTexture,
-                true); // Windows are transparent
-
     createLights(world, lightCubeMesh, lightSourceShaderID);
 
-    createModel(world, staticShaderID, "../src/assets/backpack/backpack.obj");
-    createModel(world, staticShaderID, "../src/assets/robotgrouped/robot.obj");
-
     createCamera(world);
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // glDisable(GL_DEPTH_TEST);
-    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT);
+
     glm::vec3 clearColor = getClearColor();
-    resources.setClearColorForFramebuffer("main", clearColor);
+    resources.setClearColorForFramebuffer("Scene2D", clearColor);
   }
 
   const std::string &getName() const override {
-    static std::string name = "MainScene";
+    static std::string name = "Scene2D";
     return name;
   }
 
@@ -137,26 +110,6 @@ private:
   LightingType currentLighting = sceneTheme;
   glm::vec4 clearColor = LightingPresets::getClearColor(sceneTheme);
 
-  void createFloor(World &world, const MeshData &mesh, uint32_t shaderID) {
-    Entity floor = world.createEntity();
-    trackEntity(floor);
-
-    TransformComponent transform;
-    transform.position = glm::vec3(0.0f);
-    world.addComponent(floor, transform);
-
-    MeshComponent meshComp;
-    meshComp.vao = mesh.vao;
-    meshComp.vertexCount = mesh.vertexCount;
-    meshComp.indexCount = mesh.indexCount;
-    world.addComponent(floor, meshComp);
-
-    MaterialComponent material =
-        MaterialPresets::create(shaderID, MaterialType::OBSIDIAN);
-    material.doubleSided = true;
-    world.addComponent(floor, material);
-  }
-
   void createCubes(World &world, const MeshData &mesh, uint32_t shaderID,
                    uint32_t diffuseTex, uint32_t specularTex) {
     for (unsigned int i = 0; i < 10; i++) {
@@ -164,9 +117,9 @@ private:
       trackEntity(cube);
 
       TransformComponent transform;
-      transform.position = cubePositions[i];
-      float angle = 20.0f * i;
-      transform.rotation = glm::vec3(angle * 0.3f, angle, angle * 0.5f);
+      // 2D platformer: fixed X (depth), varying Z (horizontal), fixed Y
+      // (height)
+      transform.position = glm::vec3(10.0f, 0.0f, i - 4.5f);
       world.addComponent(cube, transform);
 
       MeshComponent meshComp;
@@ -183,8 +136,8 @@ private:
       material.shininess = 32.0f;
       world.addComponent(cube, material);
 
-      PhysicsComponent physics;
-      world.addComponent(cube, physics);
+      // PhysicsComponent physics;
+      // world.addComponent(cube, physics);
 
       // TagComponent tag(OUTLINED);
       // tag.add(MODEL);
@@ -249,71 +202,19 @@ private:
     // world.addComponent(spotlight, spotComp);
   }
 
-  void createModel(World &world, uint32_t shaderID, std::string path) {
-    std::vector<Entity> modelEntities = ModelLoader::load(
-        world, path, shaderID, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(1.0f));
-
-    for (Entity e : modelEntities) {
-      // TagComponent tag;
-      // tag.add(OUTLINED);
-      // world.addComponent(e, tag);
-      trackEntity(e);
-    }
-    for (Entity e : modelEntities) {
-      auto *name = world.getComponent<NameComponent>(e);
-      if (name) {
-        std::cout << "- " << name->name << std::endl;
-      }
-    }
-  }
-
-  void createGrass(World &world, const MeshData &mesh, uint32_t shaderID,
-                   uint32_t grassTexture, bool isTransparent = false) {
-    for (unsigned int i = 0; i < 10; i++) {
-      Entity grass = world.createEntity();
-      trackEntity(grass);
-
-      TransformComponent transform;
-      transform.position = glm::vec3(i, -0.5, i);
-      world.addComponent(grass, transform);
-
-      MeshComponent meshComp;
-      meshComp.vao = mesh.vao;
-      meshComp.vertexCount = mesh.vertexCount;
-      meshComp.indexCount = 0;
-      world.addComponent(grass, meshComp);
-
-      MaterialComponent material;
-      material.shaderProgram = shaderID;
-      material.textures[0] = grassTexture;
-      material.useTextures = true;
-      material.shininess = 32.0f;
-      material.hasTransparency = isTransparent;
-      material.doubleSided = true;
-      world.addComponent(grass, material);
-
-      // TagComponent tag;
-      // tag.add(OUTLINED);
-      // world.addComponent(grass, tag);
-    }
-  }
-
   void createCamera(World &world) {
     Entity camera = world.createEntity();
     trackEntity(camera);
 
     TransformComponent transform;
-    transform.position = glm::vec3(0.0f, 0.0f, 3.0f);
+    transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     world.addComponent(camera, transform);
 
-    CameraComponent cam(-90.0f, 0.0f, 45.0f);
+    CameraComponent cam(0.0f, 0.0f, 45.0f);
     world.addComponent(camera, cam);
 
     CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false);
     world.addComponent(camera, controller);
-
-    PhysicsComponent physics(-9.81f, 0.0f);
-    world.addComponent(camera, physics);
 
     TagComponent tag(ACTIVE);
     world.addComponent(camera, tag);

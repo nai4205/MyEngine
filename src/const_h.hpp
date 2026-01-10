@@ -1,6 +1,5 @@
+#pragma once
 #include <glm/glm.hpp>
-#define CONST_H
-#ifdef CONST_H
 static const float cubeVertices[] = {
     // Back face (looking toward -Z, CCW)
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
@@ -431,12 +430,6 @@ static const float grassVertices[] = {
 // Screen quad for post-processing (position + texCoords)
 static const float screenQuadVertices[] = {
     // positions   // texCoords
-    -1.0f,  1.0f,  0.0f, 1.0f,
-    -1.0f, -1.0f,  0.0f, 0.0f,
-     1.0f, -1.0f,  1.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
-    -1.0f,  1.0f,  0.0f, 1.0f,
-     1.0f, -1.0f,  1.0f, 0.0f,
-     1.0f,  1.0f,  1.0f, 1.0f
-};
-#endif // CONST_H
+    -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};

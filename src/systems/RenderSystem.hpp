@@ -5,6 +5,7 @@
 
 #include "../components/MaterialComponent.hpp"
 #include "../components/MeshComponent.hpp"
+#include "../components/SceneComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
 #include "../ecs/Tag.hpp"
@@ -51,9 +52,20 @@ public:
     float aspectRatio =
         static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
     auto camera = getActiveCamera(gWorld, aspectRatio);
+    std::string activeSceneName;
+    gWorld.forEachWith<SceneComponent>(
+        [&](Entity entity, SceneComponent &scene) {
+          TagComponent tag = *gWorld.getComponent<TagComponent>(entity);
+          if (tag.has(ACTIVESCENE))
+            activeSceneName = scene.name;
+        });
+    if (activeSceneName.length() <= 0) {
+      std::cout << "Must have an active scene" << std::endl;
+      return;
+    }
 
     auto &resources = ResourceManager::instance();
-    Framebuffer *fb = resources.getFramebuffer("main");
+    Framebuffer *fb = resources.getFramebuffer(activeSceneName);
 
     // === FIRST PASS: Render scene to framebuffer ===
     if (fb) {

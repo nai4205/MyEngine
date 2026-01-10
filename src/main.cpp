@@ -1,6 +1,7 @@
 #include "components/DirectionalLightComponent.hpp"
 #include "components/NameComponent.hpp"
 #include "components/PointLightComponent.hpp"
+#include "components/SceneComponent.hpp"
 #include "components/SpotLightComponent.hpp"
 #include "gl_common.hpp"
 #include <iostream>
@@ -9,6 +10,7 @@
 
 #include "ecs/World.hpp"
 #include "scenes/MainScene.hpp"
+#include "scenes/Scene2D.hpp"
 #include "scenes/SceneManager.hpp"
 #include "systems/CameraControllerSystem.hpp"
 #include "systems/CameraSystem.hpp"
@@ -68,6 +70,7 @@ int main() {
   gWorld.registerComponent<DirectionalLightComponent>();
   gWorld.registerComponent<PointLightComponent>();
   gWorld.registerComponent<SpotLightComponent>();
+  gWorld.registerComponent<SceneComponent>();
 
   gWorld.addSystem<CameraControllerSystem>(window);
   gWorld.addSystem<PhysicsSystem>();
@@ -77,7 +80,8 @@ int main() {
 
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("main", gWorld);
+  sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
+  sceneManager.loadScene("Scene2D", gWorld);
 
   auto *mainScene = sceneManager.getCurrentScene();
   glm::vec4 clearColor = mainScene ? mainScene->getClearColor()
