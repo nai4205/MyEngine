@@ -9,6 +9,7 @@
 #include "../components/MaterialPresets.hpp"
 #include "../components/MeshComponent.hpp"
 #include "../components/PhysicsComponent.hpp"
+#include "../components/PlayerControllerComponent.hpp"
 #include "../components/PointLightComponent.hpp"
 #include "../components/SceneComponent.hpp"
 #include "../components/SpotLightComponent.hpp"
@@ -89,6 +90,7 @@ public:
     uint32_t containerSpecular =
         resources.loadTexture("../src/assets/container2_specular.png");
 
+    createLights(world, lightCubeMesh, lightSourceShaderID);
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
 
@@ -174,14 +176,40 @@ private:
                                     0.1f,             // Linear
                                     0.032f);          // Quadratic
       world.addComponent(pointLight, lightComp);
-
-      // PhysicsComponent physics;
-      // world.addComponent(cube, physics);
-
-      // TagComponent tag(OUTLINED);
-      // tag.add(MODEL);
-      // world.addComponent(cube, tag);
     }
+
+    // Create player character on platform index 5 (middle platform at z=1.25)
+    Entity player = world.createEntity();
+    trackEntity(player);
+
+    TransformComponent transformPlayer;
+    // Platforms: x=0, y=-2, scale=(0.3, 0.5, 2.0)
+    // Platform top: y = -2 + 0.5/2 = -1.75
+    // Player cube (scale 0.5): center at y = -1.75 + 0.5/2 = -1.5
+    // Platform 5 is at z = (5 - 4.5) * 2.5 = 1.25
+    transformPlayer.position = glm::vec3(0.0f, -1.0f, 1.25f);
+    transformPlayer.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+    world.addComponent(player, transformPlayer);
+
+    MeshComponent playerMeshComp;
+    playerMeshComp.vao = mesh.vao;
+    playerMeshComp.vertexCount = mesh.vertexCount;
+    playerMeshComp.indexCount = 0;
+    world.addComponent(player, playerMeshComp);
+
+    MaterialComponent playerMaterial;
+    playerMaterial.shaderProgram = shaderID;
+    playerMaterial.textures[0] = diffuseTex;
+    playerMaterial.textures[1] = specularTex;
+    playerMaterial.useTextures = false; // Use textures to make it visible
+    playerMaterial.shininess = 32.0f;
+    world.addComponent(player, playerMaterial);
+
+    PhysicsComponent physComp(-15.0f, -1.5f);
+    world.addComponent(player, physComp);
+    // Add player controller for keyboard input
+    PlayerControllerComponent2D playerController(5.0f, 8.0f, false);
+    world.addComponent(player, playerController);
   }
 
   void createBackdrop(World &world, const MeshData &mesh, uint32_t shaderID) {
@@ -208,59 +236,15 @@ private:
 
   void createLights(World &world, const MeshData &lightMesh,
                     uint32_t lightShaderID) {
-    auto props = LightingPresets::getProperties(currentLighting);
-
     Entity dirLight = world.createEntity();
     trackEntity(dirLight);
 
-    DirectionalLightComponent dirComp(
-        props.dirLightDirection, props.dirLightAmbient, props.dirLightDiffuse,
-        props.dirLightSpecular);
-    world.addComponent(dirLight, dirComp);
+    glm::vec3 lightDirection = glm::normalize(glm::vec3(1.0f, -0.3f, 0.0f));
 
-    for (int i = 0; i < 8; i++) {
-      Entity pointLight = world.createEntity();
-      trackEntity(pointLight);
-
-      TransformComponent transform;
-      transform.position = glm::vec3(0.0f, 1.0f, (i - 4.5f) * 2.5f);
-      transform.scale = glm::vec3(0.2f);
-      world.addComponent(pointLight, transform);
-
-      auto &plConfig = props.pointLights[i];
-      PointLightComponent lightComp(plConfig.color * plConfig.ambientMultiplier,
-                                    plConfig.color, plConfig.color,
-                                    plConfig.constant, plConfig.linear,
-                                    plConfig.quadratic);
-      world.addComponent(pointLight, lightComp);
-
-      MeshComponent mesh;
-      mesh.vao = lightMesh.vao;
-      mesh.vertexCount = 36;
-      mesh.indexCount = 0;
-      world.addComponent(pointLight, mesh);
-
-      MaterialComponent material;
-      material.shaderProgram = lightShaderID;
-      material.diffuse = plConfig.color;
-      material.useTextures = false;
-      material.receivesLighting = false;
-      material.doubleSided = true;
-      world.addComponent(pointLight, material);
-    }
-
-    Entity spotlight = world.createEntity();
-    trackEntity(spotlight);
-
-    TransformComponent spotTransform;
-    world.addComponent(spotlight, spotTransform);
-
-    auto &slConfig = props.spotlight;
-    SpotLightComponent spotComp(
-        slConfig.ambient, slConfig.diffuse, slConfig.specular,
-        slConfig.constant, slConfig.linear, slConfig.quadratic,
-        slConfig.cutOffDegrees, slConfig.outerCutOffDegrees, true);
-    // world.addComponent(spotlight, spotComp);
+    DirectionalLightComponent dirLightComp(
+        lightDirection, glm::vec3(0.1f, 0.1f, 0.1f),
+        glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.1f, 0.1f, 0.1f));
+    world.addComponent(dirLight, dirLightComp);
   }
 
   void createCamera(World &world) {

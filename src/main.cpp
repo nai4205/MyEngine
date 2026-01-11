@@ -16,6 +16,7 @@
 #include "systems/CameraSystem.hpp"
 #include "systems/LightingSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
+#include "systems/PlayerControllerSystem.hpp"
 #include "systems/RenderSystem.hpp"
 
 World gWorld;
@@ -65,6 +66,7 @@ int main() {
   gWorld.registerComponent<PhysicsComponent>();
   gWorld.registerComponent<CameraComponent>();
   gWorld.registerComponent<CameraControllerComponent>();
+  gWorld.registerComponent<PlayerControllerComponent2D>();
   gWorld.registerComponent<TagComponent>();
   gWorld.registerComponent<NameComponent>();
   gWorld.registerComponent<DirectionalLightComponent>();
@@ -73,6 +75,7 @@ int main() {
   gWorld.registerComponent<SceneComponent>();
 
   gWorld.addSystem<CameraControllerSystem>(window);
+  gWorld.addSystem<PlayerControllerSystem>();
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
