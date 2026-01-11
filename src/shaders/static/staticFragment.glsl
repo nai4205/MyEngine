@@ -44,7 +44,7 @@ struct PointLight {
   vec3 diffuse;
   vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 10
 
 out vec4 FragColor;
 

@@ -73,7 +73,7 @@ private:
     gWorld.forEachWith<PointLightComponent, TransformComponent>(
         [&](Entity entity, PointLightComponent &light,
             TransformComponent &transform) {
-          if (index >= 4)
+          if (index >= 10)
             return;
 
           std::string base = "pointLights[" + std::to_string(index) + "]";
@@ -88,7 +88,7 @@ private:
         });
 
     // Zero out unused slots
-    for (int i = index; i < 4; i++) {
+    for (int i = index; i < 10; i++) {
       std::string base = "pointLights[" + std::to_string(i) + "]";
       shader->setVec3(base + ".ambient", glm::vec3(0.0f));
       shader->setVec3(base + ".diffuse", glm::vec3(0.0f));

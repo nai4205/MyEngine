@@ -175,7 +175,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 
   // Resize the framebuffer to match new window size
   auto &resources = ResourceManager::instance();
-  resources.resizeFramebuffer("main", width, height);
+  resources.resizeFramebuffer("Scene2D", width, height);
 
   // Update render system screen size
   if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {

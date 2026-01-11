@@ -72,11 +72,17 @@ public:
         {1, 3, GL_FLOAT, false, 6 * sizeof(float),
          (void *)(3 * sizeof(float))}};
 
+    std::vector<VertexAttribute> planeLayout = {
+        {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
+        {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+         (void *)(3 * sizeof(float))}};
     MeshData cubeMesh =
         resources.createMesh(cubeVerticesWithTexture,
                              sizeof(cubeVerticesWithTexture), cubeLayout, 36);
     MeshData lightCubeMesh = resources.createMesh(
         lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
+    MeshData planeMesh = resources.createMesh(
+        planeVertices, sizeof(planeVertices), planeLayout, 6);
 
     uint32_t containerDiffuse =
         resources.loadTexture("../src/assets/container2.png");
@@ -86,7 +92,9 @@ public:
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
 
-    createLights(world, lightCubeMesh, lightSourceShaderID);
+    createBackdrop(world, planeMesh, staticShaderID);
+
+    // createLights(world, lightCubeMesh, lightSourceShaderID);
 
     createCamera(world);
 
@@ -112,22 +120,28 @@ private:
 
   void createCubes(World &world, const MeshData &mesh, uint32_t shaderID,
                    uint32_t diffuseTex, uint32_t specularTex) {
-    std::cout << "Creating 10 cubes for 2D scene..." << std::endl;
+    // Different colors for the point lights
+    std::vector<glm::vec3> colors = {
+        glm::vec3(1.0f, 0.0f, 0.0f), // Red
+        glm::vec3(0.0f, 1.0f, 0.0f), // Green
+        glm::vec3(0.0f, 0.0f, 1.0f), // Blue
+        glm::vec3(1.0f, 1.0f, 0.0f), // Yellow
+        glm::vec3(1.0f, 0.0f, 1.0f), // Magenta
+        glm::vec3(0.0f, 1.0f, 1.0f), // Cyan
+        glm::vec3(1.0f, 0.5f, 0.0f), // Orange
+        glm::vec3(0.5f, 0.0f, 1.0f), // Purple
+        glm::vec3(1.0f, 1.0f, 1.0f), // White
+        glm::vec3(1.0f, 0.75f, 0.8f) // Pink
+    };
+
     for (unsigned int i = 0; i < 10; i++) {
       Entity cube = world.createEntity();
+
       trackEntity(cube);
 
       TransformComponent transform;
-      // 2.5D platformer: platforms arranged horizontally
       transform.position = glm::vec3(0.0f, -2.0f, (i - 4.5f) * 2.5f);
-      // Scale: thin platforms (0.3 depth, 0.5 height, 2.0 width)
       transform.scale = glm::vec3(0.3f, 0.5f, 2.0f);
-      if (i == 0) {
-        std::cout << "  First platform at: (" << transform.position.x << ", "
-                  << transform.position.y << ", " << transform.position.z
-                  << "), scale: (" << transform.scale.x << ", " << transform.scale.y
-                  << ", " << transform.scale.z << ")" << std::endl;
-      }
       world.addComponent(cube, transform);
 
       MeshComponent meshComp;
@@ -140,9 +154,26 @@ private:
       material.shaderProgram = shaderID;
       material.textures[0] = diffuseTex;
       material.textures[1] = specularTex;
-      material.useTextures = true;
+      material.useTextures = false;
       material.shininess = 32.0f;
       world.addComponent(cube, material);
+
+      // Create point light 1 unit above this cube
+      Entity pointLight = world.createEntity();
+      trackEntity(pointLight);
+
+      TransformComponent lightTransform;
+      lightTransform.position = glm::vec3(0.0f, -0.5f, (i - 4.5f) * 2.5f);
+      lightTransform.scale = glm::vec3(0.2f);
+      world.addComponent(pointLight, lightTransform);
+
+      PointLightComponent lightComp(colors[i] * 0.2f, // Ambient
+                                    colors[i],        // Diffuse
+                                    colors[i],        // Specular
+                                    1.0f,             // Constant
+                                    0.1f,             // Linear
+                                    0.032f);          // Quadratic
+      world.addComponent(pointLight, lightComp);
 
       // PhysicsComponent physics;
       // world.addComponent(cube, physics);
@@ -151,6 +182,28 @@ private:
       // tag.add(MODEL);
       // world.addComponent(cube, tag);
     }
+  }
+
+  void createBackdrop(World &world, const MeshData &mesh, uint32_t shaderID) {
+    Entity floor = world.createEntity();
+    trackEntity(floor);
+
+    TransformComponent transform;
+    transform.position = glm::vec3(5.0f, 0.0f, 0.0f);
+    transform.rotation = glm::vec3(-90, 0, -90);
+    transform.scale *= 2;
+    world.addComponent(floor, transform);
+
+    MeshComponent meshComp;
+    meshComp.vao = mesh.vao;
+    meshComp.vertexCount = mesh.vertexCount;
+    meshComp.indexCount = mesh.indexCount;
+    world.addComponent(floor, meshComp);
+
+    MaterialComponent material =
+        MaterialPresets::create(shaderID, MaterialType::OBSIDIAN);
+    material.doubleSided = true;
+    world.addComponent(floor, material);
   }
 
   void createLights(World &world, const MeshData &lightMesh,
@@ -165,12 +218,12 @@ private:
         props.dirLightSpecular);
     world.addComponent(dirLight, dirComp);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
       Entity pointLight = world.createEntity();
       trackEntity(pointLight);
 
       TransformComponent transform;
-      transform.position = pointLightPositions[i];
+      transform.position = glm::vec3(0.0f, 1.0f, (i - 4.5f) * 2.5f);
       transform.scale = glm::vec3(0.2f);
       world.addComponent(pointLight, transform);
 
@@ -218,7 +271,8 @@ private:
     transform.position = glm::vec3(-10.0f, 3.0f, 0.0f); // Back and above
     world.addComponent(camera, transform);
 
-    // 2.5D Perspective camera: yaw=0 (look along +X), pitch=-15 (slight downward angle)
+    // 2.5D Perspective camera: yaw=0 (look along +X), pitch=-15 (slight
+    // downward angle)
     CameraComponent cam(0.0f, -15.0f, 45.0f);
     world.addComponent(camera, cam);
 
