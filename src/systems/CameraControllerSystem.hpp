@@ -8,11 +8,10 @@
 #include "../ecs/World.hpp"
 
 extern World gWorld;
+extern GLFWwindow *window;
 
 class CameraControllerSystem : public System {
 private:
-  GLFWwindow *window;
-
   bool firstMouse = true;
   float lastX = 400.0f;
   float lastY = 300.0f;
@@ -20,7 +19,7 @@ private:
   bool spaceWasPressed = false;
 
 public:
-  CameraControllerSystem(GLFWwindow *win) : window(win) {}
+  CameraControllerSystem() {}
 
   void update(float &deltaTime) override {
     Input &input = gWorld.getInput();

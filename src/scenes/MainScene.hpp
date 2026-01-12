@@ -27,6 +27,7 @@ public:
     std::cout << "Loading MainScene..." << std::endl;
     Entity sceneEntity = world.createEntity();
     SceneComponent sceneComp = SceneComponent("main");
+    sceneComp.clearColor = getClearColor();
     TagComponent tagComp;
     tagComp.add(ACTIVESCENE);
     world.addComponent(sceneEntity, sceneComp);

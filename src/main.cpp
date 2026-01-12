@@ -19,6 +19,7 @@
 #include "systems/RenderSystem.hpp"
 
 World gWorld;
+GLFWwindow *window;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
@@ -37,7 +38,7 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window =
+  window =
       glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL Application", NULL, NULL);
   if (!window) {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -72,7 +73,7 @@ int main() {
   gWorld.registerComponent<SpotLightComponent>();
   gWorld.registerComponent<SceneComponent>();
 
-  gWorld.addSystem<CameraControllerSystem>(window);
+  gWorld.addSystem<CameraControllerSystem>();
   gWorld.addSystem<PlayerControllerSystem>();
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
@@ -82,7 +83,7 @@ int main() {
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("Scene2D", gWorld);
+  sceneManager.loadScene("main", gWorld);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
