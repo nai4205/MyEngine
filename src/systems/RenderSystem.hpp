@@ -76,16 +76,14 @@ public:
     Framebuffer *fb = resources.getFramebuffer(activeSceneName);
 
     // === FIRST PASS: Render scene to framebuffer ===
-    // TODO: we shouldnt have to have a custom framebuffer in order to render
-    // (should be optional)
     if (fb) {
       fb->bind();
-      glEnable(GL_DEPTH_TEST);
-
-      glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
-              GL_STENCIL_BUFFER_BIT);
     }
+
+    glEnable(GL_DEPTH_TEST);
+
+    glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     std::vector<RenderableEntity> renderables;
     bool hasOutlined = false;

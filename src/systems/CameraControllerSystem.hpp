@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../gl_common.hpp"
 #include "../components/CameraComponent.hpp"
 #include "../components/CameraControllerComponent.hpp"
 #include "../components/PhysicsComponent.hpp"
