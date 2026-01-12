@@ -12,11 +12,9 @@
 #include "../components/PlayerControllerComponent.hpp"
 #include "../components/PointLightComponent.hpp"
 #include "../components/SceneComponent.hpp"
-#include "../components/SpotLightComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../const_h.hpp"
 #include "../ecs/Tag.hpp"
-#include "../resources/ModelLoader.hpp"
 #include "../resources/ResourceManager.hpp"
 #include "Scene.hpp"
 #include <iostream>
@@ -30,6 +28,7 @@ public:
     std::cout << "Loading Scene2D..." << std::endl;
     Entity sceneEntity = world.createEntity();
     SceneComponent sceneComp = SceneComponent("Scene2D");
+    sceneComp.clearColor = getClearColor();
     TagComponent tagComp;
     tagComp.add(ACTIVESCENE);
     world.addComponent(sceneEntity, sceneComp);
@@ -99,9 +98,6 @@ public:
     // createLights(world, lightCubeMesh, lightSourceShaderID);
 
     createCamera(world);
-
-    glm::vec3 clearColor = getClearColor();
-    resources.setClearColorForFramebuffer("Scene2D", clearColor);
   }
 
   const std::string &getName() const override {
@@ -115,7 +111,7 @@ private:
   float screenWidth;
   float screenHeight;
 
-  static constexpr LightingType sceneTheme = LightingType::DESERT;
+  static constexpr LightingType sceneTheme = LightingType::BIOCHEMICAL_LAB;
 
   LightingType currentLighting = sceneTheme;
   glm::vec4 clearColor = LightingPresets::getClearColor(sceneTheme);

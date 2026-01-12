@@ -70,7 +70,6 @@ public:
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                               GL_RENDERBUFFER, rbo);
 
-    // Check if framebuffer is complete
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
       std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!"
                 << std::endl;

@@ -19,7 +19,7 @@ private:
   unsigned int screenWidth = 800;
   unsigned int screenHeight = 600;
   unsigned int screenQuadVAO = 0;
-  int postProcessEffect = 0; // 0 = normal, 1 = invert, 2 = grayscale, etc.
+  int postProcessEffect = 0;
 
   struct RenderableEntity {
     Entity entity;
@@ -53,27 +53,36 @@ public:
         static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
     auto camera = getActiveCamera(gWorld, aspectRatio);
     std::string activeSceneName;
+    glm::vec3 clearColor;
     gWorld.forEachWith<SceneComponent>(
         [&](Entity entity, SceneComponent &scene) {
           TagComponent tag = *gWorld.getComponent<TagComponent>(entity);
-          if (tag.has(ACTIVESCENE))
+          if (tag.has(ACTIVESCENE)) {
             activeSceneName = scene.name;
+            clearColor = scene.clearColor;
+          }
         });
     if (activeSceneName.length() <= 0) {
       std::cout << "Must have an active scene" << std::endl;
       return;
+    }
+    if (clearColor.length() <= 0) {
+      std::cout << "No clear color set by the scene, setting a default one"
+                << std::endl;
+      clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
     }
 
     auto &resources = ResourceManager::instance();
     Framebuffer *fb = resources.getFramebuffer(activeSceneName);
 
     // === FIRST PASS: Render scene to framebuffer ===
+    // TODO: we shouldnt have to have a custom framebuffer in order to render
+    // (should be optional)
     if (fb) {
       fb->bind();
       glEnable(GL_DEPTH_TEST);
 
-      // Clear the framebuffer
-      glClearColor(fb->clearColor.x, fb->clearColor.y, fb->clearColor.z, 1.0);
+      glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
     }
@@ -124,7 +133,7 @@ public:
       fb->unbind();
       glDisable(GL_DEPTH_TEST);
 
-      glClearColor(fb->clearColor.x, fb->clearColor.y, fb->clearColor.z, 1.0);
+      glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
       glClear(GL_COLOR_BUFFER_BIT);
 
       Shader *screenShader = resources.getShader("postprocess");
@@ -149,7 +158,6 @@ private:
       const ActiveCameraData camera, ResourceManager &resources,
       const std::vector<RenderableEntity> &renderables, bool hasOutlined) {
     if (hasOutlined) {
-      // Render non-outlined entities with stencil writing disabled
       glStencilMask(0x00);
       renderEntities(camera, resources, renderables, false, false);
 
@@ -192,7 +200,6 @@ private:
       if (renderable.material->hasTransparency != renderTransparent)
         continue;
 
-      // Check outline tag
       bool hasOutlineTag = renderable.tag && renderable.tag->has(OUTLINED);
       if (hasOutlineTag != onlyOutlined)
         continue;
@@ -217,7 +224,6 @@ private:
       shader->setMat4("model", renderable.transform->getModelMatrix());
 
       if (renderable.material->receivesLighting) {
-        // Lit entity
         shader->setVec3("material.vAmbient", renderable.material->ambient);
         shader->setVec3("material.vDiffuse", renderable.material->diffuse);
         shader->setVec3("material.vSpecular", renderable.material->specular);

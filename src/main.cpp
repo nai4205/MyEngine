@@ -6,7 +6,6 @@
 #include "gl_common.hpp"
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include "ecs/World.hpp"
 #include "scenes/MainScene.hpp"
@@ -27,7 +26,6 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-const unsigned int TARGET_FPS = 60;
 bool wireframe = false;
 float lastFrame = 0.0f;
 float lastTitleUpdate = 0.0f;
@@ -86,10 +84,6 @@ int main() {
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.loadScene("Scene2D", gWorld);
 
-  auto *mainScene = sceneManager.getCurrentScene();
-  glm::vec4 clearColor = mainScene ? mainScene->getClearColor()
-                                   : glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   glFrontFace(GL_CCW);
@@ -106,7 +100,6 @@ int main() {
 
     frameCount++;
 
-    // Update window title with FPS every 0.1 seconds
     if (currentFrame - lastTitleUpdate >= 0.1f) {
       float fps = frameCount / (currentFrame - lastTitleUpdate);
       std::string title =
@@ -124,15 +117,6 @@ int main() {
     gWorld.render();
 
     glfwSwapBuffers(window);
-    if (TARGET_FPS > 0) {
-      double frameTime = 1.0 / TARGET_FPS;
-      double elapsed = glfwGetTime() - currentFrame;
-      if (elapsed < frameTime) {
-        double sleepTime = frameTime - elapsed;
-        std::this_thread::sleep_for(std::chrono::microseconds(
-            static_cast<long long>(sleepTime * 1000000)));
-      }
-    }
   }
 
   glfwTerminate();
@@ -145,6 +129,8 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     gWorld.getInput().setKeyPressed(key, action == GLFW_PRESS);
   }
 
+  // TODO: this doesnt work with the framebuffer because there is just a quad
+  // blocking the view
   if (key == GLFW_KEY_HOME && action == GLFW_PRESS) {
     wireframe = !wireframe;
     glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
@@ -176,11 +162,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 
-  // Resize the framebuffer to match new window size
   auto &resources = ResourceManager::instance();
   resources.resizeFramebuffer("Scene2D", width, height);
 
-  // Update render system screen size
   if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
     renderSystem->setScreenSize(width, height);
   }

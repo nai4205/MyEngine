@@ -5,7 +5,6 @@
 #include "TransformComponent.hpp"
 #include <glm/glm.hpp>
 
-// Camera movement directions
 enum CameraMovement { CAM_FORWARD, CAM_BACKWARD, CAM_LEFT, CAM_RIGHT };
 
 class CameraControllerComponent {

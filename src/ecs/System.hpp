@@ -1,5 +1,4 @@
-#ifndef SYSTEM_HPP
-#define SYSTEM_HPP
+#pragma once
 
 class World;
 
@@ -11,5 +10,3 @@ public:
 
   virtual void render() {}
 };
-
-#endif // SYSTEM_HPP
