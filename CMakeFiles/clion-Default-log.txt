@@ -1,4 +1,0 @@
-Cannot generate into /home/nai/Projects/learnopengl
-It is already used for project /Users/naikorn/Documents/projects/openglcpp
-
-Please either delete it manually or select another generation directory

@@ -1,3 +1,0 @@
-/Users/naikorn/Documents/projects/openglcpp/CMakeFiles/app.dir
-/Users/naikorn/Documents/projects/openglcpp/CMakeFiles/edit_cache.dir
-/Users/naikorn/Documents/projects/openglcpp/CMakeFiles/rebuild_cache.dir
