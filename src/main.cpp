@@ -3,6 +3,7 @@
 #include "components/PointLightComponent.hpp"
 #include "components/SceneComponent.hpp"
 #include "components/SpotLightComponent.hpp"
+#include "ecs/Tag.hpp"
 #include "gl_common.hpp"
 #include <iostream>
 #include <string>
@@ -164,7 +165,16 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 
   auto &resources = ResourceManager::instance();
-  resources.resizeFramebuffer("Scene2D", width, height);
+  std::string activeSceneName;
+  gWorld.forEachWith<SceneComponent, TagComponent>(
+      [&](Entity &entity, SceneComponent &scene, TagComponent &tag) {
+        if (tag.has(ACTIVESCENE)) {
+          activeSceneName = scene.name;
+        }
+      });
+  if (activeSceneName.length() <= 0)
+    std::cout << "No active scenes" << std::endl;
+  resources.resizeFramebuffer(activeSceneName, width, height);
 
   if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
     renderSystem->setScreenSize(width, height);
