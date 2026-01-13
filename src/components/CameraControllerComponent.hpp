@@ -25,25 +25,16 @@ public:
     float velocity = movementSpeed * deltaTime;
     glm::vec3 moveDirection(0.0f);
 
-    // Free mode: use full camera vectors (includes vertical component)
-    // FPS mode: use flattened vectors (horizontal only)
+    // Free mode: use full camera.front (includes vertical component)
+    // FPS mode: use camera.getFlatFront() (horizontal only)
     if (direction == CAM_FORWARD)
       moveDirection = freeMode ? camera.front : camera.getFlatFront();
     else if (direction == CAM_BACKWARD)
       moveDirection = freeMode ? -camera.front : -camera.getFlatFront();
-    else if (direction == CAM_LEFT) {
-      glm::vec3 right =
-          freeMode
-              ? camera.right
-              : glm::normalize(glm::vec3(camera.right.x, 0.0f, camera.right.z));
-      moveDirection = -right;
-    } else if (direction == CAM_RIGHT) {
-      glm::vec3 right =
-          freeMode
-              ? camera.right
-              : glm::normalize(glm::vec3(camera.right.x, 0.0f, camera.right.z));
-      moveDirection = right;
-    }
+    else if (direction == CAM_LEFT)
+      moveDirection = -camera.right;
+    else if (direction == CAM_RIGHT)
+      moveDirection = camera.right;
 
     transform.position += moveDirection * velocity;
   }
