@@ -2,71 +2,49 @@
 
 #include "../gl_common.hpp"
 #include "../resources/ResourceManager.hpp"
+#include "RenderCommon.hpp"
 
-#include "../components/MaterialComponent.hpp"
-#include "../components/MeshComponent.hpp"
-#include "../components/SceneComponent.hpp"
-#include "../components/TransformComponent.hpp"
 #include "../ecs/System.hpp"
-#include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
 #include "../ecs/utils/CameraUtils.hpp"
 
+#include <unordered_set>
+
 extern World gWorld;
 
-class RenderSystem : public System {
+class OpaqueRenderSystem : public System {
 private:
   unsigned int screenWidth = 800;
   unsigned int screenHeight = 600;
-  unsigned int screenQuadVAO = 0;
-  int postProcessEffect = 0;
-
-  struct RenderableEntity {
-    Entity entity;
-    TransformComponent *transform;
-    MeshComponent *mesh;
-    MaterialComponent *material;
-    TagComponent *tag;
-  };
 
 public:
-  RenderSystem(unsigned int width = 800, unsigned int height = 600)
-      : screenWidth(width), screenHeight(height) {
-    setupScreenQuad();
-  }
-
-  ~RenderSystem() {
-    if (screenQuadVAO) {
-      glDeleteVertexArrays(1, &screenQuadVAO);
-    }
-  }
-
-  void setPostProcessEffect(int effect) { postProcessEffect = effect; }
+  OpaqueRenderSystem(unsigned int width = 800, unsigned int height = 600)
+      : screenWidth(width), screenHeight(height) {}
 
   void setScreenSize(unsigned int width, unsigned int height) {
     screenWidth = width;
     screenHeight = height;
   }
 
+  // Accessor for framebuffer - other systems will use this
+  Framebuffer *getFramebuffer(const std::string &sceneName) {
+    auto &resources = ResourceManager::instance();
+    return resources.getFramebuffer(sceneName);
+  }
+
   void render() override {
     float aspectRatio =
         static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
     auto camera = getActiveCamera(gWorld, aspectRatio);
-    std::string activeSceneName;
-    glm::vec3 clearColor;
-    gWorld.forEachWith<SceneComponent>(
-        [&](Entity entity, SceneComponent &scene) {
-          TagComponent tag = *gWorld.getComponent<TagComponent>(entity);
-          if (tag.has(ACTIVESCENE)) {
-            activeSceneName = scene.name;
-            clearColor = scene.clearColor;
-          }
-        });
-    if (activeSceneName.length() <= 0) {
+
+    std::string activeSceneName = RenderUtils::getActiveSceneName(gWorld);
+    if (activeSceneName.empty()) {
       std::cout << "Must have an active scene" << std::endl;
       return;
     }
-    if (clearColor.length() <= 0) {
+
+    glm::vec3 clearColor = RenderUtils::getActiveSceneClearColor(gWorld);
+    if (glm::length(clearColor) <= 0.0f) {
       std::cout << "No clear color set by the scene, setting a default one"
                 << std::endl;
       clearColor = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -75,7 +53,7 @@ public:
     auto &resources = ResourceManager::instance();
     Framebuffer *fb = resources.getFramebuffer(activeSceneName);
 
-    // === FIRST PASS: Render scene to framebuffer ===
+    // Render opaque scene to framebuffer
     if (fb) {
       fb->bind();
     }
@@ -126,29 +104,8 @@ public:
     glDisable(GL_CULL_FACE);
     renderEntitiesWithCulling(camera, resources, doubleSided, hasOutlined);
 
-    // === SECOND PASS: Render framebuffer to screen with post-processing ===
-    if (fb) {
-      fb->unbind();
-      glDisable(GL_DEPTH_TEST);
-
-      glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
-      glClear(GL_COLOR_BUFFER_BIT);
-
-      Shader *screenShader = resources.getShader("postprocess");
-      if (screenShader) {
-        screenShader->use();
-        screenShader->setInt("screenTexture", 0);
-        screenShader->setInt("effect", postProcessEffect);
-
-        glBindVertexArray(screenQuadVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, fb->colorTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-      }
-
-      glEnable(GL_DEPTH_TEST);
-    }
+    // Keep framebuffer bound for next system (SkyboxSystem, then
+    // TransparentRenderSystem)
   }
 
 private:
@@ -180,12 +137,7 @@ private:
       renderEntities(camera, resources, renderables, false, false);
     }
 
-    // Render transparent objects last, sorted back-to-front
-    // Disable depth writing so transparent objects don't block objects behind
-    // them
-    glDepthMask(GL_FALSE);
-    renderTransparentEntities(camera, resources, renderables);
-    glDepthMask(GL_TRUE);
+    // Transparent rendering is now handled by TransparentRenderSystem
   }
 
   void renderEntities(const ActiveCameraData &camera,
@@ -243,7 +195,7 @@ private:
         shader->setVec3("objectColor", renderable.material->diffuse);
       }
 
-      drawMesh(*renderable.mesh);
+      RenderUtils::drawMesh(*renderable.mesh);
     }
   }
 
@@ -278,97 +230,7 @@ private:
         outlineShader->setInt("texture_diffuse1", 0);
       }
 
-      drawMesh(*renderable.mesh);
+      RenderUtils::drawMesh(*renderable.mesh);
     }
-  }
-
-  void
-  renderTransparentEntities(const ActiveCameraData &camera,
-
-                            ResourceManager &resources,
-                            const std::vector<RenderableEntity> &renderables) {
-    std::unordered_set<uint32_t> configuredShaders;
-
-    for (const auto &renderable : renderables) {
-      if (!renderable.material->hasTransparency)
-        continue;
-
-      Shader *shader = resources.getShader(renderable.material->shaderProgram);
-      if (!shader)
-        continue;
-
-      shader->use();
-
-      // Configure shader once per unique shader program
-      if (configuredShaders.find(renderable.material->shaderProgram) ==
-          configuredShaders.end()) {
-        shader->setMat4("view", camera.view);
-        shader->setMat4("projection", camera.projection);
-        if (renderable.material->receivesLighting) {
-          shader->setVec3("viewPos", camera.position);
-        }
-        configuredShaders.insert(renderable.material->shaderProgram);
-      }
-
-      shader->setMat4("model", renderable.transform->getModelMatrix());
-
-      // Branch: lit vs unlit
-      if (renderable.material->receivesLighting) {
-        // Lit transparent entity
-        shader->setVec3("material.vAmbient", renderable.material->ambient);
-        shader->setVec3("material.vDiffuse", renderable.material->diffuse);
-        shader->setVec3("material.vSpecular", renderable.material->specular);
-        shader->setFloat("material.shininess", renderable.material->shininess);
-        shader->setBool("material.useTex", renderable.material->useTextures);
-
-        if (renderable.material->useTextures) {
-          for (size_t i = 0; i < MAX_MATERIAL_TEXTURES; i++) {
-            if (renderable.material->textures[i] != 0) {
-              glActiveTexture(GL_TEXTURE0 + i);
-              glBindTexture(GL_TEXTURE_2D, renderable.material->textures[i]);
-            }
-          }
-          shader->setInt("material.texture_diffuse1", 0);
-          shader->setInt("material.texture_specular1", 1);
-        }
-      } else {
-        // Unlit transparent entity
-        shader->setVec3("objectColor", renderable.material->diffuse);
-      }
-
-      drawMesh(*renderable.mesh);
-    }
-  }
-
-  void drawMesh(const MeshComponent &mesh) {
-    glBindVertexArray(mesh.vao);
-    if (mesh.isIndexed()) {
-      glDrawElements(GL_TRIANGLES, mesh.indexCount, mesh.indexType, nullptr);
-    } else {
-      glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-    }
-    glBindVertexArray(0);
-  }
-
-  void setupScreenQuad() {
-    // Screen quad vertices (position + texCoords)
-    float quadVertices[] = {-1.0f, 1.0f,  0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-                            1.0f,  -1.0f, 1.0f, 0.0f, -1.0f, 1.0f,  0.0f, 1.0f,
-                            1.0f,  -1.0f, 1.0f, 0.0f, 1.0f,  1.0f,  1.0f, 1.0f};
-
-    unsigned int quadVBO;
-    glGenVertexArrays(1, &screenQuadVAO);
-    glGenBuffers(1, &quadVBO);
-    glBindVertexArray(screenQuadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices,
-                 GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                          (void *)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float),
-                          (void *)(2 * sizeof(float)));
-    glBindVertexArray(0);
   }
 };

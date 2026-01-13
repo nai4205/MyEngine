@@ -35,7 +35,7 @@ public:
     auto &resources = ResourceManager::instance();
 
     // Create framebuffer for post-processing
-    // resources.createFramebuffer("main", screenWidth, screenHeight);
+    resources.createFramebuffer("main", screenWidth, screenHeight);
 
     // Load shaders
     uint32_t staticShaderID = resources.loadShader(

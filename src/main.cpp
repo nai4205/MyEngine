@@ -14,11 +14,13 @@
 #include "scenes/SceneManager.hpp"
 #include "systems/CameraControllerSystem.hpp"
 #include "systems/CameraSystem.hpp"
+#include "systems/CompositeRenderSystem.hpp"
 #include "systems/LightingSystem.hpp"
 #include "systems/PhysicsSystem.hpp"
 #include "systems/PlayerControllerSystem.hpp"
-#include "systems/RenderSystem.hpp"
+#include "systems/RenderSystem.hpp" // Now OpaqueRenderSystem
 #include "systems/SkyboxSystem.hpp"
+#include "systems/TransparentRenderSystem.hpp"
 
 World gWorld;
 GLFWwindow *window;
@@ -80,9 +82,10 @@ int main() {
   gWorld.addSystem<PhysicsSystem>();
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
-  gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
-  // render skybox last
-  gWorld.addSystem<SkyboxSystem>();
+  gWorld.addSystem<OpaqueRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
+  gWorld.addSystem<SkyboxSystem>(SCR_WIDTH, SCR_HEIGHT);
+  gWorld.addSystem<TransparentRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
+  gWorld.addSystem<CompositeRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
 
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
@@ -143,19 +146,19 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
   // Post-processing effect controls (number keys 0-5)
   if (action == GLFW_PRESS) {
-    if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
+    if (auto *compositeSystem = gWorld.getSystem<CompositeRenderSystem>()) {
       if (key == GLFW_KEY_0)
-        renderSystem->setPostProcessEffect(0); // Normal
+        compositeSystem->setPostProcessEffect(0); // Normal
       else if (key == GLFW_KEY_1)
-        renderSystem->setPostProcessEffect(1); // Invert
+        compositeSystem->setPostProcessEffect(1); // Invert
       else if (key == GLFW_KEY_2)
-        renderSystem->setPostProcessEffect(2); // Grayscale
+        compositeSystem->setPostProcessEffect(2); // Grayscale
       else if (key == GLFW_KEY_3)
-        renderSystem->setPostProcessEffect(3); // Sharpen
+        compositeSystem->setPostProcessEffect(3); // Sharpen
       else if (key == GLFW_KEY_4)
-        renderSystem->setPostProcessEffect(4); // Blur
+        compositeSystem->setPostProcessEffect(4); // Blur
       else if (key == GLFW_KEY_5)
-        renderSystem->setPostProcessEffect(5); // Edge detection
+        compositeSystem->setPostProcessEffect(5); // Edge detection
     }
   }
 
@@ -179,7 +182,16 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     std::cout << "No active scenes" << std::endl;
   resources.resizeFramebuffer(activeSceneName, width, height);
 
-  if (auto *renderSystem = gWorld.getSystem<RenderSystem>()) {
-    renderSystem->setScreenSize(width, height);
+  if (auto *opaqueSystem = gWorld.getSystem<OpaqueRenderSystem>()) {
+    opaqueSystem->setScreenSize(width, height);
+  }
+  if (auto *skyboxSystem = gWorld.getSystem<SkyboxSystem>()) {
+    skyboxSystem->setScreenSize(width, height);
+  }
+  if (auto *transparentSystem = gWorld.getSystem<TransparentRenderSystem>()) {
+    transparentSystem->setScreenSize(width, height);
+  }
+  if (auto *compositeSystem = gWorld.getSystem<CompositeRenderSystem>()) {
+    compositeSystem->setScreenSize(width, height);
   }
 }
