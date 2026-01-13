@@ -24,7 +24,6 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void load(World &world) override {
-    std::cout << "Loading MainScene..." << std::endl;
     Entity sceneEntity = world.createEntity();
     SceneComponent sceneComp = SceneComponent("main");
     sceneComp.clearColor = getClearColor();
@@ -36,12 +35,16 @@ public:
     auto &resources = ResourceManager::instance();
 
     // Create framebuffer for post-processing
-    resources.createFramebuffer("main", screenWidth, screenHeight);
+    // resources.createFramebuffer("main", screenWidth, screenHeight);
 
     // Load shaders
     uint32_t staticShaderID = resources.loadShader(
         "static", "../src/shaders/static/staticVertex.glsl",
         "../src/shaders/static/staticFragment.glsl");
+
+    uint32_t skyboxShaderID = resources.loadShader(
+        "skybox", "../src/shaders/skybox/skyboxVertex.glsl",
+        "../src/shaders/skybox/skyboxFragment.glsl");
 
     uint32_t lightSourceShaderID = resources.loadShader(
         "light", "../src/shaders/lightSource/lightSourceVertex.glsl",
@@ -61,6 +64,9 @@ public:
         {2, 2, GL_FLOAT, false, 8 * sizeof(float),
          (void *)(6 * sizeof(float))}};
 
+    std::vector<VertexAttribute> skyboxLayout = {
+        {0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0}};
+
     std::vector<VertexAttribute> cubeLayoutNoTexture = {
         {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
         {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
@@ -79,16 +85,21 @@ public:
     MeshData cubeMesh =
         resources.createMesh(cubeVerticesWithTexture,
                              sizeof(cubeVerticesWithTexture), cubeLayout, 36);
+    MeshData skyboxMesh = resources.createMesh(
+        skyboxVertices, sizeof(skyboxVertices), skyboxLayout, 36);
     MeshData planeMesh = resources.createMesh(
         planeVertices, sizeof(planeVertices), planeLayout, 6);
     MeshData lightCubeMesh = resources.createMesh(
         lightVertices, sizeof(lightVertices), lightCubeLayout, 36);
     MeshData grassMesh = resources.createMesh(
         grassVertices, sizeof(grassVertices), cubeLayout, 6);
+
     uint32_t containerDiffuse =
         resources.loadTexture("../src/assets/container2.png");
     uint32_t containerSpecular =
         resources.loadTexture("../src/assets/container2_specular.png");
+    uint32_t skyboxTexture =
+        resources.loadCubemapTexture("../src/assets/skybox/");
 
     uint32_t grassTexture = resources.loadTexture("../src/assets/grass.png");
     uint32_t windowTexture = resources.loadTexture("../src/assets/window.png");
@@ -103,6 +114,8 @@ public:
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
 
+    createSkybox(world, skyboxMesh, skyboxShaderID, skyboxTexture);
+
     // createGrass(world, grassMesh, staticShaderID, grassTexture);
 
     createGrass(world, grassMesh, staticShaderID, windowTexture,
@@ -111,7 +124,7 @@ public:
     createLights(world, lightCubeMesh, lightSourceShaderID);
 
     createModel(world, staticShaderID, "../src/assets/backpack/backpack.obj");
-    createModel(world, staticShaderID, "../src/assets/robotgrouped/robot.obj");
+    createModel(world, staticShaderID, "../src/assets/robot/robot.obj");
 
     createCamera(world);
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -191,6 +204,25 @@ private:
       // tag.add(MODEL);
       // world.addComponent(cube, tag);
     }
+  }
+
+  void createSkybox(World &world, const MeshData &mesh, uint32_t skyboxShaderID,
+                    uint32_t skyboxTexture) {
+    Entity skybox = world.createEntity();
+    // TransformComponent transform;
+    // world.addComponent(skybox, transform);
+    MeshComponent skyboxMesh;
+    skyboxMesh.vao = mesh.vao;
+    skyboxMesh.vertexCount = mesh.vertexCount;
+    skyboxMesh.indexCount = 0;
+    world.addComponent(skybox, skyboxMesh);
+    MaterialComponent material;
+    material.shaderProgram = skyboxShaderID;
+    material.textures[0] = skyboxTexture;
+    world.addComponent(skybox, material);
+    TagComponent tag;
+    tag.add(SKYBOX);
+    world.addComponent(skybox, tag);
   }
 
   void createLights(World &world, const MeshData &lightMesh,

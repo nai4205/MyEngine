@@ -18,6 +18,7 @@
 #include "systems/PhysicsSystem.hpp"
 #include "systems/PlayerControllerSystem.hpp"
 #include "systems/RenderSystem.hpp"
+#include "systems/SkyboxSystem.hpp"
 
 World gWorld;
 GLFWwindow *window;
@@ -80,6 +81,8 @@ int main() {
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
   gWorld.addSystem<RenderSystem>(SCR_WIDTH, SCR_HEIGHT);
+  // render skybox last
+  gWorld.addSystem<SkyboxSystem>();
 
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);

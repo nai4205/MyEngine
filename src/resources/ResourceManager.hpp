@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Cubemap.hpp"
 #include "../shader_h.hpp"
 #include "../texture_2d_h.hpp"
 #include "Framebuffer.hpp"
@@ -82,6 +83,36 @@ public:
     uint32_t id = texture->getID();
     textureCache[path] = texture;
     texturesByID[id] = texture;
+    return id;
+  }
+
+  // Cubemap
+  uint32_t loadCubemapTexture(const std::string &path) {
+    int width, height, nrChannels;
+    std::vector<std::string> faces = {
+        path + "right.jpg",  path + "left.jpg",  path + "top.jpg",
+        path + "bottom.jpg", path + "front.jpg", path + "back.jpg",
+    };
+
+    auto cubemap = std::make_shared<Cubemap>();
+    auto it = cubemapCache.find(path);
+    if (it != cubemapCache.end()) {
+      return it->second->getID();
+    }
+    stbi_set_flip_vertically_on_load(false);
+    for (unsigned int i = 0; i < faces.size(); i++) {
+      cubemap->loadImage(width, height, nrChannels, faces[i], i);
+    }
+
+    stbi_set_flip_vertically_on_load(false);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    uint32_t id = cubemap->getID();
+    cubemapCache[path] = cubemap;
     return id;
   }
 
@@ -248,6 +279,7 @@ private:
   std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
   std::unordered_map<uint32_t, std::shared_ptr<Shader>> shadersByID;
   std::unordered_map<std::string, std::shared_ptr<Texture2D>> textureCache;
+  std::unordered_map<std::string, std::shared_ptr<Cubemap>> cubemapCache;
   std::unordered_map<uint32_t, std::shared_ptr<Texture2D>> texturesByID;
   std::unordered_map<std::string, std::unique_ptr<Framebuffer>> framebuffers;
 };
