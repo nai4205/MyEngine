@@ -1,3 +1,4 @@
+#include "components/CameraFollowComponent.hpp"
 #include "components/DirectionalLightComponent.hpp"
 #include "components/NameComponent.hpp"
 #include "components/PointLightComponent.hpp"
@@ -13,6 +14,7 @@
 #include "scenes/Scene2D.hpp"
 #include "scenes/SceneManager.hpp"
 #include "systems/CameraControllerSystem.hpp"
+#include "systems/CameraFollowSystem.hpp"
 #include "systems/CameraSystem.hpp"
 #include "systems/CompositeRenderSystem.hpp"
 #include "systems/LightingSystem.hpp"
@@ -76,10 +78,12 @@ int main() {
   gWorld.registerComponent<PointLightComponent>();
   gWorld.registerComponent<SpotLightComponent>();
   gWorld.registerComponent<SceneComponent>();
+  gWorld.registerComponent<CameraFollowComponent>();
 
   gWorld.addSystem<CameraControllerSystem>();
   gWorld.addSystem<PlayerControllerSystem>();
   gWorld.addSystem<PhysicsSystem>();
+  gWorld.addSystem<CameraFollowSystem>();
   gWorld.addSystem<CameraSystem>();
   gWorld.addSystem<LightingSystem>();
   gWorld.addSystem<OpaqueRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
@@ -90,7 +94,7 @@ int main() {
   auto &sceneManager = SceneManager::instance();
   sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("main", gWorld);
+  sceneManager.loadScene("Scene2D", gWorld);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);

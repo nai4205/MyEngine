@@ -34,7 +34,6 @@ private:
   void processKeyboard(Input &input, TransformComponent &transform,
                        PlayerControllerComponent2D &controller,
                        float deltaTime) {
-    // Arrow keys or A/D for left/right movement
     if (input.isKeyPressed(GLFW_KEY_LEFT) || input.isKeyPressed(GLFW_KEY_A)) {
       controller.processMovement(PLAYER_LEFT, transform, deltaTime);
     }
@@ -42,7 +41,6 @@ private:
       controller.processMovement(PLAYER_RIGHT, transform, deltaTime);
     }
 
-    // W/S for forward/backward (if enabled)
     if (input.isKeyPressed(GLFW_KEY_W)) {
       controller.processMovement(PLAYER_FORWARD, transform, deltaTime);
     }

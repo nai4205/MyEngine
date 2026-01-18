@@ -2,7 +2,7 @@
 #pragma once
 
 #include "../components/CameraComponent.hpp"
-#include "../components/CameraControllerComponent.hpp"
+#include "../components/CameraFollowComponent.hpp"
 #include "../components/DirectionalLightComponent.hpp"
 #include "../components/LightingPresets.hpp"
 #include "../components/MaterialComponent.hpp"
@@ -25,6 +25,7 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void load(World &world) override {
+    // ==== SCENE AND FRAMEBUFFER ====
     std::cout << "Loading Scene2D..." << std::endl;
     Entity sceneEntity = world.createEntity();
     SceneComponent sceneComp = SceneComponent("Scene2D");
@@ -36,10 +37,9 @@ public:
 
     auto &resources = ResourceManager::instance();
 
-    // Create framebuffer for post-processing
     resources.createFramebuffer("Scene2D", screenWidth, screenHeight);
 
-    // Load shaders
+    // ==== SHADERS ====
     uint32_t staticShaderID = resources.loadShader(
         "static", "../src/shaders/static/staticVertex.glsl",
         "../src/shaders/static/staticFragment.glsl");
@@ -56,6 +56,7 @@ public:
         "postprocess", "../src/shaders/postprocess/screenVertex.glsl",
         "../src/shaders/postprocess/screenFragment.glsl");
 
+    // ==== VERTEX LAYOUTS ====
     std::vector<VertexAttribute> cubeLayout = {
         {0, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)0},
         {1, 3, GL_FLOAT, false, 8 * sizeof(float), (void *)(3 * sizeof(float))},
@@ -76,6 +77,8 @@ public:
         {0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0},
         {1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
          (void *)(3 * sizeof(float))}};
+
+    // ==== MESH SETUP ====
     MeshData cubeMesh =
         resources.createMesh(cubeVerticesWithTexture,
                              sizeof(cubeVerticesWithTexture), cubeLayout, 36);
@@ -89,9 +92,12 @@ public:
     uint32_t containerSpecular =
         resources.loadTexture("../src/assets/container2_specular.png");
 
+    // ==== ENTITY CREATION ====
     createLights(world, lightCubeMesh, lightSourceShaderID);
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
+    createPlayer(world, cubeMesh, staticShaderID, containerDiffuse,
+                 containerSpecular);
 
     createBackdrop(world, planeMesh, staticShaderID);
 
@@ -118,7 +124,6 @@ private:
 
   void createCubes(World &world, const MeshData &mesh, uint32_t shaderID,
                    uint32_t diffuseTex, uint32_t specularTex) {
-    // Different colors for the point lights
     std::vector<glm::vec3> colors = {
         glm::vec3(1.0f, 0.0f, 0.0f), // Red
         glm::vec3(0.0f, 1.0f, 0.0f), // Green
@@ -156,12 +161,11 @@ private:
       material.shininess = 32.0f;
       world.addComponent(cube, material);
 
-      // Create point light 1 unit above this cube
       Entity pointLight = world.createEntity();
       trackEntity(pointLight);
 
       TransformComponent lightTransform;
-      lightTransform.position = glm::vec3(0.0f, -0.5f, (i - 4.5f) * 2.5f);
+      lightTransform.position = glm::vec3(6.0f, -0.5f, (i - 4.5f) * 2.5f);
       lightTransform.scale = glm::vec3(0.2f);
       world.addComponent(pointLight, lightTransform);
 
@@ -173,16 +177,14 @@ private:
                                     0.032f);          // Quadratic
       world.addComponent(pointLight, lightComp);
     }
+  }
 
-    // Create player character on platform index 5 (middle platform at z=1.25)
+  void createPlayer(World &world, const MeshData &mesh, uint32_t shaderID,
+                    uint32_t diffuseTex, uint32_t specularTex) {
     Entity player = world.createEntity();
     trackEntity(player);
 
     TransformComponent transformPlayer;
-    // Platforms: x=0, y=-2, scale=(0.3, 0.5, 2.0)
-    // Platform top: y = -2 + 0.5/2 = -1.75
-    // Player cube (scale 0.5): center at y = -1.75 + 0.5/2 = -1.5
-    // Platform 5 is at z = (5 - 4.5) * 2.5 = 1.25
     transformPlayer.position = glm::vec3(0.0f, -1.0f, 1.25f);
     transformPlayer.scale = glm::vec3(0.5f, 0.5f, 0.5f);
     world.addComponent(player, transformPlayer);
@@ -203,9 +205,12 @@ private:
 
     PhysicsComponent physComp(-15.0f, -1.5f);
     world.addComponent(player, physComp);
-    // Add player controller for keyboard input
+
     PlayerControllerComponent2D playerController(5.0f, 8.0f, false);
     world.addComponent(player, playerController);
+
+    TagComponent playerTag(PLAYER);
+    world.addComponent(player, playerTag);
   }
 
   void createBackdrop(World &world, const MeshData &mesh, uint32_t shaderID) {
@@ -256,8 +261,11 @@ private:
     CameraComponent cam(0.0f, -15.0f, 45.0f);
     world.addComponent(camera, cam);
 
-    // CameraControllerComponent controller(2.5f, 0.1f, 5.0f, false);
-    // world.addComponent(camera, controller);
+    // Camera follow: offset from player, smooth follow on Z axis
+    CameraFollowComponent follow(glm::vec3(-10.0f, 4.0f, 0.0f), 5.0f,
+                                 CameraFollowMode::SMOOTH);
+    follow.setFollowAxes(false, false, true); // Only follow Z (horizontal)
+    world.addComponent(camera, follow);
 
     TagComponent tag(ACTIVE);
     world.addComponent(camera, tag);

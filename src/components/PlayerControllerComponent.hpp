@@ -28,7 +28,6 @@ public:
     float velocity = movementSpeed * deltaTime;
     glm::vec3 moveDirection(0.0f);
 
-    // For 2.5D platformer: left/right moves along Z-axis
     if (direction == PLAYER_LEFT)
       moveDirection = glm::vec3(0.0f, 0.0f, -1.0f);
     else if (direction == PLAYER_RIGHT)
