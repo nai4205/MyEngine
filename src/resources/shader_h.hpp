@@ -1,7 +1,6 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
-#include "gl_common.hpp"
+#include "../gl_common.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -134,5 +133,3 @@ private:
     }
   }
 };
-
-#endif

@@ -1,7 +1,7 @@
 #ifndef TEXTURE_2D_HPP
 #define TEXTURE_2D_HPP
 
-#include "gl_common.hpp"
+#include "../gl_common.hpp"
 #include <initializer_list>
 #include <iostream>
 #include <stddef.h>

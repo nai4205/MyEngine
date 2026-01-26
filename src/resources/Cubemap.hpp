@@ -1,5 +1,5 @@
 #pragma once
-#include "gl_common.hpp"
+#include "../gl_common.hpp"
 #include "texture_2d_h.hpp"
 
 #include <initializer_list>

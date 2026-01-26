@@ -114,7 +114,7 @@ public:
     createCubes(world, cubeMesh, staticShaderID, containerDiffuse,
                 containerSpecular);
 
-    createSkybox(world, skyboxMesh, skyboxShaderID, skyboxTexture);
+    // createSkybox(world, skyboxMesh, skyboxShaderID, skyboxTexture);
 
     // createGrass(world, grassMesh, staticShaderID, grassTexture);
 

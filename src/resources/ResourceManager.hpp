@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../Cubemap.hpp"
-#include "../shader_h.hpp"
-#include "../texture_2d_h.hpp"
+#include "Cubemap.hpp"
 #include "Framebuffer.hpp"
+#include "shader_h.hpp"
+#include "texture_2d_h.hpp"
 #include <memory>
 #include <string>
 #include <unordered_map>
