@@ -21,19 +21,13 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void render() override {
-    // Render to default framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Clear screen
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Disable depth test for 2D sprites
     glDisable(GL_DEPTH_TEST);
 
-    // Set up projection matrix like the tutorial:
-    // ortho(left, right, bottom, top, near, far)
-    // bottom=height, top=0 flips Y so (0,0) is top-left
     glm::mat4 projection =
         glm::ortho(0.0f, screenWidth, screenHeight, 0.0f, -1.0f, 1.0f);
 
@@ -63,8 +57,8 @@ public:
 
       shader->use();
       shader->setMat4("projection", projection);
-      shader->setMat4("model", sprite.transform->getModelMatrix());
-      shader->setVec3("spriteColor", sprite.material->diffuse);
+      shader->setMat4("model", sprite.transform->getSpriteModelMatrix());
+      shader->setVec3("spriteColor", sprite.material->color);
 
       if (sprite.material->useTextures && sprite.material->textures[0] != 0) {
         glActiveTexture(GL_TEXTURE0);

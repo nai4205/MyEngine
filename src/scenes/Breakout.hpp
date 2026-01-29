@@ -7,6 +7,8 @@
 #include "../resources/ResourceManager.hpp"
 #include "../systems/breakout/SpriteRenderSystem.hpp"
 #include "Scene.hpp"
+#include "glm/detail/func_trigonometric.hpp"
+#include "glm/detail/type_vec.hpp"
 #include <cstdint>
 
 class Breakout : public Scene {
@@ -63,7 +65,7 @@ public:
 
     // ==== MAKE TEXTURES ==== //
     uint32_t smileyTexture =
-        resources.loadTexture("../src/assets/breakout/smiley.png");
+        resources.loadTexture("../src/assets/breakout/smiley.png", false);
 
     createSprite(world, spriteMesh, spriteShaderID, smileyTexture);
     createCamera(world);
@@ -88,13 +90,16 @@ private:
     TransformComponent transform;
     transform.position = glm::vec3(200.0f, 200.0f, 0.0f);
     transform.scale = glm::vec3(300.0f, 400.0f, 0.0f);
+    transform.rotation.z = 45.0f;
+    glm::rotate(transform.getModelMatrix(), glm::radians(45.0f),
+                glm::vec3(0.0f, 0.0f, 1.0f));
     world.addComponent(sprite, transform);
 
     MaterialComponent material;
     material.shaderProgram = shaderID;
     material.textures[0] = textureID;
     material.useTextures = true;
-    material.diffuse = glm::vec3(1.0f);
+    material.color = glm::vec3(0.0f, 1.0f, 0.0f);
     world.addComponent(sprite, material);
 
     MeshComponent meshComp;

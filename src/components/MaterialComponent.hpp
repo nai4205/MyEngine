@@ -14,6 +14,8 @@ struct MaterialComponent {
   glm::vec3 specular = glm::vec3(1.0f);
   float shininess = 32.0f;
 
+  glm::vec3 color = glm::vec3(1.0f);
+
   // Index 0 = diffuse, 1 = specular, 2 = normal, 3 = emission
   std::array<uint32_t, MAX_MATERIAL_TEXTURES> textures = {0, 0, 0, 0};
 

@@ -65,11 +65,13 @@ public:
   }
 
   // ========== TEXTURES ==========
-  uint32_t loadTexture(const std::string &path) {
+  uint32_t loadTexture(const std::string &path, bool flipY = true) {
     auto it = textureCache.find(path);
     if (it != textureCache.end()) {
       return it->second->getID();
     }
+
+    stbi_set_flip_vertically_on_load(flipY);
 
     auto texture = std::make_shared<Texture2D>();
     texture->loadImage(path);
