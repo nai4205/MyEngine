@@ -90,36 +90,6 @@ public:
     }
   }
 
-  void initComponents() {
-    gWorld.registerComponent<TransformComponent>();
-    gWorld.registerComponent<MeshComponent>();
-    gWorld.registerComponent<MaterialComponent>();
-    gWorld.registerComponent<PhysicsComponent>();
-    gWorld.registerComponent<CameraComponent>();
-    gWorld.registerComponent<CameraControllerComponent>();
-    gWorld.registerComponent<PlayerControllerComponent2D>();
-    gWorld.registerComponent<TagComponent>();
-    gWorld.registerComponent<NameComponent>();
-    gWorld.registerComponent<DirectionalLightComponent>();
-    gWorld.registerComponent<PointLightComponent>();
-    gWorld.registerComponent<SpotLightComponent>();
-    gWorld.registerComponent<SceneComponent>();
-    gWorld.registerComponent<CameraFollowComponent>();
-  }
-
-  void initSystems() {
-    gWorld.addSystem<CameraControllerSystem>();
-    gWorld.addSystem<PlayerControllerSystem>();
-    gWorld.addSystem<PhysicsSystem>();
-    gWorld.addSystem<CameraFollowSystem>();
-    gWorld.addSystem<CameraSystem>();
-    gWorld.addSystem<LightingSystem>();
-    gWorld.addSystem<OpaqueRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
-    gWorld.addSystem<SkyboxSystem>(SCR_WIDTH, SCR_HEIGHT);
-    gWorld.addSystem<TransparentRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
-    gWorld.addSystem<CompositeRenderSystem>(SCR_WIDTH, SCR_HEIGHT);
-  }
-
 private:
   const unsigned int SCR_WIDTH = 800;
   const unsigned int SCR_HEIGHT = 600;

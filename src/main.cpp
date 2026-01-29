@@ -1,4 +1,5 @@
 #include "EngineManager.hpp"
+#include "scenes/Breakout.hpp"
 #include "scenes/MainScene.hpp"
 #include "scenes/Scene2D.hpp"
 #include "scenes/SceneManager.hpp"
@@ -20,13 +21,12 @@ float lastTitleUpdate = 0.0f;
 int frameCount = 0;
 int main() {
   engineManager.init();
-  engineManager.initComponents();
-  engineManager.initSystems();
 
   auto &sceneManager = SceneManager::instance();
-  sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
+  // sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("Scene2D", gWorld);
+  sceneManager.registerScene<Breakout>("Breakout", SCR_WIDTH, SCR_HEIGHT);
+  sceneManager.loadScene("Breakout", gWorld);
 
   engineManager.mainLoop();
 

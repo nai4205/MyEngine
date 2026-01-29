@@ -37,10 +37,8 @@ public:
   glm::mat4 getProjectionMatrix(float aspectRatio, float nearPlane = 0.1f,
                                 float farPlane = 100.0f) const {
     if (isOrthographic) {
-      float halfHeight = orthoHeight * 0.5f;
-      float halfWidth = halfHeight * aspectRatio;
-      return glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight,
-                        nearPlane, farPlane);
+      return glm::ortho(0.0f, orthoWidth, orthoHeight, 0.0f, nearPlane,
+                        farPlane);
     } else {
       return glm::perspective(glm::radians(zoom), aspectRatio, nearPlane,
                               farPlane);

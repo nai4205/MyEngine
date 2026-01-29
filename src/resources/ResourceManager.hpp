@@ -117,8 +117,6 @@ public:
   }
 
   // ========== MESHES ==========
-  // Creates a mesh with separate attribute arrays (non-interleaved layout)
-  // using glBufferSubData to upload each attribute to a different region
   MeshData createMesh(const float *positions, size_t positionsSize,
                       const float *normals, size_t normalsSize,
                       const float *texCoords, size_t texCoordsSize,

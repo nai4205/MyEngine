@@ -1,6 +1,17 @@
 
 #pragma once
 
+#include "../systems/CameraControllerSystem.hpp"
+#include "../systems/CameraFollowSystem.hpp"
+#include "../systems/CameraSystem.hpp"
+#include "../systems/CompositeRenderSystem.hpp"
+#include "../systems/LightingSystem.hpp"
+#include "../systems/PhysicsSystem.hpp"
+#include "../systems/PlayerControllerSystem.hpp"
+#include "../systems/RenderSystem.hpp" // Now OpaqueRenderSystem
+#include "../systems/SkyboxSystem.hpp"
+#include "../systems/TransparentRenderSystem.hpp"
+
 #include "../components/CameraComponent.hpp"
 #include "../components/CameraFollowComponent.hpp"
 #include "../components/DirectionalLightComponent.hpp"
@@ -24,7 +35,39 @@ public:
   Scene2D(float width, float height)
       : screenWidth(width), screenHeight(height) {}
 
+  void initComponents(World &world) {
+    world.registerComponent<TransformComponent>();
+    world.registerComponent<MeshComponent>();
+    world.registerComponent<MaterialComponent>();
+    world.registerComponent<PhysicsComponent>();
+    world.registerComponent<CameraComponent>();
+    world.registerComponent<CameraControllerComponent>();
+    world.registerComponent<PlayerControllerComponent2D>();
+    world.registerComponent<TagComponent>();
+    world.registerComponent<NameComponent>();
+    world.registerComponent<DirectionalLightComponent>();
+    world.registerComponent<PointLightComponent>();
+    world.registerComponent<SpotLightComponent>();
+    world.registerComponent<SceneComponent>();
+    world.registerComponent<CameraFollowComponent>();
+  }
+
+  void initSystems(World &world, float width, float height) {
+    world.addSystem<CameraControllerSystem>();
+    world.addSystem<PlayerControllerSystem>();
+    world.addSystem<PhysicsSystem>();
+    world.addSystem<CameraFollowSystem>();
+    world.addSystem<CameraSystem>();
+    world.addSystem<LightingSystem>();
+    world.addSystem<OpaqueRenderSystem>(width, height);
+    world.addSystem<SkyboxSystem>(width, height);
+    world.addSystem<TransparentRenderSystem>(width, height);
+    world.addSystem<CompositeRenderSystem>(width, height);
+  }
+
   void load(World &world) override {
+    initComponents(world);
+    initSystems(world, screenWidth, screenHeight);
     // ==== SCENE AND FRAMEBUFFER ====
     std::cout << "Loading Scene2D..." << std::endl;
     Entity sceneEntity = world.createEntity();
