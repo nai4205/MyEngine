@@ -1,12 +1,11 @@
 #pragma once
-#include "../../components/CameraComponent.hpp"
 #include "../../components/TransformComponent.hpp"
 #include "../../ecs/System.hpp"
 #include "../../ecs/Tag.hpp"
 #include "../../ecs/World.hpp"
 #include "../../gl_common.hpp"
 #include "../../resources/ResourceManager.hpp"
-#include "../RenderCommon.hpp"
+#include "../../systems/RenderCommon.hpp"
 #include <vector>
 
 extern World gWorld;

@@ -1,8 +1,8 @@
 #include "EngineManager.hpp"
-#include "scenes/Breakout.hpp"
 #include "scenes/MainScene.hpp"
 #include "scenes/Scene2D.hpp"
 #include "scenes/SceneManager.hpp"
+#include "scenes/breakout/Breakout.hpp"
 
 World gWorld;
 GLFWwindow *window = nullptr;

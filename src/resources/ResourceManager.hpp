@@ -64,6 +64,11 @@ public:
     return (it != shaders.end()) ? it->second.get() : nullptr;
   }
 
+  uint32_t getShaderID(const std::string &name) {
+    auto it = shaders.find(name);
+    return (it != shaders.end()) ? it->second->ID : 0;
+  }
+
   // ========== TEXTURES ==========
   uint32_t loadTexture(const std::string &path, bool flipY = true) {
     auto it = textureCache.find(path);
