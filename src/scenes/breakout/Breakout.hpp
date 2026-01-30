@@ -67,7 +67,9 @@ public:
     world.addComponent(sceneEntity, tagComp);
 
     // ==== LEVEL ====
-    Entity levelEntity = world.createEntity();
+    Entity standardLevel = world.createEntity();
+    Entity spaceInvaderLevel = world.createEntity();
+    Entity bounceGaloreLevel = world.createEntity();
     GameLevelComponent level;
     level.path = "../src/scenes/breakout/levels/standard.txt";
     level.levelWidth = screenWidth;
@@ -75,8 +77,15 @@ public:
     level.shaderID = spriteShaderID;
     level.blockTexture = blockTexture;
     level.blockSolidTexture = blockSolidTexture;
-    world.addComponent(levelEntity, level);
-    world.addComponent(levelEntity, TagComponent(ACTIVELEVEL));
+    world.addComponent(standardLevel, level);
+
+    level.path = "../src/scenes/breakout/levels/space_invader.txt";
+    world.addComponent(spaceInvaderLevel, level);
+
+    level.path = "../src/scenes/breakout/levels/bounce_galore.txt";
+    world.addComponent(bounceGaloreLevel, level);
+
+    world.addComponent(bounceGaloreLevel, TagComponent(ACTIVELEVEL));
 
     // ==== PLAYER ====
     uint32_t paddleTexture =
