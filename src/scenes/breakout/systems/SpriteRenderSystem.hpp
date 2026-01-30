@@ -6,6 +6,7 @@
 #include "../../gl_common.hpp"
 #include "../../resources/ResourceManager.hpp"
 #include "../../systems/RenderCommon.hpp"
+#include "../components/BrickComponent.hpp"
 #include <vector>
 
 extern World gWorld;
@@ -35,6 +36,11 @@ public:
         [&](Entity entity, TransformComponent &transform, MeshComponent &mesh,
             MaterialComponent &material) {
           if (!mesh.isValid())
+            return;
+
+          // Skip destroyed bricks
+          BrickComponent *brick = gWorld.getComponent<BrickComponent>(entity);
+          if (brick && brick->destroyed)
             return;
 
           RenderableEntity renderable;

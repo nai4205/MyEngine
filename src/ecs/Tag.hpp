@@ -3,7 +3,15 @@
 
 #include <unordered_set>
 
-enum TagComponentTypes { ACTIVE, MODEL, OUTLINED, ACTIVESCENE, SKYBOX, PLAYER, ACTIVELEVEL };
+enum TagComponentTypes {
+  ACTIVE,
+  MODEL,
+  OUTLINED,
+  ACTIVESCENE,
+  SKYBOX,
+  PLAYER,
+  ACTIVELEVEL,
+};
 
 struct TagComponent {
   std::unordered_set<TagComponentTypes> tags;

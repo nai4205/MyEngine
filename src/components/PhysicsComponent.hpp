@@ -1,9 +1,7 @@
-#ifndef PHYSICS_HPP
-#define PHYSICS_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
-// PhysicsComponent component - handles velocity, gravity, and jumping
 class PhysicsComponent {
 public:
   glm::vec3 velocity;
@@ -48,5 +46,3 @@ public:
     isGrounded = true;
   }
 };
-
-#endif // PHYSICS_HPP

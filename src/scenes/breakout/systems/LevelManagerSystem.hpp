@@ -7,6 +7,8 @@
 #include "../../../ecs/Tag.hpp"
 #include "../../../ecs/World.hpp"
 #include "../../../resources/ResourceManager.hpp"
+#include "../components/BrickComponent.hpp"
+#include "../components/Collider2D.hpp"
 #include "../components/GameLevelComponent.hpp"
 #include <fstream>
 #include <sstream>
@@ -140,5 +142,13 @@ private:
     meshComp.vertexCount = spriteMesh.vertexCount;
     meshComp.indexCount = 0;
     gWorld.addComponent(brick, meshComp);
+
+    BrickComponent brickComp;
+    brickComp.isSolid = isSolid;
+    brickComp.destroyed = false;
+    gWorld.addComponent(brick, brickComp);
+
+    // AABB collider for the brick
+    gWorld.addComponent(brick, Collider2D::makeAABB(size));
   }
 };

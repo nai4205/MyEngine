@@ -8,9 +8,15 @@
 #include "../Scene.hpp"
 #include "./components/GameLevelComponent.hpp"
 #include "./components/PlayerComponent.hpp"
+#include "./systems/BallMovementSystem.hpp"
+#include "./systems/BrickCollisionHandler.hpp"
+#include "./systems/CollisionSystem2D.hpp"
 #include "./systems/LevelManagerSystem.hpp"
 #include "./systems/PlayerMovementSystem.hpp"
 #include "./systems/SpriteRenderSystem.hpp"
+#include "components/BallComponent.hpp"
+#include "components/BrickComponent.hpp"
+#include "components/Collider2D.hpp"
 #include <cstdint>
 
 class Breakout : public Scene {
@@ -24,11 +30,17 @@ private:
     world.registerComponent<SceneComponent>();
     world.registerComponent<GameLevelComponent>();
     world.registerComponent<PlayerComponent>();
+    world.registerComponent<BallComponent>();
+    world.registerComponent<BrickComponent>();
+    world.registerComponent<Collider2D>();
   }
   void initSystems(World &world, float width, float height) {
     world.addSystem<LevelManagerSystem>();
     world.addSystem<PlayerMovementSystem>(width);
     world.addSystem<SpriteRenderSystem>(width, height);
+    world.addSystem<BallMovementSystem>(width);
+    auto *collisionSystem = world.addSystem<CollisionSystem2D>();
+    world.addSystem<BrickCollisionHandler>(collisionSystem);
   }
 
 public:
@@ -87,10 +99,15 @@ public:
 
     world.addComponent(bounceGaloreLevel, TagComponent(ACTIVELEVEL));
 
-    // ==== PLAYER ====
+    // ==== PLAYER ==== //
     uint32_t paddleTexture =
         resources.loadTexture("../src/assets/breakout/paddle.png", false);
     createPlayer(world, spriteShaderID, paddleTexture);
+
+    // ==== BALL ==== //
+    uint32_t ballTexture =
+        resources.loadTexture("../src/assets/breakout/smiley.png", false);
+    createBall(world, spriteShaderID, ballTexture);
 
     // ==== CAMERA ====
     createCamera(world);
@@ -145,6 +162,50 @@ private:
     meshComp.vertexCount = mesh.vertexCount;
     meshComp.indexCount = 0;
     world.addComponent(player, meshComp);
+  }
+
+  void createBall(World &world, uint32_t shaderID, uint32_t textureID) {
+    Entity ball = world.createEntity();
+
+    BallComponent ballComp;
+    ballComp.velocity = glm::vec2(20.0f, -60.0f);
+    ballComp.radius = 50.0f;
+    ballComp.stuck = false;
+    world.addComponent(ball, ballComp);
+
+    // Circle collider for the ball
+    world.addComponent(ball, Collider2D::makeCircle(ballComp.radius));
+
+    TransformComponent transform;
+    transform.position =
+        glm::vec3(screenWidth / 2.0f - ballComp.radius,
+                  screenHeight - 20.0f - ballComp.radius * 2.0f, 0.0f);
+
+    transform.scale =
+        glm::vec3(ballComp.radius * 2.0f, ballComp.radius * 2.0f, 1.0f);
+
+    world.addComponent(ball, transform);
+
+    MaterialComponent material;
+    material.shaderProgram = shaderID;
+    material.textures[0] = textureID;
+    material.useTextures = (textureID != 0);
+    material.color = glm::vec3(1.0f);
+    world.addComponent(ball, material);
+
+    float vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+                        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+                        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+    std::vector<VertexAttribute> layout = {
+        {0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0}};
+    auto &resources = ResourceManager::instance();
+    MeshData mesh = resources.createMesh(vertices, sizeof(vertices), layout, 6);
+
+    MeshComponent meshComp;
+    meshComp.vao = mesh.vao;
+    meshComp.vertexCount = mesh.vertexCount;
+    meshComp.indexCount = 0;
+    world.addComponent(ball, meshComp);
   }
 
   void createCamera(World &world) {
