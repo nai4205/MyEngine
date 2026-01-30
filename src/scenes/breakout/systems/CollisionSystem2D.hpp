@@ -4,6 +4,7 @@
 #include "../../components/TransformComponent.hpp"
 #include "../components/Collider2D.hpp"
 #include "../components/CollisionEvent.hpp"
+#include <functional>
 #include <vector>
 
 extern World gWorld;
@@ -14,13 +15,23 @@ struct CollisionEntity {
   TransformComponent *transform;
 };
 
+using CollisionCallback =
+    std::function<void(Entity, Entity, const glm::vec2 &)>;
+
+struct CollisionHandler {
+  CollisionLayer layerA;
+  CollisionLayer layerB;
+  CollisionCallback callback;
+};
+
 class CollisionSystem2D : public System {
 public:
-  std::vector<CollisionEvent> events;
+  void onCollision(CollisionLayer a, CollisionLayer b,
+                   CollisionCallback callback) {
+    handlers.push_back({a, b, std::move(callback)});
+  }
 
   void update(float &deltaTime) override {
-    events.clear();
-
     std::vector<CollisionEntity> entities;
     gWorld.forEachWith<Collider2D, TransformComponent>(
         [&](Entity entity, Collider2D &collider,
@@ -30,15 +41,43 @@ public:
 
     for (size_t i = 0; i < entities.size(); i++) {
       for (size_t j = i + 1; j < entities.size(); j++) {
+        auto *colA = entities[i].collider;
+        auto *colB = entities[j].collider;
+
+        // Early filter: skip if layers don't want to collide
+        if (!(colA->collidesWith & colB->layer) ||
+            !(colB->collidesWith & colA->layer)) {
+          continue;
+        }
+
         CollisionEvent event;
         if (checkCollision(entities[i], entities[j], event)) {
-          events.push_back(event);
+          dispatchEvent(event);
         }
       }
     }
   }
 
 private:
+  std::vector<CollisionHandler> handlers;
+
+  void dispatchEvent(const CollisionEvent &event) {
+    auto *colA = gWorld.getComponent<Collider2D>(event.entityA);
+    auto *colB = gWorld.getComponent<Collider2D>(event.entityB);
+    if (!colA || !colB)
+      return;
+
+    // Does the layer for the collider match the layer for the handler?
+    for (const auto &handler : handlers) {
+      if (colA->layer == handler.layerA && colB->layer == handler.layerB) {
+        handler.callback(event.entityA, event.entityB, event.normal);
+      } else if (colA->layer == handler.layerB &&
+                 colB->layer == handler.layerA) {
+        handler.callback(event.entityB, event.entityA, -event.normal);
+      }
+    }
+  }
+
   bool checkCollision(const CollisionEntity &a, const CollisionEntity &b,
                       CollisionEvent &event) {
     auto typeA = a.collider->type;

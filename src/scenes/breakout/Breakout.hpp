@@ -9,11 +9,11 @@
 #include "./components/GameLevelComponent.hpp"
 #include "./components/PlayerComponent.hpp"
 #include "./systems/BallMovementSystem.hpp"
-#include "./systems/BrickCollisionHandler.hpp"
 #include "./systems/CollisionSystem2D.hpp"
 #include "./systems/LevelManagerSystem.hpp"
 #include "./systems/PlayerMovementSystem.hpp"
 #include "./systems/SpriteRenderSystem.hpp"
+#include "CollisionHandlers.hpp"
 #include "components/BallComponent.hpp"
 #include "components/BrickComponent.hpp"
 #include "components/Collider2D.hpp"
@@ -39,8 +39,10 @@ private:
     world.addSystem<PlayerMovementSystem>(width);
     world.addSystem<SpriteRenderSystem>(width, height);
     world.addSystem<BallMovementSystem>(width);
-    auto *collisionSystem = world.addSystem<CollisionSystem2D>();
-    world.addSystem<BrickCollisionHandler>(collisionSystem);
+
+    // Collision system and handler callbakcs
+    auto *collision = world.addSystem<CollisionSystem2D>();
+    CollisionHandlers::registerAll(collision);
   }
 
 public:
@@ -162,19 +164,28 @@ private:
     meshComp.vertexCount = mesh.vertexCount;
     meshComp.indexCount = 0;
     world.addComponent(player, meshComp);
+
+    // AABB collider for the paddle - collides with ball
+    world.addComponent(
+        player,
+        Collider2D::makeAABB(PLAYER_SIZE, CollisionLayer::Player,
+                             static_cast<uint32_t>(CollisionLayer::Ball)));
   }
 
   void createBall(World &world, uint32_t shaderID, uint32_t textureID) {
     Entity ball = world.createEntity();
 
     BallComponent ballComp;
-    ballComp.velocity = glm::vec2(20.0f, -60.0f);
+    ballComp.velocity = glm::vec2(100.0f, -60.0f);
     ballComp.radius = 50.0f;
     ballComp.stuck = false;
     world.addComponent(ball, ballComp);
 
-    // Circle collider for the ball
-    world.addComponent(ball, Collider2D::makeCircle(ballComp.radius));
+    // Circle collider for the ball - collides with bricks and player
+    world.addComponent(
+        ball,
+        Collider2D::makeCircle(ballComp.radius, CollisionLayer::Ball,
+                               CollisionLayer::Brick | CollisionLayer::Player));
 
     TransformComponent transform;
     transform.position =

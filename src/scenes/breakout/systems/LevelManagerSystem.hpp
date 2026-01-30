@@ -148,7 +148,9 @@ private:
     brickComp.destroyed = false;
     gWorld.addComponent(brick, brickComp);
 
-    // AABB collider for the brick
-    gWorld.addComponent(brick, Collider2D::makeAABB(size));
+    // AABB collider for the brick - collides with ball
+    gWorld.addComponent(brick,
+                        Collider2D::makeAABB(size, CollisionLayer::Brick,
+                                             static_cast<uint32_t>(CollisionLayer::Ball)));
   }
 };
