@@ -11,13 +11,13 @@
 
 extern World gWorld;
 
-class SpriteRenderSystem : public System {
+class BreakoutRenderSystem : public System {
 private:
   float screenWidth;
   float screenHeight;
 
 public:
-  SpriteRenderSystem(float width = 800.0f, float height = 600.0f)
+  BreakoutRenderSystem(float width = 800.0f, float height = 600.0f)
       : screenWidth(width), screenHeight(height) {}
 
   void render() override {

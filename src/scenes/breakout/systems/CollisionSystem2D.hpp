@@ -16,7 +16,7 @@ struct CollisionEntity {
 };
 
 using CollisionCallback =
-    std::function<void(Entity, Entity, const glm::vec2 &)>;
+    std::function<void(Entity, Entity, const glm::vec2 &, float)>;
 
 struct CollisionHandler {
   CollisionLayer layerA;
@@ -39,6 +39,7 @@ public:
           entities.push_back({entity, &collider, &transform});
         });
 
+    // Check collisions for pairs of entities
     for (size_t i = 0; i < entities.size(); i++) {
       for (size_t j = i + 1; j < entities.size(); j++) {
         auto *colA = entities[i].collider;
@@ -70,10 +71,12 @@ private:
     // Does the layer for the collider match the layer for the handler?
     for (const auto &handler : handlers) {
       if (colA->layer == handler.layerA && colB->layer == handler.layerB) {
-        handler.callback(event.entityA, event.entityB, event.normal);
+        handler.callback(event.entityA, event.entityB, event.normal,
+                         event.penetration);
       } else if (colA->layer == handler.layerB &&
                  colB->layer == handler.layerA) {
-        handler.callback(event.entityB, event.entityA, -event.normal);
+        handler.callback(event.entityB, event.entityA, -event.normal,
+                         event.penetration);
       }
     }
   }
@@ -85,6 +88,7 @@ private:
 
     bool collision = false;
     glm::vec2 normal(0.0f);
+    float penetration = 0.0f;
 
     if (typeA == ColliderType::AABB && typeB == ColliderType::AABB) {
       collision = checkAABBvsAABB(a, b, normal);
@@ -93,11 +97,11 @@ private:
       collision = checkCirclevsCircle(a, b, normal);
       event = {a.entity, b.entity, normal, 0.0f};
     } else if (typeA == ColliderType::Circle && typeB == ColliderType::AABB) {
-      collision = checkCirclevsAABB(a, b, normal);
-      event = {a.entity, b.entity, normal, 0.0f};
+      collision = checkCirclevsAABB(a, b, normal, penetration);
+      event = {a.entity, b.entity, normal, penetration};
     } else if (typeA == ColliderType::AABB && typeB == ColliderType::Circle) {
-      collision = checkCirclevsAABB(b, a, normal);
-      event = {b.entity, a.entity, normal, 0.0f};
+      collision = checkCirclevsAABB(b, a, normal, penetration);
+      event = {b.entity, a.entity, normal, penetration};
     }
 
     return collision;
@@ -143,8 +147,10 @@ private:
     return false;
   }
 
+  // What we use for circle to brick collisions
   bool checkCirclevsAABB(const CollisionEntity &circle,
-                         const CollisionEntity &aabb, glm::vec2 &normal) {
+                         const CollisionEntity &aabb, glm::vec2 &normal,
+                         float &penetration) {
     // Get center point of circle
     glm::vec2 center =
         glm::vec2(circle.transform->position) + circle.collider->radius;
@@ -163,12 +169,27 @@ private:
     glm::vec2 closest = aabbCenter + clamped;
 
     // Check if distance from circle center to closest point < radius
-    difference = closest - center;
-    float distance = glm::length(difference);
+    glm::vec2 toCircle = center - closest;
+    float distance = glm::length(toCircle);
 
     if (distance < circle.collider->radius) {
-      if (distance > 0.0f) {
-        normal = glm::normalize(difference);
+      penetration = circle.collider->radius - distance;
+
+      if (distance > 0.001f) {
+        // Normal case: normal points from closest point to circle center
+        normal = glm::normalize(toCircle);
+      } else {
+        // Circle center is inside or exactly on AABB edge
+        // Use direction from AABB center to circle center
+        glm::vec2 fromCenter = center - aabbCenter;
+        if (glm::length(fromCenter) > 0.001f) {
+          normal = glm::normalize(fromCenter);
+        } else {
+          // Fallback: push up
+          normal = glm::vec2(0.0f, -1.0f);
+        }
+        // Recalculate penetration for deep overlap
+        penetration = circle.collider->radius + 1.0f;
       }
       return true;
     }

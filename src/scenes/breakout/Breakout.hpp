@@ -9,10 +9,10 @@
 #include "./components/GameLevelComponent.hpp"
 #include "./components/PlayerComponent.hpp"
 #include "./systems/BallMovementSystem.hpp"
+#include "./systems/BreakoutRenderSystem.hpp"
 #include "./systems/CollisionSystem2D.hpp"
 #include "./systems/LevelManagerSystem.hpp"
 #include "./systems/PlayerMovementSystem.hpp"
-#include "./systems/SpriteRenderSystem.hpp"
 #include "CollisionHandlers.hpp"
 #include "components/BallComponent.hpp"
 #include "components/BrickComponent.hpp"
@@ -37,7 +37,7 @@ private:
   void initSystems(World &world, float width, float height) {
     world.addSystem<LevelManagerSystem>();
     world.addSystem<PlayerMovementSystem>(width);
-    world.addSystem<SpriteRenderSystem>(width, height);
+    world.addSystem<BreakoutRenderSystem>(width, height);
     world.addSystem<BallMovementSystem>(width);
 
     // Collision system and handler callbakcs
@@ -176,8 +176,8 @@ private:
     Entity ball = world.createEntity();
 
     BallComponent ballComp;
-    ballComp.velocity = glm::vec2(100.0f, -60.0f);
-    ballComp.radius = 50.0f;
+    ballComp.velocity = glm::vec2(400.0f);
+    ballComp.radius = 25.0f;
     ballComp.stuck = false;
     world.addComponent(ball, ballComp);
 
