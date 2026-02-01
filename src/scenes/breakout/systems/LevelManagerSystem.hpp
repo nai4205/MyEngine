@@ -10,6 +10,7 @@
 #include "../components/BrickComponent.hpp"
 #include "../components/Collider2D.hpp"
 #include "../components/GameLevelComponent.hpp"
+#include "../components/ParticleEmitterComponent.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -149,8 +150,25 @@ private:
     gWorld.addComponent(brick, brickComp);
 
     // AABB collider for the brick - collides with ball
-    gWorld.addComponent(brick,
-                        Collider2D::makeAABB(size, CollisionLayer::Brick,
-                                             static_cast<uint32_t>(CollisionLayer::Ball)));
+    gWorld.addComponent(brick, Collider2D::makeAABB(size, CollisionLayer::Brick,
+                                                    static_cast<uint32_t>(
+                                                        CollisionLayer::Ball)));
+
+    // Dormant particle emitter for non-solid bricks (activates on destruction)
+    if (!isSolid) {
+      ParticleEmitterComponent emitter;
+      emitter.maxParticles = 50;
+      emitter.spawnRate = 0;
+      emitter.offset = size * 0.5f;
+      emitter.particleSize = glm::vec2(8.0f);
+      emitter.particleLifetime = 2.0f;
+      emitter.gravity = glm::vec2(0, 500.0f);
+      emitter.trailMode = false;
+      emitter.shaderID = level.shaderID;
+      emitter.textureID = level.particleTextureID;
+      emitter.meshVAO = spriteMesh.vao;
+      emitter.meshVertexCount = spriteMesh.vertexCount;
+      gWorld.addComponent(brick, emitter);
+    }
   }
 };

@@ -7,6 +7,7 @@
 #include "../../resources/ResourceManager.hpp"
 #include "../../systems/RenderCommon.hpp"
 #include "../components/BrickComponent.hpp"
+#include "../components/PowerUpComponent.hpp"
 #include <vector>
 
 extern World gWorld;
@@ -21,12 +22,11 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void render() override {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // Don't bind framebuffer - PostProcessingSystem controls this
 
     glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glm::mat4 projection =
         glm::ortho(0.0f, screenWidth, screenHeight, 0.0f, -1.0f, 1.0f);
@@ -38,9 +38,18 @@ public:
           if (!mesh.isValid())
             return;
 
+          // Skip invisible entities
+          if (material.alpha <= 0.0f)
+            return;
+
           // Skip destroyed bricks
           BrickComponent *brick = gWorld.getComponent<BrickComponent>(entity);
           if (brick && brick->destroyed)
+            return;
+
+          // Skip destroyed powerups
+          PowerUpComponent *powerup = gWorld.getComponent<PowerUpComponent>(entity);
+          if (powerup && powerup->destroyed)
             return;
 
           RenderableEntity renderable;
@@ -64,6 +73,7 @@ public:
       shader->setMat4("projection", projection);
       shader->setMat4("model", sprite.transform->getSpriteModelMatrix());
       shader->setVec3("spriteColor", sprite.material->color);
+      shader->setFloat("spriteAlpha", sprite.material->alpha);
 
       if (sprite.material->useTextures && sprite.material->textures[0] != 0) {
         glActiveTexture(GL_TEXTURE0);

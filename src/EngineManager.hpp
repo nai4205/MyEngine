@@ -23,6 +23,7 @@
 #include "systems/RenderSystem.hpp" // Now OpaqueRenderSystem
 #include "systems/SkyboxSystem.hpp"
 #include "systems/TransparentRenderSystem.hpp"
+#include "scenes/breakout/systems/PostProcessingSystem.hpp"
 
 // Extern declarations for globals defined in main.cpp
 extern World gWorld;
@@ -133,6 +134,9 @@ private:
     }
     if (auto *compositeSystem = gWorld.getSystem<CompositeRenderSystem>()) {
       compositeSystem->setScreenSize(width, height);
+    }
+    if (auto *postProcessSystem = gWorld.getSystem<PostProcessingSystem>()) {
+      postProcessSystem->setScreenSize(width, height);
     }
   }
 

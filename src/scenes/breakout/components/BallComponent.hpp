@@ -3,6 +3,5 @@
 
 struct BallComponent {
   float radius;
-  glm::vec2 velocity;
   bool stuck;
 };

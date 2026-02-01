@@ -12,6 +12,7 @@ struct GameLevelComponent {
   uint32_t shaderID = 0;
   uint32_t blockTexture = 0;
   uint32_t blockSolidTexture = 0;
+  uint32_t particleTextureID = 0;
 
   std::vector<std::vector<unsigned int>> tileData;
   bool loaded = false;

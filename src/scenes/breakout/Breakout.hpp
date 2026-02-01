@@ -17,6 +17,13 @@
 #include "components/BallComponent.hpp"
 #include "components/BrickComponent.hpp"
 #include "components/Collider2D.hpp"
+#include "components/ParticleEmitterComponent.hpp"
+#include "components/PostProcessingComponent.hpp"
+#include "components/PowerUpComponent.hpp"
+#include "components/VelocityComponent.hpp"
+#include "systems/ParticleSystem.hpp"
+#include "systems/PostProcessingSystem.hpp"
+#include "systems/PowerUpSystem.hpp"
 #include <cstdint>
 
 class Breakout : public Scene {
@@ -33,16 +40,29 @@ private:
     world.registerComponent<BallComponent>();
     world.registerComponent<BrickComponent>();
     world.registerComponent<Collider2D>();
+    world.registerComponent<VelocityComponent>();
+    world.registerComponent<ParticleEmitterComponent>();
+    world.registerComponent<PostProcessingComponent>();
+    world.registerComponent<PowerUpComponent>();
   }
-  void initSystems(World &world, float width, float height) {
+  void initSystems(World &world, float width, float height, uint32_t shaderID,
+                   const PowerUpTextures &powerUpTextures) {
     world.addSystem<LevelManagerSystem>();
     world.addSystem<PlayerMovementSystem>(width);
     world.addSystem<BreakoutRenderSystem>(width, height);
     world.addSystem<BallMovementSystem>(width);
 
-    // Collision system and handler callbakcs
+    // PowerUp system with pre-allocated pool
+    world.addSystem<PowerUpSystem>(width, height, shaderID, powerUpTextures);
+
+    // Collision system and handler callbacks
     auto *collision = world.addSystem<CollisionSystem2D>();
     CollisionHandlers::registerAll(collision);
+
+    world.addSystem<ParticleSystem>(width, height);
+
+    // Post-processing must be last - renders framebuffer to screen
+    world.addSystem<PostProcessingSystem>(width, height);
   }
 
 public:
@@ -67,9 +87,34 @@ public:
         resources.loadTexture("../src/assets/breakout/block.png", false);
     uint32_t blockSolidTexture =
         resources.loadTexture("../src/assets/breakout/block_solid.png", false);
+    uint32_t particleTextureID =
+        resources.loadTexture("../src/assets/breakout/particle.png", false);
+
+    // PowerUp textures
+    uint32_t texSpeed = resources.loadTexture(
+        "../src/assets/breakout/powerup_speed.png", false);
+    uint32_t texSticky = resources.loadTexture(
+        "../src/assets/breakout/powerup_sticky.png", false);
+    uint32_t texPassThrough = resources.loadTexture(
+        "../src/assets/breakout/powerup_passthrough.png", false);
+    uint32_t texPadSize = resources.loadTexture(
+        "../src/assets/breakout/powerup_increase.png", false);
+    uint32_t texConfuse = resources.loadTexture(
+        "../src/assets/breakout/powerup_confuse.png", false);
+    uint32_t texChaos = resources.loadTexture(
+        "../src/assets/breakout/powerup_chaos.png", false);
 
     // ==== SYSTEMS ====
-    initSystems(world, screenWidth, screenHeight);
+    PowerUpTextures powerUpTextures;
+    powerUpTextures.speed = texSpeed;
+    powerUpTextures.sticky = texSticky;
+    powerUpTextures.passThrough = texPassThrough;
+    powerUpTextures.padSize = texPadSize;
+    powerUpTextures.confuse = texConfuse;
+    powerUpTextures.chaos = texChaos;
+
+    initSystems(world, screenWidth, screenHeight, spriteShaderID,
+                powerUpTextures);
 
     // ==== SCENE ====
     Entity sceneEntity = world.createEntity();
@@ -77,8 +122,10 @@ public:
     sceneComp.clearColor = getClearColor();
     TagComponent tagComp;
     tagComp.add(ACTIVESCENE);
+    PostProcessingComponent fx;
     world.addComponent(sceneEntity, sceneComp);
     world.addComponent(sceneEntity, tagComp);
+    world.addComponent(sceneEntity, fx);
 
     // ==== LEVEL ====
     Entity standardLevel = world.createEntity();
@@ -91,6 +138,7 @@ public:
     level.shaderID = spriteShaderID;
     level.blockTexture = blockTexture;
     level.blockSolidTexture = blockSolidTexture;
+    level.particleTextureID = particleTextureID;
     world.addComponent(standardLevel, level);
 
     level.path = "../src/scenes/breakout/levels/space_invader.txt";
@@ -99,7 +147,7 @@ public:
     level.path = "../src/scenes/breakout/levels/bounce_galore.txt";
     world.addComponent(bounceGaloreLevel, level);
 
-    world.addComponent(bounceGaloreLevel, TagComponent(ACTIVELEVEL));
+    world.addComponent(spaceInvaderLevel, TagComponent(ACTIVELEVEL));
 
     // ==== PLAYER ==== //
     uint32_t paddleTexture =
@@ -109,7 +157,8 @@ public:
     // ==== BALL ==== //
     uint32_t ballTexture =
         resources.loadTexture("../src/assets/breakout/smiley.png", false);
-    createBall(world, spriteShaderID, ballTexture);
+
+    createBall(world, spriteShaderID, ballTexture, particleTextureID);
 
     // ==== CAMERA ====
     createCamera(world);
@@ -133,7 +182,7 @@ private:
     Entity player = world.createEntity();
 
     PlayerComponent playerComp;
-    playerComp.velocity = 500.0f;
+    playerComp.speed = 500.0f;
     playerComp.sizeX = PLAYER_SIZE.x;
     playerComp.sizeY = PLAYER_SIZE.y;
     world.addComponent(player, playerComp);
@@ -165,21 +214,25 @@ private:
     meshComp.indexCount = 0;
     world.addComponent(player, meshComp);
 
-    // AABB collider for the paddle - collides with ball
+    // AABB collider for the paddle - collides with ball and powerups
     world.addComponent(
         player,
         Collider2D::makeAABB(PLAYER_SIZE, CollisionLayer::Player,
-                             static_cast<uint32_t>(CollisionLayer::Ball)));
+                             CollisionLayer::Ball | CollisionLayer::PowerUp));
   }
 
-  void createBall(World &world, uint32_t shaderID, uint32_t textureID) {
+  void createBall(World &world, uint32_t shaderID, uint32_t textureID,
+                  uint32_t particleTextureID) {
     Entity ball = world.createEntity();
 
     BallComponent ballComp;
-    ballComp.velocity = glm::vec2(400.0f);
     ballComp.radius = 25.0f;
     ballComp.stuck = false;
     world.addComponent(ball, ballComp);
+
+    VelocityComponent velComp;
+    velComp.velocity = glm::vec2(200.0f, 300.0f);
+    world.addComponent(ball, velComp);
 
     // Circle collider for the ball - collides with bricks and player
     world.addComponent(
@@ -217,6 +270,19 @@ private:
     meshComp.vertexCount = mesh.vertexCount;
     meshComp.indexCount = 0;
     world.addComponent(ball, meshComp);
+
+    // Particle emitter - particles trail behind the ball
+    ParticleEmitterComponent emitter;
+    emitter.maxParticles = 500;
+    emitter.spawnRate = 2;
+    emitter.offset = glm::vec2(ballComp.radius / 2.0f);
+    emitter.particleSize = glm::vec2(10.0f);
+    emitter.gravity = glm::vec2(0.0f, -250.0f);
+    emitter.shaderID = shaderID;
+    emitter.textureID = particleTextureID;
+    emitter.meshVAO = mesh.vao;
+    emitter.meshVertexCount = mesh.vertexCount;
+    world.addComponent(ball, emitter);
   }
 
   void createCamera(World &world) {

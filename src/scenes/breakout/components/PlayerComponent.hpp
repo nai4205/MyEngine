@@ -1,7 +1,7 @@
 #pragma once
 
 struct PlayerComponent {
-  float velocity;
+  float speed;
   float sizeX;
   float sizeY;
 };

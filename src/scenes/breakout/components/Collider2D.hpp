@@ -10,6 +10,7 @@ enum class CollisionLayer : uint32_t {
   Brick = 1 << 1,
   Player = 1 << 2,
   Wall = 1 << 3,
+  PowerUp = 1 << 4,
 };
 
 // Bitwise operators for CollisionLayer
