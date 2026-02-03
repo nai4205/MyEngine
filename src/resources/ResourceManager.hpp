@@ -64,11 +64,6 @@ public:
     return (it != shaders.end()) ? it->second.get() : nullptr;
   }
 
-  uint32_t getShaderID(const std::string &name) {
-    auto it = shaders.find(name);
-    return (it != shaders.end()) ? it->second->ID : 0;
-  }
-
   // ========== TEXTURES ==========
   uint32_t loadTexture(const std::string &path, bool flipY = true) {
     auto it = textureCache.find(path);
@@ -182,96 +177,6 @@ public:
     glBindVertexArray(data.vao);
     glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeInBytes, vertices, GL_STATIC_DRAW);
-
-    for (const VertexAttribute &attr : attributes) {
-      glVertexAttribPointer(attr.location, attr.componentCount, attr.type,
-                            attr.normalized ? GL_TRUE : GL_FALSE, attr.stride,
-                            attr.offset);
-      glEnableVertexAttribArray(attr.location);
-    }
-
-    glBindVertexArray(0);
-
-    meshes.emplace_back(data);
-    return data;
-  }
-
-  // Creates an indexed mesh with separate attribute arrays (non-interleaved
-  // layout) using glBufferSubData to upload each attribute to a different
-  // region
-  MeshData createIndexedMesh(const float *positions, size_t positionsSize,
-                             const float *normals, size_t normalsSize,
-                             const float *texCoords, size_t texCoordsSize,
-                             const unsigned int *indices, size_t indicesCount,
-                             uint32_t vertexCount) {
-    MeshData data;
-    data.vertexCount = vertexCount;
-    data.indexCount = static_cast<uint32_t>(indicesCount);
-
-    size_t totalSize = positionsSize + normalsSize + texCoordsSize;
-
-    glGenVertexArrays(1, &data.vao);
-    glGenBuffers(1, &data.vbo);
-    glGenBuffers(1, &data.ebo);
-
-    glBindVertexArray(data.vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
-
-    // Allocate buffer with total size
-    glBufferData(GL_ARRAY_BUFFER, totalSize, nullptr, GL_STATIC_DRAW);
-
-    // Upload each attribute array to its region
-    glBufferSubData(GL_ARRAY_BUFFER, 0, positionsSize, positions);
-    glBufferSubData(GL_ARRAY_BUFFER, positionsSize, normalsSize, normals);
-    glBufferSubData(GL_ARRAY_BUFFER, positionsSize + normalsSize, texCoordsSize,
-                    texCoords);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(unsigned int),
-                 indices, GL_STATIC_DRAW);
-
-    // Position (location 0) - 3 floats, stride 0 (tightly packed)
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-    // Normal (location 1) - 3 floats
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)positionsSize);
-
-    // TexCoords (location 2) - 2 floats
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0,
-                          (void *)(positionsSize + normalsSize));
-
-    glBindVertexArray(0);
-
-    meshes.emplace_back(data);
-    return data;
-  }
-
-  // Creates an indexed mesh with interleaved vertex data and custom attributes
-  MeshData createIndexedMesh(const float *vertices, size_t verticesSizeInBytes,
-                             const unsigned int *indices, size_t indicesCount,
-                             const std::vector<VertexAttribute> &attributes,
-                             uint32_t vertexCount) {
-    MeshData data;
-    data.vertexCount = vertexCount;
-    data.indexCount = static_cast<uint32_t>(indicesCount);
-
-    glGenVertexArrays(1, &data.vao);
-    glGenBuffers(1, &data.vbo);
-    glGenBuffers(1, &data.ebo);
-
-    glBindVertexArray(data.vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, data.vbo);
-    glBufferData(GL_ARRAY_BUFFER, verticesSizeInBytes, vertices,
-                 GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(unsigned int),
-                 indices, GL_STATIC_DRAW);
 
     for (const VertexAttribute &attr : attributes) {
       glVertexAttribPointer(attr.location, attr.componentCount, attr.type,

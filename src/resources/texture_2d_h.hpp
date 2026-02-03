@@ -49,44 +49,6 @@ public:
     stbi_image_free(data);
   }
 
-  void loadImageFromMemory(const unsigned char *buffer, int len) {
-    int width, height, nrChannels;
-    unsigned char *data =
-        stbi_load_from_memory(buffer, len, &width, &height, &nrChannels, 0);
-    if (data) {
-      GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                   GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-      std::cerr << "Failed to load embedded texture from memory" << std::endl;
-    }
-
-    stbi_image_free(data);
-  }
-
-  void loadImageRaw(const unsigned char *data, int width, int height,
-                    int channels) {
-    if (data) {
-      GLenum format;
-      if (channels == 1)
-        format = GL_RED;
-      else if (channels == 3)
-        format = GL_RGB;
-      else if (channels == 4)
-        format = GL_RGBA;
-      else {
-        std::cerr << "Unsupported channel count: " << channels << std::endl;
-        return;
-      }
-      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                   GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-      std::cerr << "Failed to load raw embedded texture" << std::endl;
-    }
-  }
-
   // unsigned int loadTexture(char const *path) {
   //   unsigned int textureID;
   //   glGenTextures(1, &textureID);
