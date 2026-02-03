@@ -1,12 +1,12 @@
 #pragma once
 
+#include "../components/NameComponent.hpp"
 #include "ComponentManager.hpp"
 #include "ComponentMask.hpp"
 #include "Entity.hpp"
 #include "EntityManager.hpp"
 #include "Input.hpp"
 #include "System.hpp"
-#include "../components/NameComponent.hpp"
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
@@ -159,34 +159,6 @@ public:
     }
 
     return cache.entities;
-  }
-
-  template <typename... ComponentTypes>
-  std::vector<Entity> getEntitiesWithUncached() {
-    std::vector<Entity> result;
-
-    if constexpr (sizeof...(ComponentTypes) == 0) {
-      return result;
-    }
-
-    ComponentMask queryMask = buildQueryMask<ComponentTypes...>();
-
-    for (Entity entity = 0; entity < entitySignatures.size(); ++entity) {
-      const ComponentMask &signature = entitySignatures[entity];
-      if ((signature & queryMask) == queryMask) {
-        result.emplace_back(entity);
-      }
-    }
-
-    return result;
-  }
-
-  template <typename... ComponentTypes, typename Func>
-  void forEachEntity(Func &&callback) {
-    const auto &entities = getEntitiesWith<ComponentTypes...>();
-    for (Entity entity : entities) {
-      callback(entity);
-    }
   }
 
   template <typename... ComponentTypes, typename Func>

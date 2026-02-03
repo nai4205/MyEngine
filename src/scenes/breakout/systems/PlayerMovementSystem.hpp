@@ -44,7 +44,7 @@ public:
           if (input.isKeyPressed(GLFW_KEY_SPACE) && ballPos && ballVelocity) {
             ballPos->x = screenWidth / 2;
             ballPos->y = 300;
-            *ballVelocity = glm::vec2(0.0f, abs(ballVelocity->y));
+            *ballVelocity = glm::vec2(100.0f, -350.0f); // Fixed initial velocity
           }
         });
   }

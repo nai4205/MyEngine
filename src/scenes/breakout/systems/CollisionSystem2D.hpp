@@ -62,6 +62,7 @@ public:
 private:
   std::vector<CollisionHandler> handlers;
 
+  // pass the event parameters into the registered callbacks
   void dispatchEvent(const CollisionEvent &event) {
     auto *colA = gWorld.getComponent<Collider2D>(event.entityA);
     auto *colB = gWorld.getComponent<Collider2D>(event.entityB);
