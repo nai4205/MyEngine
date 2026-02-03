@@ -1,14 +1,13 @@
 #pragma once
 
-#include "../gl_common.hpp"
 #include "../components/MaterialComponent.hpp"
 #include "../components/MeshComponent.hpp"
 #include "../components/SceneComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../ecs/Tag.hpp"
 #include "../ecs/World.hpp"
+#include "../gl_common.hpp"
 
-// Shared data structure for renderable entities
 struct RenderableEntity {
   Entity entity;
   TransformComponent *transform;
@@ -19,7 +18,6 @@ struct RenderableEntity {
 
 namespace RenderUtils {
 
-// Helper function to draw a mesh
 inline void drawMesh(const MeshComponent &mesh) {
   glBindVertexArray(mesh.vao);
   if (mesh.isIndexed()) {
@@ -30,7 +28,6 @@ inline void drawMesh(const MeshComponent &mesh) {
   glBindVertexArray(0);
 }
 
-// Helper function to get the active scene name
 inline std::string getActiveSceneName(World &world) {
   std::string activeSceneName;
   world.forEachWith<SceneComponent, TagComponent>(
@@ -42,7 +39,6 @@ inline std::string getActiveSceneName(World &world) {
   return activeSceneName;
 }
 
-// Helper function to get clear color from active scene
 inline glm::vec3 getActiveSceneClearColor(World &world) {
   glm::vec3 clearColor(0.0f);
   world.forEachWith<SceneComponent, TagComponent>(

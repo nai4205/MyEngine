@@ -12,6 +12,9 @@
 
 extern World gWorld;
 
+// TODO: even after splitting up the rendering systems they are still a bit too
+// heavy, this one could be split into outlines
+// Also, the framebuffer management is a bit messy
 class OpaqueRenderSystem : public System {
 private:
   unsigned int screenWidth = 800;
@@ -26,7 +29,6 @@ public:
     screenHeight = height;
   }
 
-  // Accessor for framebuffer - other systems will use this
   Framebuffer *getFramebuffer(const std::string &sceneName) {
     auto &resources = ResourceManager::instance();
     return resources.getFramebuffer(sceneName);

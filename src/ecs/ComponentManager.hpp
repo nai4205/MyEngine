@@ -1,5 +1,4 @@
-#ifndef COMPONENT_MANAGER_HPP
-#define COMPONENT_MANAGER_HPP
+#pragma once
 
 #include "ComponentArray.hpp"
 #include "ComponentMask.hpp"
@@ -57,10 +56,4 @@ public:
   template <typename T> bool hasComponent(Entity e) {
     return getComponentArray<T>()->has(e);
   }
-
-  template <typename T> ComponentArray<T> *getArrayForIteration() {
-    return getComponentArray<T>();
-  }
 };
-
-#endif // COMPONENT_MANAGER_HPP

@@ -52,7 +52,6 @@ public:
     if (fb) {
       fb->unbind();
       glDisable(GL_DEPTH_TEST);
-
       glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0);
       glClear(GL_COLOR_BUFFER_BIT);
 

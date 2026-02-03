@@ -10,11 +10,9 @@
 
 extern World gWorld;
 
-// System that updates camera vectors and matrices
 class CameraSystem : public System {
 public:
   void update(float &deltaTime) override {
-    // Update camera vectors for all cameras
     gWorld.forEachWith<TransformComponent, CameraComponent>(
         [](Entity entity, TransformComponent &transform,
            CameraComponent &camera) { camera.updateCameraComponentVectors(); });
@@ -35,7 +33,7 @@ public:
     return activeCameraEntity;
   }
 
-  // Get the main camera component
+  // TODO: mixed usage of this and the camera utils one
   CameraComponent *getActiveCamera(World &world) {
     Entity cameraEntity = getActiveCameraEntity(gWorld);
     if (cameraEntity != NULL_ENTITY) {
@@ -44,7 +42,6 @@ public:
     return nullptr;
   }
 
-  // Get the main camera's transform
   TransformComponent *getActiveCameraTransform(World &world) {
     Entity cameraEntity = getActiveCameraEntity(gWorld);
     if (cameraEntity != NULL_ENTITY) {

@@ -1,5 +1,4 @@
-#ifndef POINT_LIGHT_COMPONENT_HPP
-#define POINT_LIGHT_COMPONENT_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -19,5 +18,3 @@ struct PointLightComponent {
       : ambient(amb), diffuse(diff), specular(spec), constant(c), linear(l),
         quadratic(q) {}
 };
-
-#endif // POINT_LIGHT_COMPONENT_HPP

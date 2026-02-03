@@ -28,9 +28,11 @@ public:
 
   void setKeyPressed(int key, bool pressed) {
     if (pressed) {
+      // If not already pressed then it was just pressed
       if (keysPressed.find(key) == keysPressed.end()) {
         keysJustPressed.insert(key);
       }
+      // Always pressed on press
       keysPressed.insert(key);
     } else {
       keysPressed.erase(key);

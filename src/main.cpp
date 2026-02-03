@@ -15,6 +15,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
 bool wireframe = false;
 float lastFrame = 0.0f;
 float lastTitleUpdate = 0.0f;

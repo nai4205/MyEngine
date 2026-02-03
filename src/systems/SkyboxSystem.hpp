@@ -32,13 +32,11 @@ public:
   }
 
   void render() override {
-    // Get active scene name
     std::string activeSceneName = RenderUtils::getActiveSceneName(gWorld);
     if (activeSceneName.empty()) {
       return;
     }
 
-    // Get framebuffer from OpaqueRenderSystem
     auto *opaqueSystem = gWorld.getSystem<class OpaqueRenderSystem>();
     if (!opaqueSystem) {
       return;
@@ -47,12 +45,10 @@ public:
     auto &resources = ResourceManager::instance();
     Framebuffer *fb = resources.getFramebuffer(activeSceneName);
 
-    // Ensure framebuffer is bound
     if (fb) {
       fb->bind();
     }
 
-    // Find skybox entity
     SkyboxEntity skybox;
     bool foundSkybox = false;
     gWorld.forEachWith<MeshComponent, MaterialComponent, TagComponent>(
@@ -71,7 +67,6 @@ public:
     if (!foundSkybox)
       return;
 
-    // Render skybox to framebuffer
     float aspectRatio =
         static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
     auto camera = getActiveCamera(gWorld, aspectRatio);

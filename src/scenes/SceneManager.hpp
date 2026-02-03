@@ -11,11 +11,10 @@ public:
     return inst;
   }
 
-  template <typename T, typename... Args>
+  template <typename T>
   void registerScene(const std::string &name, float screenWidth,
-                     float screenHeight, Args &&...args) {
-    scenes[name] = std::make_unique<T>(screenWidth, screenHeight,
-                                       std::forward<Args>(args)...);
+                     float screenHeight) {
+    scenes[name] = std::make_unique<T>(screenWidth, screenHeight);
   }
 
   void loadScene(const std::string &name, World &world) {
@@ -25,6 +24,7 @@ public:
 
     auto it = scenes.find(name);
     if (it != scenes.end()) {
+      // Get the scene pointer
       currentScene = it->second.get();
       currentScene->load(world);
     }

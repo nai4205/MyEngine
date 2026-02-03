@@ -1,10 +1,5 @@
 
-#include "components/CameraFollowComponent.hpp"
-#include "components/DirectionalLightComponent.hpp"
-#include "components/NameComponent.hpp"
-#include "components/PointLightComponent.hpp"
 #include "components/SceneComponent.hpp"
-#include "components/SpotLightComponent.hpp"
 #include "ecs/Tag.hpp"
 #include "ecs/World.hpp"
 #include "gl_common.hpp"
@@ -13,6 +8,7 @@
 #include <string>
 
 #include "ecs/World.hpp"
+#include "scenes/breakout/systems/PostProcessingSystem.hpp"
 #include "systems/CameraControllerSystem.hpp"
 #include "systems/CameraFollowSystem.hpp"
 #include "systems/CameraSystem.hpp"
@@ -23,7 +19,6 @@
 #include "systems/RenderSystem.hpp" // Now OpaqueRenderSystem
 #include "systems/SkyboxSystem.hpp"
 #include "systems/TransparentRenderSystem.hpp"
-#include "scenes/breakout/systems/PostProcessingSystem.hpp"
 
 // Extern declarations for globals defined in main.cpp
 extern World gWorld;
@@ -47,6 +42,7 @@ public:
     }
 
     glfwMakeContextCurrent(window);
+    // We need this for C++ style callbacks using glfw C functions.
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -71,6 +67,7 @@ public:
 
   void mainLoop() {
     while (!glfwWindowShouldClose(window)) {
+      // Lose some accuracy
       float currentFrame = static_cast<float>(glfwGetTime());
       float deltaTime = currentFrame - lastFrame;
       lastFrame = currentFrame;
@@ -99,6 +96,8 @@ private:
   float lastTitleUpdate = 0.0f;
   int frameCount = 0;
 
+  // This needs to be static, so we have to do class related stuff here then
+  // pass it over to the onFrameBufferResize function
   static void framebuffer_size_callback(GLFWwindow *window, int width,
                                         int height) {
     auto *engine =
@@ -119,10 +118,13 @@ private:
             activeSceneName = scene.name;
           }
         });
+
     if (activeSceneName.length() <= 0)
       std::cout << "No active scenes" << std::endl;
     resources.resizeFramebuffer(activeSceneName, width, height);
 
+    // TODO: better way of managing systems that need framebuffer resizing
+    // resizing
     if (auto *opaqueSystem = gWorld.getSystem<OpaqueRenderSystem>()) {
       opaqueSystem->setScreenSize(width, height);
     }
@@ -163,23 +165,25 @@ private:
     }
 
     // Post-processing effect controls (number keys 0-5)
-    if (action == GLFW_PRESS) {
-      if (auto *compositeSystem = gWorld.getSystem<CompositeRenderSystem>()) {
-        if (key == GLFW_KEY_0)
-          compositeSystem->setPostProcessEffect(0); // Normal
-        else if (key == GLFW_KEY_1)
-          compositeSystem->setPostProcessEffect(1); // Invert
-        else if (key == GLFW_KEY_2)
-          compositeSystem->setPostProcessEffect(2); // Grayscale
-        else if (key == GLFW_KEY_3)
-          compositeSystem->setPostProcessEffect(3); // Sharpen
-        else if (key == GLFW_KEY_4)
-          compositeSystem->setPostProcessEffect(4); // Blur
-        else if (key == GLFW_KEY_5)
-          compositeSystem->setPostProcessEffect(5); // Edge detection
-      }
-    }
-
+    // TODO: Move to a system
+    // if (action == GLFW_PRESS) {
+    //   if (auto *compositeSystem = gWorld.getSystem<CompositeRenderSystem>())
+    //   {
+    //     if (key == GLFW_KEY_0)
+    //       compositeSystem->setPostProcessEffect(0); // Normal
+    //     else if (key == GLFW_KEY_1)
+    //       compositeSystem->setPostProcessEffect(1); // Invert
+    //     else if (key == GLFW_KEY_2)
+    //       compositeSystem->setPostProcessEffect(2); // Grayscale
+    //     else if (key == GLFW_KEY_3)
+    //       compositeSystem->setPostProcessEffect(3); // Sharpen
+    //     else if (key == GLFW_KEY_4)
+    //       compositeSystem->setPostProcessEffect(4); // Blur
+    //     else if (key == GLFW_KEY_5)
+    //       compositeSystem->setPostProcessEffect(5); // Edge detection
+    //   }
+    // }
+    //
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
       glfwSetWindowShouldClose(window, true);
     }

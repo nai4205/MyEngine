@@ -112,6 +112,7 @@ public:
   }
 
   // ========== ENTITY SEARCH OPERATIONS ==========
+  // Might be useful for model loading
 
   Entity findEntityByName(const std::string &name) {
     const auto &entities = getEntitiesWith<NameComponent>();
@@ -145,8 +146,8 @@ public:
     ComponentMask queryMask = buildQueryMask<ComponentTypes...>();
 
     auto it = queryCache.find(queryMask);
+    // Cache miss
     if (it == queryCache.end()) {
-      // First time seeing this query - create cache entry and register it
       queryCache[queryMask] = QueryCache{};
       registerQueryMask<ComponentTypes...>(queryMask);
       it = queryCache.find(queryMask);
@@ -161,11 +162,24 @@ public:
     return cache.entities;
   }
 
+  // Example usage:
+  // forEachWith<Transform, Velocity>([](Entity e, Transform& t, Velocity& v) {
+  // Logic here
+  // });
   template <typename... ComponentTypes, typename Func>
   void forEachWith(Func &&callback) {
+    // So when were using this function we have to specify all the types of
+    // components we will need in the callback in the template brackets e.g.
+    // <TransformComponent, VelocityComponent>
     const auto &entities = getEntitiesWith<ComponentTypes...>();
     for (Entity entity : entities) {
       callback(entity, *getComponent<ComponentTypes>(entity)...);
+      // Unpacks
+      // callback(
+      //   entity,
+      //   *getComponent<Transform>(entity),
+      //   *getComponent<Velocity>(entity)
+      // );
     }
   }
 
@@ -228,6 +242,7 @@ private:
   // ========== QUERY CACHE HELPERS ==========
   template <typename... ComponentTypes> ComponentMask buildQueryMask() {
     ComponentMask mask;
+    // Build a bitset of all the component ids (8 bits)
     (mask.set(componentManager->getComponentTypeId<ComponentTypes>()), ...);
     return mask;
   }

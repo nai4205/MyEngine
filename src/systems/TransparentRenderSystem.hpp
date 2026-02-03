@@ -103,7 +103,6 @@ private:
 
       shader->use();
 
-      // Configure shader once per unique shader program
       if (configuredShaders.find(renderable.material->shaderProgram) ==
           configuredShaders.end()) {
         shader->setMat4("view", camera.view);

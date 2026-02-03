@@ -53,8 +53,7 @@ private:
                    PhysicsComponent *physics) {
     bool spacePressed = input.isKeyPressed(GLFW_KEY_SPACE);
 
-    // Only jump on initial press (not while held)
-    if (spacePressed && !spaceWasPressed) {
+    if (spacePressed) {
       controller.processJump(physics);
     }
 

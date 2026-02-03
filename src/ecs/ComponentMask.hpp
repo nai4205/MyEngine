@@ -1,5 +1,4 @@
-#ifndef COMPONENT_MASK_HPP
-#define COMPONENT_MASK_HPP
+#pragma once
 
 #include <bitset>
 #include <cstdint>
@@ -12,5 +11,3 @@ using ComponentTypeId = uint8_t;
 // Bitmask representing which components an entity has
 // Each bit corresponds to a component type
 using ComponentMask = std::bitset<MAX_COMPONENTS>;
-
-#endif // COMPONENT_MASK_HPP

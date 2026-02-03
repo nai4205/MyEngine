@@ -7,6 +7,7 @@
 
 enum CameraMovement { CAM_FORWARD, CAM_BACKWARD, CAM_LEFT, CAM_RIGHT };
 
+// TODO: seperate logic from data
 class CameraControllerComponent {
 public:
   float movementSpeed;

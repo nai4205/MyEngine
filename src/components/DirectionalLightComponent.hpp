@@ -1,9 +1,7 @@
-#ifndef DIRECTIONAL_LIGHT_COMPONENT_HPP
-#define DIRECTIONAL_LIGHT_COMPONENT_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
-// Directional Light Component - light from a distant source (like the sun)
 struct DirectionalLightComponent {
   glm::vec3 direction;
   glm::vec3 ambient;
@@ -16,5 +14,3 @@ struct DirectionalLightComponent {
                             glm::vec3 spec = glm::vec3(0.5f))
       : direction(dir), ambient(amb), diffuse(diff), specular(spec) {}
 };
-
-#endif // DIRECTIONAL_LIGHT_COMPONENT_HPP

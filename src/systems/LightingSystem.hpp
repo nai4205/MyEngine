@@ -40,6 +40,8 @@ private:
   void applyLightsToShader(Shader *shader) {
     shader->use();
 
+    // TODO: Inefficient because we dont always have all of these types of
+    // lights
     applyDirectionalLight(shader);
     applyPointLights(shader);
     applySpotLight(shader);
@@ -100,7 +102,6 @@ private:
   }
 
   void applySpotLight(Shader *shader) {
-    // Find spotlight and active camera
     SpotLightComponent *spotLight = nullptr;
     TransformComponent *spotTransform = nullptr;
     CameraComponent *activeCamera = nullptr;

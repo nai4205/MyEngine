@@ -2,15 +2,12 @@
 
 #include <glm/glm.hpp>
 
-enum class CameraFollowMode { INSTANT, SMOOTH, DEADZONE };
+enum class CameraFollowMode { INSTANT, SMOOTH };
 
 struct CameraFollowComponent {
   glm::vec3 offset{0.0f};
   float smoothSpeed = 5.0f;
   CameraFollowMode mode = CameraFollowMode::SMOOTH;
-
-  float deadzoneX = 0.0f;
-  float deadzoneZ = 2.0f;
 
   bool followX = false;
   bool followY = false;
@@ -26,10 +23,5 @@ struct CameraFollowComponent {
     followX = x;
     followY = y;
     followZ = z;
-  }
-
-  void setDeadzone(float x, float z) {
-    deadzoneX = x;
-    deadzoneZ = z;
   }
 };

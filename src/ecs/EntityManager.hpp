@@ -1,5 +1,4 @@
-#ifndef ENTITY_MANAGER_HPP
-#define ENTITY_MANAGER_HPP
+#pragma once
 
 #include "Entity.hpp"
 #include <queue>
@@ -37,5 +36,3 @@ public:
 
   uint32_t getLivingEntityCount() const { return livingEntityCount; }
 };
-
-#endif // ENTITY_MANAGER_HPP
