@@ -231,6 +231,28 @@ public:
     return data;
   }
 
+  MeshData createCircleMesh(float radius, int segments) {
+    std::vector<float> verts;
+    for (int i = 0; i < segments; i++) {
+      float a1 = 2.0f * M_PI * i / segments;
+      float a2 = 2.0f * M_PI * (i + 1) / segments;
+      // center: pos(0,0) + texcoord(0.5, 0.5)
+      verts.insert(verts.end(), {0.0f, 0.0f, 0.5f, 0.5f});
+      // edge 1
+      verts.insert(verts.end(),
+                   {radius * cosf(a1), radius * sinf(a1),
+                    (cosf(a1) + 1.0f) * 0.5f, (sinf(a1) + 1.0f) * 0.5f});
+      // edge 2
+      verts.insert(verts.end(),
+                   {radius * cosf(a2), radius * sinf(a2),
+                    (cosf(a2) + 1.0f) * 0.5f, (sinf(a2) + 1.0f) * 0.5f});
+    }
+    std::vector<VertexAttribute> layout = {
+        {0, 4, GL_FLOAT, false, 4 * sizeof(float), (void *)0}};
+    return createMesh(verts.data(), verts.size() * sizeof(float), layout,
+                      segments * 3);
+  }
+
   // ========== FRAMEBUFFERS ==========
   Framebuffer *createFramebuffer(const std::string &name, unsigned int width,
                                  unsigned int height) {

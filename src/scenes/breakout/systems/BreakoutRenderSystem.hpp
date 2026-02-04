@@ -22,7 +22,6 @@ public:
       : screenWidth(width), screenHeight(height) {}
 
   void render() override {
-    // Don't bind framebuffer - PostProcessingSystem controls this
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -48,7 +47,8 @@ public:
             return;
 
           // Skip destroyed powerups
-          PowerUpComponent *powerup = gWorld.getComponent<PowerUpComponent>(entity);
+          PowerUpComponent *powerup =
+              gWorld.getComponent<PowerUpComponent>(entity);
           if (powerup && powerup->destroyed)
             return;
 
@@ -75,6 +75,7 @@ public:
       shader->setVec3("spriteColor", sprite.material->color);
       shader->setFloat("spriteAlpha", sprite.material->alpha);
 
+      shader->setBool("useTexture", sprite.material->useTextures);
       if (sprite.material->useTextures && sprite.material->textures[0] != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, sprite.material->textures[0]);

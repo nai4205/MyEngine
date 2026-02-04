@@ -3,6 +3,7 @@
 #include "scenes/Scene2D.hpp"
 #include "scenes/SceneManager.hpp"
 #include "scenes/breakout/Breakout.hpp"
+#include "scenes/watersim/WaterSim.hpp"
 
 World gWorld;
 GLFWwindow *window = nullptr;
@@ -27,7 +28,8 @@ int main() {
   // sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Breakout>("Breakout", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("Breakout", gWorld);
+  sceneManager.registerScene<WaterSim>("WaterSim", SCR_WIDTH, SCR_HEIGHT);
+  sceneManager.loadScene("WaterSim", gWorld);
 
   engineManager.mainLoop();
 
