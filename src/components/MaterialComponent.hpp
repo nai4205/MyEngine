@@ -24,4 +24,5 @@ struct MaterialComponent {
   bool receivesLighting = true;
   bool hasTransparency = false;
   bool doubleSided = false;
+  bool isCircle = false;
 };

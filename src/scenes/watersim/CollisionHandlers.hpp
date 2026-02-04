@@ -2,7 +2,6 @@
 
 #include "../../components/TransformComponent.hpp"
 #include "../../ecs/World.hpp"
-#include "../breakout/components/Collider2D.hpp"
 #include "components/VelocityComponent.hpp"
 
 extern World gWorld;

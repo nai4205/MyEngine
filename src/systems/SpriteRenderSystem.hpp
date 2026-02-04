@@ -55,6 +55,7 @@ public:
           shader->setVec3("spriteColor", material.color);
           shader->setFloat("spriteAlpha", material.alpha);
           shader->setBool("useTexture", material.useTextures);
+          shader->setBool("isCircle", material.isCircle);
 
           if (material.useTextures && material.textures[0] != 0) {
             glActiveTexture(GL_TEXTURE0);

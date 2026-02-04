@@ -39,6 +39,7 @@ struct VertexAttribute {
 
 class ResourceManager {
 public:
+  // Singleton
   static ResourceManager &instance() {
     static ResourceManager inst;
     return inst;
