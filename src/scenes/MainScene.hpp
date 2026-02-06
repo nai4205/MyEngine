@@ -1,5 +1,16 @@
 #pragma once
 
+#include "../systems/CameraControllerSystem.hpp"
+#include "../systems/CameraFollowSystem.hpp"
+#include "../systems/CameraSystem.hpp"
+#include "../systems/CompositeRenderSystem.hpp"
+#include "../systems/LightingSystem.hpp"
+#include "../systems/PhysicsSystem.hpp"
+#include "../systems/PlayerControllerSystem.hpp"
+#include "../systems/RenderSystem.hpp" // Now OpaqueRenderSystem
+#include "../systems/SkyboxSystem.hpp"
+#include "../systems/TransparentRenderSystem.hpp"
+
 #include "../components/CameraComponent.hpp"
 #include "../components/CameraControllerComponent.hpp"
 #include "../components/DirectionalLightComponent.hpp"
@@ -23,7 +34,38 @@ public:
   MainScene(float width, float height)
       : screenWidth(width), screenHeight(height) {}
 
+  void initComponents(World &world) {
+    world.registerComponent<TransformComponent>();
+    world.registerComponent<MeshComponent>();
+    world.registerComponent<MaterialComponent>();
+    world.registerComponent<PhysicsComponent>();
+    world.registerComponent<CameraComponent>();
+    world.registerComponent<CameraControllerComponent>();
+    world.registerComponent<TagComponent>();
+    world.registerComponent<NameComponent>();
+    world.registerComponent<DirectionalLightComponent>();
+    world.registerComponent<PointLightComponent>();
+    world.registerComponent<PlayerControllerComponent2D>();
+    world.registerComponent<SpotLightComponent>();
+    world.registerComponent<SceneComponent>();
+  }
+
+  void initSystems(World &world, float width, float height) {
+    world.addSystem<CameraControllerSystem>();
+    world.addSystem<PlayerControllerSystem>();
+    world.addSystem<PhysicsSystem>();
+    world.addSystem<CameraFollowSystem>();
+    world.addSystem<CameraSystem>();
+    world.addSystem<LightingSystem>();
+    world.addSystem<OpaqueRenderSystem>(width, height);
+    world.addSystem<SkyboxSystem>(width, height);
+    world.addSystem<TransparentRenderSystem>(width, height);
+    world.addSystem<CompositeRenderSystem>(width, height);
+  }
+
   void load(World &world) override {
+    initComponents(world);
+    initSystems(world, screenWidth, screenHeight);
     Entity sceneEntity = world.createEntity();
     SceneComponent sceneComp = SceneComponent("main");
     sceneComp.clearColor = getClearColor();

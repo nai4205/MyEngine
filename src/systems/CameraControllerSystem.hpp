@@ -92,7 +92,7 @@ private:
                    PhysicsComponent *physics) {
     bool spacePressed = input.isKeyPressed(GLFW_KEY_SPACE);
 
-    if (spacePressed && !spaceWasPressed) {
+    if (spacePressed) {
       controller.processJump(physics);
     }
 

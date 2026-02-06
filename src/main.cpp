@@ -25,11 +25,11 @@ int main() {
   engineManager.init();
 
   auto &sceneManager = SceneManager::instance();
-  // sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
+  sceneManager.registerScene<MainScene>("main", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Scene2D>("Scene2D", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<Breakout>("Breakout", SCR_WIDTH, SCR_HEIGHT);
   sceneManager.registerScene<WaterSim>("WaterSim", SCR_WIDTH, SCR_HEIGHT);
-  sceneManager.loadScene("WaterSim", gWorld);
+  sceneManager.loadScene("main", gWorld);
 
   engineManager.mainLoop();
 
